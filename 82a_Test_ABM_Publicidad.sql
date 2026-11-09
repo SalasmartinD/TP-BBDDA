@@ -133,7 +133,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.2: No detectó país inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%pa%s con id%no existe%'
         PRINT '[OK] PRUEBA 1.2: Error país inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.2: Error inesperado -> ' + ERROR_MESSAGE();
@@ -147,7 +147,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.3: No detectó nombre duplicado.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%Ya existe un anunciante%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%Ya existe un anunciante con el nombre%'
         PRINT '[OK] PRUEBA 1.3: Error nombre duplicado capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.3: Error inesperado -> ' + ERROR_MESSAGE();
@@ -184,7 +184,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.5: No detectó anunciante inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%anunciante con id%no existe%'
         PRINT '[OK] PRUEBA 1.5: Error anunciante inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.5: Error inesperado -> ' + ERROR_MESSAGE();
@@ -202,7 +202,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.6: Permitió borrar anunciante con campaña activa.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%activas%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%campa%as activas%'
         PRINT '[OK] PRUEBA 1.6: Error baja con campañas activas capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.6: Error inesperado -> ' + ERROR_MESSAGE();
@@ -286,7 +286,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 2.3: No detectó anunciante inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%anunciante con id%no existe%'
         PRINT '[OK] PRUEBA 2.3: Error anunciante inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 2.3: Error inesperado -> ' + ERROR_MESSAGE();
@@ -420,7 +420,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 4.2: No detectó ID duplicado en Ubicación.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ubicaci%n%id 91%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%con id 91%'
         PRINT '[OK] PRUEBA 4.2: Error ID duplicado capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 4.2: Error inesperado -> ' + ERROR_MESSAGE();
@@ -510,7 +510,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 5.2: Permitió asignar dos piezas a la misma ubicación en un partido.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ocupada%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ya est% ocupada%'
         PRINT '[OK] PRUEBA 5.2: Error ubicación ocupada capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 5.2: Error inesperado -> ' + ERROR_MESSAGE();
