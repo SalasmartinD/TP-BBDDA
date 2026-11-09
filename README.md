@@ -6,8 +6,8 @@ Universidad Nacional de La Matanza · 3641 – Bases de Datos Aplicada · Comisi
 | Integrante | Usuario de GitHub | Área |
 |---|---|---|
 | Salas, Martín Daniel | [@SalasmartinD](https://github.com/SalasmartinD) | Persona 1: Torneo, Equipos y APIs |
+| Zito Padró, Ezequiel Nehuén | [@ezezito](https://github.com/ezezito) | Persona 2: Partidos en juego y Arbitraje |
 | Pereira, Marcos Nahuel | _completar_ | _a definir_ |
-| Zito Padró, Ezequiel Nehuén | _completar_ | _a definir_ |
 
 La división de tareas completa está en [`docs/Division_de_Tareas_TP_Mundial.pdf`](docs/Division_de_Tareas_TP_Mundial.pdf) y la consigna en [`docs/Consigna_TP.pdf`](docs/Consigna_TP.pdf).
 
