@@ -1,0 +1,377 @@
+// =============================================================================
+// DER - MundialFutbol (generado a partir de TP-BBDDA/00_InitialSchema.sql)
+// Pegar en https://dbdiagram.io (sintaxis DBML)
+// Esquemas: Torneo, Equipos, Arbitraje, Eventos, Publicidad, Sistema
+// Los CHECK de lista cerrada figuran en las notas de cada columna.
+// =============================================================================
+
+// ------------------------------- TORNEO --------------------------------------
+
+//Tabla Pais: tambien guarda mercados/paises que no participan del mundial (PBI, moneda)
+Table Torneo.Pais {
+  id int [pk, increment]
+  nombre nvarchar(60) [not null, unique]
+  codigoISO2 char(2) [not null, unique]
+  codigoISO3 char(3) [not null, unique]
+  husoHorario varchar(50)
+  moneda char(3)
+  pbiPerCapita decimal(12,2) [note: 'CHECK >= 0']
+  poblacion bigint [note: 'CHECK >= 0']
+}
+
+Table Torneo.Fase {
+  idFase int [pk, note: 'catalogo: ids cargados a mano']
+  nombre varchar(60) [not null, unique]
+  esEliminatoria bit [not null]
+  orden int [not null, note: 'CHECK > 0. 1 = grupos, 2 = dieciseisavos, ...']
+}
+
+Table Torneo.Periodo {
+  idPeriodo tinyint [pk, note: 'catalogo: ids cargados a mano']
+  nombre varchar(30) [not null, unique]
+  orden tinyint [not null, unique]
+}
+
+Table Torneo.Sede {
+  idSede int [pk, increment]
+  nombreEstadio nvarchar(80) [not null]
+  ciudad nvarchar(60) [not null]
+  idPais int [not null, ref: > Torneo.Pais.id]
+  capacidad int [note: 'CHECK > 0']
+  husoHorario varchar(50) [not null, note: 'zona de Windows (sys.time_zone_info)']
+  latitud decimal(9,6) [note: 'CHECK entre -90 y 90']
+  longitud decimal(9,6) [note: 'CHECK entre -180 y 180']
+
+  indexes {
+    (nombreEstadio, ciudad) [unique]
+  }
+}
+
+Table Torneo.Partido {
+  idPartido int [pk, increment]
+  nroPartidoOficial int [note: 'numero FIFA, clave natural para el upsert. CHECK > 0']
+  idSede int [not null, ref: > Torneo.Sede.idSede]
+  idSeleccionLocal int [not null, ref: > Equipos.Seleccion.id]
+  idSeleccionVisitante int [not null, ref: > Equipos.Seleccion.id]
+  fase int [not null, ref: > Torneo.Fase.idFase]
+  fechaHoraUTC datetime2(0) [not null, note: 'la hora local se calcula con AT TIME ZONE']
+  estado varchar(15) [not null, note: 'CHECK IN (Programado, En juego, Finalizado, Suspendido)']
+  cantPublico int [note: 'CHECK >= 0']
+  golVisitante tinyint
+  golLocal tinyint
+  esquemaLocal varchar(10) [note: "ej. '4-3-3', '4-2-3-1'"]
+  esquemaVisitante varchar(10)
+
+  indexes {
+    nroPartidoOficial [unique, name: 'UX_Partido_NroPartidoOficial', note: 'filtrado: WHERE nroPartidoOficial IS NOT NULL']
+  }
+
+  Note: '''
+  CHECK: idSeleccionLocal <> idSeleccionVisitante.
+  CHECK: si estado = Finalizado, golLocal y golVisitante no pueden ser NULL.
+  '''
+}
+
+// ------------------------------- EQUIPOS -------------------------------------
+
+Table Equipos.Seleccion {
+  id int [pk, increment]
+  idPais int [not null, unique, ref: > Torneo.Pais.id]
+  confederacion varchar(10) [note: 'CHECK IN (AFC, CAF, CONCACAF, CONMEBOL, OFC, UEFA)']
+  nombreAsociacion nvarchar(100)
+  abreviacion char(3) [note: 'codigo FIFA (ARG, GER, NED...)']
+  grupo char(1) [note: 'CHECK entre A y L']
+}
+
+Table Equipos.Jugador {
+  id int [pk, increment]
+  nombre nvarchar(60) [not null]
+  apellido nvarchar(60) [not null]
+  fechaNacimiento date
+  altura decimal(5,2) [note: 'metros. CHECK entre 1.40 y 2.20']
+  peso decimal(5,2) [note: 'kg. CHECK entre 40 y 130']
+  piernaHabil varchar(15) [note: 'CHECK IN (Izquierda, Derecha, Ambidiestro)']
+  club nvarchar(80)
+  posicion varchar(15) [note: 'posicion habitual. CHECK IN (Arquero, Defensor, Mediocampista, Delantero)']
+}
+
+Table Equipos.Staff {
+  id int [pk, increment]
+  idSeleccion int [not null, ref: > Equipos.Seleccion.id]
+  nombre nvarchar(60) [not null]
+  apellido nvarchar(60) [not null]
+  fechaNacimiento date
+  rol varchar(20) [not null, note: 'CHECK IN (Director Principal, Ayudante, Preparador Fisico, Medico)']
+}
+
+Table Equipos.ListadoJugadores {
+  id int [pk, increment]
+  idSeleccion int [not null, ref: > Equipos.Seleccion.id]
+  idJugador int [not null, ref: > Equipos.Jugador.id]
+  fechaAlta date [not null]
+  fechaBaja date [note: 'NULL = sigue convocado. CHECK fechaBaja >= fechaAlta']
+  motivoBaja varchar(100) [note: 'obligatorio si hay fechaBaja']
+  dorsal tinyint [not null, note: 'CHECK entre 1 y 99']
+  idReemplazaA int [ref: > Equipos.ListadoJugadores.id, note: 'a quien reemplaza (ej. por lesion). CHECK <> id']
+
+  indexes {
+    (idSeleccion, dorsal) [unique, name: 'UX_ListadoJugadores_DorsalActivo', note: 'filtrado: WHERE fechaBaja IS NULL']
+    idJugador [unique, name: 'UX_ListadoJugadores_JugadorActivo', note: 'filtrado: WHERE fechaBaja IS NULL']
+  }
+}
+
+// ------------------------------- ARBITRAJE -----------------------------------
+
+Table Arbitraje.Arbitro {
+  idArbitro int [pk, increment]
+  idPais int [not null, ref: > Torneo.Pais.id]
+  nombre nvarchar(60) [not null]
+  apellido nvarchar(60) [not null]
+  categoria varchar(15) [not null, note: 'CHECK IN (FIFA, Confederacion)']
+  genero varchar(20)
+  fechaInternacional date
+}
+
+Table Arbitraje.ArbitroIdioma {
+  idArbitro int [not null, ref: > Arbitraje.Arbitro.idArbitro]
+  idioma char(2) [not null, note: "ISO 639-1: 'es', 'en', 'fr'. CHECK [a-z][a-z]"]
+
+  indexes {
+    (idArbitro, idioma) [pk]
+  }
+}
+
+Table Arbitraje.cuerpoArbitral {
+  id int [pk, increment]
+  idArbitro int [not null, ref: > Arbitraje.Arbitro.idArbitro]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  rol varchar(15) [not null, note: 'CHECK IN (Principal, Asistente 1, Asistente 2, Cuarto Arbitro, VAR)']
+
+  indexes {
+    (idPartido, rol) [unique, note: 'un arbitro por rol']
+    (idPartido, idArbitro) [unique, note: 'un rol por arbitro']
+  }
+}
+
+//Sanciones e informes post-partido que recibe cada arbitro
+Table Arbitraje.InformeArbitral {
+  id int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idArbitro int [not null, ref: > Arbitraje.Arbitro.idArbitro]
+  fecha date [not null]
+  esSancion bit [not null, note: '1 = sancion, 0 = informe']
+  detalle nvarchar(500)
+}
+
+// ------------------------------- EVENTOS -------------------------------------
+
+Table Eventos.FormacionPartido {
+  id int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idSeleccion int [not null, ref: > Equipos.Seleccion.id]
+  idJugador int [not null, ref: > Equipos.Jugador.id]
+  titular bit [not null, note: '1 = titular, 0 = suplente']
+  posicion varchar(15) [note: 'CHECK IN (Arquero, Defensor, Mediocampista, Delantero)']
+
+  indexes {
+    (idPartido, idJugador) [unique, note: 'un jugador aparece una sola vez por partido']
+  }
+}
+
+Table Eventos.Gol {
+  idGol int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idJugador int [not null, ref: > Equipos.Jugador.id]
+  idAsistidor int [ref: > Equipos.Jugador.id, note: 'CHECK <> idJugador']
+  minuto tinyint [note: 'NULL en la definicion por penales. CHECK entre 0 y 120']
+  minutoAdicional tinyint [note: 'el "2" de 45+2. Solo si minuto IN (45, 90, 105, 120)']
+  tipo varchar(20) [not null]
+  idPeriodo tinyint [not null, ref: > Torneo.Periodo.idPeriodo]
+}
+
+Table Eventos.Tarjeta {
+  idTarjeta int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idJugador int [ref: > Equipos.Jugador.id]
+  idStaff int [ref: > Equipos.Staff.id]
+  idPeriodo tinyint [not null, ref: > Torneo.Periodo.idPeriodo]
+  color char(1) [not null, note: "'A' amarilla, 'R' roja"]
+  minuto tinyint [not null, note: 'CHECK entre 0 y 120']
+  minutoAdicional tinyint [note: 'Solo si minuto IN (45, 90, 105, 120)']
+  motivo varchar(80)
+  tipoRoja varchar(15) [note: "NULL si es amarilla; si es roja: 'Directa' o 'Doble amarilla'"]
+
+  Note: 'CHECK: exactamente uno de idJugador / idStaff no es NULL.'
+}
+
+Table Eventos.Sustitucion {
+  id int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idIngresa int [not null, ref: > Equipos.Jugador.id]
+  idSale int [not null, ref: > Equipos.Jugador.id]
+  idPeriodo tinyint [not null, ref: > Torneo.Periodo.idPeriodo]
+  minuto tinyint [not null, note: 'CHECK entre 0 y 120']
+  minutoAdicional tinyint [note: 'Solo si minuto IN (45, 90, 105, 120)']
+  motivo varchar(15) [not null, note: 'CHECK IN (Tactico, Lesion, Precaucion)']
+
+  Note: 'CHECK: idIngresa <> idSale.'
+}
+
+Table Eventos.Suspension {
+  id int [pk, increment]
+  idPartido int [not null, ref: > Torneo.Partido.idPartido, note: 'partido donde se genero la suspension']
+  idJugador int [ref: > Equipos.Jugador.id]
+  idStaff int [ref: > Equipos.Staff.id]
+  cantPartidos tinyint [not null, note: 'CHECK > 0']
+  partidosRestantes tinyint [not null, note: 'CHECK <= cantPartidos']
+
+  Note: 'CHECK: exactamente uno de idJugador / idStaff no es NULL.'
+}
+
+// ------------------------------- PUBLICIDAD ----------------------------------
+// Las publicidades se proponen para todo el torneo. Una tabla guarda la
+// informacion y otra (ExhibicionPublicitaria) las que se usaron en cada partido.
+
+Table Publicidad.Anunciante {
+  id int [pk, increment]
+  nombre nvarchar(100) [not null, unique]
+  rubro varchar(50)
+  idPais int [not null, ref: > Torneo.Pais.id]
+  monedaFacturacion char(3) [not null, default: 'USD']
+}
+
+Table Publicidad.Campania {
+  idCampania int [pk, increment]
+  idAnunciante int [not null, ref: > Publicidad.Anunciante.id]
+  nombre nvarchar(60) [not null]
+  fechaInicio date [not null]
+  fechaFin date [not null, note: 'CHECK fechaFin >= fechaInicio']
+}
+
+Table Publicidad.PiezaContenido {
+  id int [pk, increment]
+  idCampania int [not null, ref: > Publicidad.Campania.idCampania]
+  descripcion nvarchar(80) [not null]
+  idioma char(2) [not null, note: "ISO 639-1: 'es', 'en', 'pt'. CHECK [a-z][a-z]"]
+}
+
+//Permite tener una campania dirigida a varios paises
+Table Publicidad.PiezaMercado {
+  idPieza int [not null, ref: > Publicidad.PiezaContenido.id]
+  idPais int [not null, ref: > Torneo.Pais.id]
+
+  indexes {
+    (idPieza, idPais) [pk]
+  }
+}
+
+Table Publicidad.UbicacionPublicitaria {
+  idUbicacion tinyint [pk, note: 'catalogo: ids cargados a mano']
+  nombre varchar(50) [not null, unique, note: 'Cartel principal, Perimetral norte, Pantalla gigante...']
+  descripcion varchar(200)
+}
+
+Table Publicidad.Tarifa {
+  idFase int [not null, ref: > Torneo.Fase.idFase]
+  idUbicacion tinyint [not null, ref: > Publicidad.UbicacionPublicitaria.idUbicacion]
+  montoUSD decimal(12,2) [not null, note: 'CHECK > 0']
+
+  indexes {
+    (idFase, idUbicacion) [pk]
+  }
+}
+
+Table Publicidad.ExhibicionPublicitaria {
+  idPartido int [not null, ref: > Torneo.Partido.idPartido]
+  idPieza int [not null, ref: > Publicidad.PiezaContenido.id]
+  idUbicacion tinyint [not null, ref: > Publicidad.UbicacionPublicitaria.idUbicacion]
+  criterioAplicado tinyint [not null, note: '1 pais que juega, 2 PBI, 3 prime time. CHECK entre 1 y 3']
+  estado varchar(15) [not null, note: 'CHECK IN (Propuesta, Confirmada, Exhibida)']
+  montoUSD decimal(12,2) [not null, note: 'foto de la tarifa al asignar. CHECK > 0']
+
+  indexes {
+    (idPartido, idUbicacion) [pk]
+    (idPartido, idPieza) [unique]
+  }
+
+  Note: 'El maximo de 4 ubicaciones por partido se valida en el SP de asignacion.'
+}
+
+//Cotizaciones obtenidas de la API Frankfurter (facturacion en otras monedas)
+Table Publicidad.TipoCambio {
+  moneda char(3) [not null, note: 'ISO 4217. CHECK [A-Z][A-Z][A-Z]']
+  fecha date [not null]
+  cotizacionUSD decimal(18,6) [not null, note: 'unidades de la moneda por 1 USD. CHECK > 0']
+
+  indexes {
+    (moneda, fecha) [pk]
+  }
+}
+
+// ------------------------------- SISTEMA -------------------------------------
+
+//Reglas configurables del reglamento (modulos B, D, F y H)
+Table Sistema.Parametro {
+  clave varchar(50) [pk, note: 'AMARILLAS_SUSPENSION, MAX_CAMBIOS, MAX_VENTANAS, CAMBIO_EXTRA_ALARGUE, MIN_CONVOCADOS, MAX_CONVOCADOS, PRIME_TIME_INICIO, PRIME_TIME_FIN, MAX_ESPACIOS_PARTIDO']
+  valor int [not null, note: 'CHECK >= 0']
+  descripcion varchar(200)
+}
+
+//Filas invalidas de las importaciones (el resto se importa igual)
+Table Sistema.ErrorImportacion {
+  id int [pk, increment]
+  fechaHora datetime2(0) [not null, default: `SYSDATETIME()`]
+  archivo nvarchar(260) [not null, note: 'nombre recibido por parametro']
+  tablaDestino varchar(100) [not null]
+  nroFila int
+  datoOriginal nvarchar(max) [note: 'la fila tal como venia']
+  mensajeError nvarchar(4000) [not null]
+}
+
+// ------------------------------- GRUPOS --------------------------------------
+
+TableGroup Torneo {
+  Torneo.Pais
+  Torneo.Fase
+  Torneo.Periodo
+  Torneo.Sede
+  Torneo.Partido
+}
+
+TableGroup Equipos {
+  Equipos.Seleccion
+  Equipos.Jugador
+  Equipos.Staff
+  Equipos.ListadoJugadores
+}
+
+TableGroup Arbitraje {
+  Arbitraje.Arbitro
+  Arbitraje.ArbitroIdioma
+  Arbitraje.cuerpoArbitral
+  Arbitraje.InformeArbitral
+}
+
+TableGroup Eventos {
+  Eventos.FormacionPartido
+  Eventos.Gol
+  Eventos.Tarjeta
+  Eventos.Sustitucion
+  Eventos.Suspension
+}
+
+TableGroup Publicidad {
+  Publicidad.Anunciante
+  Publicidad.Campania
+  Publicidad.PiezaContenido
+  Publicidad.PiezaMercado
+  Publicidad.UbicacionPublicitaria
+  Publicidad.Tarifa
+  Publicidad.ExhibicionPublicitaria
+  Publicidad.TipoCambio
+}
+
+TableGroup Sistema {
+  Sistema.Parametro
+  Sistema.ErrorImportacion
+}

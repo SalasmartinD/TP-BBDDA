@@ -1,0 +1,279 @@
+enum piernaHabil {
+  "Izquierda"
+  "Derecha"
+  "Ambidiestro"
+}
+
+enum posiciones {
+  "Arquero"
+  "Defensor"
+  "Mediocampista"
+  "Delantero"
+}
+
+enum rolTecnico {
+  "Director Principal"
+  "Ayudante"
+  "Preparador Fisico"
+  "Medico"
+}
+
+enum rolArbitral {
+  "Principal"
+  "Asistente 1"
+  "Asistente 2"
+  "Cuarto Arbitro"
+  "VAR"
+}
+
+enum motivoSustitucion {
+  "Tactico"
+  "Lesion"
+  "Precaucion"
+}
+
+Table Sede {
+  idSede int [pk]
+  nombreEstadio varchar(80) [not null]
+  ciudad varchar(60) [not null]
+  idPais int [not null, ref: >  Pais.id]
+  capacidad int
+  husoHorario varchar(50) [not null]
+  latitud decimal(9,6)
+  longitud decimal(9,6 )
+}
+
+table Fase {
+  idFase int [pk]
+  nombre varchar(60) [not null, unique]
+  esEliminatoria bool
+  orden int
+}
+
+//Se crea tabla pais para poner PBI y mercados que no participen en el mundial
+Table Pais {
+  id int [pk]
+  nombre varchar(60) [not null, unique]
+  codigoISO2 char(2) [not null, unique]   
+  codigoISO3 char(3) [not null, unique]  
+  husoHorario varchar(50)                 
+  moneda char(3)                          
+  pbiPerCapita decimal(12,2)
+  poblacion bigint
+}
+
+Table Seleccion {
+  id int [primary key]
+  idPais int [not null, ref:> Pais.id]
+  confederacion varchar
+  nombreAsociacion varchar
+  abreviacion char(3)
+  grupo char(1)
+}
+
+Table Jugador {
+  id int [primary key]
+  nombre varchar
+  apellido varchar 
+  fechaNacimiento date
+  altura double(5,2)
+  peso double(5,2)
+  piernaHabil piernaHabil
+  club varchar
+  posicion posiciones
+}
+
+Table Arbitro {
+  idArbitro int [primary key]
+  idPais int [not null, ref: > Pais.id]
+  nombre varchar
+  apellido varchar
+  genero varchar
+  fechaInternacional datetime
+}
+
+Table ArbitroIdioma {
+  idArbitro int [ref: > Arbitro.idArbitro]
+  idioma char(2) //'es', 'en', 'fr'
+  indexes {
+    (idArbitro, idioma) [pk] // el mismo idioma no se carga dos veces para un árbitro
+  }
+}
+
+Table Staff {
+  id int [primary key]
+  idSeleccion int [not null, ref :> Seleccion.id]
+  nombre varchar
+  apellido varchar
+  fechaNacimiento datetime
+  rol rolTecnico
+}
+
+Table Partido {
+  idPartido int [primary key]
+  idSede int [not null, ref:> Sede.idSede]
+  idSeleccionLocal int [not null, ref:> Seleccion.id]
+  idSeleccionVisitante int [not null, ref:> Seleccion.id] 
+  fase int [not null, ref:> Fase.idFase]
+  fechaHoraUTC datetime [not null]
+  estado varchar(15) [not null]
+  cantPublico int
+  golVisitante tinyint
+  golLocal tinyint
+  esquemaLocal varchar(10)
+  esquemaVisitante varchar(10)
+}
+//Se debe tener un calendario de partidos futuros?
+//Como diferenciamos un partido que ya se jugo de uno que no?
+ 
+Table ListadoJugadores {
+  id int [pk]
+  idSeleccion int [not null, ref:> Seleccion.id]
+  idJugador int [not null, ref: > Jugador.id]
+  fechaAlta datetime [not null]
+  fechaBaja datetime //si es null sigue convocado
+  motivoBaja varchar(100)
+  dorsal tinyint
+  idReemplazaA int [ref:>? ListadoJugadores.id]
+}
+
+Table cuerpoArbitral {
+  id int [pk]
+  idArbitro int [not null, ref:> Arbitro.idArbitro]
+  idPartido int [not null, ref:> Partido.idPartido]
+  rol rolArbitral [not null]
+  indexes {
+     (idPartido, rol) [unique]
+     (idPartido, idArbitro) [unique]
+   }
+}
+
+Table Gol{
+  idGol int [pk]
+  idPartido int [not null, ref:> Partido.idPartido]
+  idJugador int [not null, ref:> Jugador.id]
+  idAsistidor int [ref:>? Jugador.id]
+  minuto tinyint
+  minutoAdicional tinyint
+  tipo varchar
+  idPeriodo tinyint [not null, ref:> Periodo.idPeriodo] 
+}
+
+Table Periodo {
+  idPeriodo tinyint [pk]
+  nombre varchar(30) [not null, unique]
+  orden tinyint [not null]
+}
+
+Table Tarjeta{
+  idTarjeta int [pk]
+  idPartido int [not null, ref:> Partido.idPartido]
+  idJugador int [ref:> Jugador.id]
+  idStaff int [ref: > Staff.id]
+  idPeriodo tinyint [not null, ref:> Periodo.idPeriodo]
+  color char(1) [not null]
+  minuto tinyint
+  minutoAdicional tinyint
+  motivo varchar(80)
+  tipoRoja varchar
+}
+//Armar una tabla de motivos? Para realizar la parametrizacion de los mismos
+ 
+Table Sustitucion{
+  id int [pk]
+  idPartido int [not null, ref:> Partido.idPartido]
+  idIngresa int [not null, ref:> Jugador.id]
+  idSale int [not null, ref:> Jugador.id]
+  idPeriodo tinyint [not null, ref:> Periodo.idPeriodo]
+  minuto tinyint [not null]
+  minutoAdicional tinyint
+  motivo motivoSustitucion [not null]
+}
+
+Table FormacionPartido{
+  id int [pk]
+  idPartido int [not null, ref:> Partido.idPartido]
+  idSeleccion int [not null, ref:> Seleccion.id]
+  idJugador int [not null, ref:> Jugador.id]
+  titular bit [not null]
+  posicion posiciones
+  indexes {
+    (idPartido, idJugador) [unique] // un jugador aparece una sola vez por partido
+  } 
+}
+//Unificar Formacion con esta tabla, indicando la posicion en la que jugo el jugador para ese partido, permitiendo mediante calculos obtener el esquema utilizado.
+
+
+//PUBLICIDADES
+/*
+2 Tablas: Una que simplemente guarde la informacion de las publicidades y otra que almacene las que verdaderamente se utilizaron en cada partido
+(Las publicidades se proponen para todo el torneo)
+*/
+
+Table Anunciante {
+  id int [pk]
+  nombre varchar(100) [not null, unique]
+  rubro varchar(50)
+  idPais int [not null, ref: > Pais.id]
+  monedaFacturacion char(3) [not null, default: 'USD']
+}
+
+Table Campania {
+  idCampania int [pk]
+  idAnunciante int [not null, ref: > Anunciante.id]
+  nombre varchar(60) [not null]
+  fechaInicio date [not null]
+  fechaFin date [not null] // confirmar con logica que sea mayor a fecha inicio
+}
+
+Table PiezaContenido {
+  id int [pk]
+  idCampania int [not null, ref: > Campania.idCampania]
+  descripcion varchar(80) [not null]
+  idioma char(2) [not null]
+}
+
+Table Suspension{
+  id int [pk]
+  idPartido int [not null, ref :> Partido.idPartido]
+  idJugador int [ref :> Jugador.id]
+  idStaff int [ref: > Staff.id] 
+  cantPartidos tinyint
+  partidosRestantes tinyint
+}//deberiamos agregar el campo idStaff, que junto a idJugador puedan ser null y verificar en la transaccion que los dos no sean null
+
+//Separar piezas de contenido por idioma o mercado y su costo asociado
+//Permite tener una campania dirigida a varios paises 
+
+Table PiezaMercado {
+  idPieza int [ref: > PiezaContenido.id]
+  idPais int [ref: > Pais.id]
+  indexes { (idPieza, idPais) [pk] }
+}
+
+Table UbicacionPublicitaria {
+  idUbicacion tinyint [pk]
+  nombre varchar(50) [not null, unique] // Cartel principal, Perimetral norte, Pantalla gigante
+  descripcion varchar(200)
+}
+
+Table Tarifa {
+  idFase int [ref: > Fase.idFase]
+  idUbicacion tinyint [ref: > UbicacionPublicitaria.idUbicacion]
+  montoUSD decimal(12,2) [not null]
+  indexes { (idFase, idUbicacion) [pk] }
+}
+
+Table ExhibicionPublicitaria {
+  idPartido int [ref: > Partido.idPartido]
+  idUbicacion tinyint [ref: > UbicacionPublicitaria.idUbicacion]
+  idPieza int [not null, ref: > PiezaContenido.id]
+  criterioAplicado tinyint [not null] // 1 país que juega, 2 PBI, 3 prime time
+  estado varchar(15) [not null] // Propuesta, Confirmada, Exhibida
+  montoUSD decimal(12,2) [not null] // foto de la tarifa al asignar
+  indexes {
+    (idPartido, idUbicacion) [pk]
+    (idPartido, idPieza) [unique]
+  }
+}
+
