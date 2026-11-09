@@ -46,14 +46,16 @@ Cada script empieza con dos dígitos que indican el orden de ejecución. Cada un
 | Tipo de script | Persona 1 | Persona 2 | Persona 3 |
 |---|---|---|---|
 | Base, esquemas, tablas y restricciones | `00` (compartido) | | |
-| SP de ABM | `10` | `11` | `12` |
-| SP de negocio | `20` | `21` | `22` |
-| Vistas y funciones | `30` | `31` | `32` |
+| SP de ABM | `10` ✅ | `11` ✅ | `12` |
+| SP de negocio | `20` ✅ | `21` | `22` |
+| Vistas y funciones | `30` ✅ | `31` | `32` |
 | Importación | `40` (CSV) · `43` (APIs) | `41` (scraping) | |
-| Carga de datos | `50` (corre primero) | `51` | `52` |
+| Carga de datos | `50` (corre primero) ✅ | `51` | `52` |
 | Reportes | `60` | `61` | `62` |
 | Seguridad | `70` (cifrado) | | `71` (roles) |
-| Testing | `80` | `81` | `82` |
+| Testing | `80` ✅ | `81` ✅ | `82` |
+
+El ✅ marca los scripts terminados.
 
 El nombre completo sigue el formato `NN_DescripcionEnPascalCase.sql`, por ejemplo `10_ABM_TorneoEquipos.sql` o `81_Test_EventosArbitraje.sql`. Si un archivo crece mucho, lo podemos partir agregando una letra: `21a_Formaciones.sql`, `21b_Tarjetas.sql`.
 
