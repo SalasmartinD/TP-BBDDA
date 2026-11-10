@@ -15,6 +15,8 @@
                - Torneo.Periodo
                - Torneo.Sede
                - Torneo.Partido
+               y la función Torneo.fn_EsquemaTacticoValido, que usan los SP de
+               Torneo.Partido para validar el esquema táctico.
 
  Estándares aplicados:
  - Cada SP revisa todas las condiciones, acumula las que fallan en @errores
@@ -579,6 +581,21 @@ GO
      10 jugadores de campo (por ejemplo 4-3-3 o 4-2-3-1).
    ============================================================================= */
 
+-- 5.0 FUNCIÓN: valida el formato de un esquema táctico (la usan el alta y la
+-- modificación de partido). Devuelve 1 si es válido y 0 si no lo es o es NULL.
+CREATE OR ALTER FUNCTION Torneo.fn_EsquemaTacticoValido (@esquema varchar(10))
+RETURNS bit
+AS
+BEGIN
+    IF @esquema IS NULL
+       OR @esquema NOT LIKE '[1-9]-%[1-9]' OR @esquema LIKE '%[^1-9-]%'
+       OR @esquema LIKE '%--%' OR @esquema LIKE '%[0-9][0-9]%'
+       OR (SELECT SUM(TRY_CAST(value AS int)) FROM STRING_SPLIT(@esquema, '-')) <> 10
+        RETURN 0;
+    RETURN 1;
+END
+GO
+
 -- 5.1 ALTA DE PARTIDO
 CREATE OR ALTER PROCEDURE Torneo.Partido_Alta
     @idSede                int,
@@ -640,16 +657,10 @@ BEGIN
     ELSE IF EXISTS (SELECT 1 FROM Torneo.Sede WHERE idSede = @idSede AND @cantPublico > capacidad)
         SET @errores += CHAR(10) + N'- La cantidad de público supera la capacidad de la sede.';
 
-    IF @esquemaLocal IS NOT NULL
-       AND (@esquemaLocal NOT LIKE '[1-9]-%[1-9]' OR @esquemaLocal LIKE '%[^1-9-]%'
-            OR @esquemaLocal LIKE '%--%' OR @esquemaLocal LIKE '%[0-9][0-9]%'
-            OR (SELECT SUM(TRY_CAST(value AS int)) FROM STRING_SPLIT(@esquemaLocal, '-')) <> 10)
+    IF @esquemaLocal IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquemaLocal) = 0
         SET @errores += CHAR(10) + N'- El esquema local debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
-    IF @esquemaVisitante IS NOT NULL
-       AND (@esquemaVisitante NOT LIKE '[1-9]-%[1-9]' OR @esquemaVisitante LIKE '%[^1-9-]%'
-            OR @esquemaVisitante LIKE '%--%' OR @esquemaVisitante LIKE '%[0-9][0-9]%'
-            OR (SELECT SUM(TRY_CAST(value AS int)) FROM STRING_SPLIT(@esquemaVisitante, '-')) <> 10)
+    IF @esquemaVisitante IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquemaVisitante) = 0
         SET @errores += CHAR(10) + N'- El esquema visitante debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
     IF @fechaHoraUTC IS NOT NULL
@@ -749,16 +760,10 @@ BEGIN
     ELSE IF EXISTS (SELECT 1 FROM Torneo.Sede WHERE idSede = @idSede AND @cantPublico > capacidad)
         SET @errores += CHAR(10) + N'- La cantidad de público supera la capacidad de la sede.';
 
-    IF @esquemaLocal IS NOT NULL
-       AND (@esquemaLocal NOT LIKE '[1-9]-%[1-9]' OR @esquemaLocal LIKE '%[^1-9-]%'
-            OR @esquemaLocal LIKE '%--%' OR @esquemaLocal LIKE '%[0-9][0-9]%'
-            OR (SELECT SUM(TRY_CAST(value AS int)) FROM STRING_SPLIT(@esquemaLocal, '-')) <> 10)
+    IF @esquemaLocal IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquemaLocal) = 0
         SET @errores += CHAR(10) + N'- El esquema local debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
-    IF @esquemaVisitante IS NOT NULL
-       AND (@esquemaVisitante NOT LIKE '[1-9]-%[1-9]' OR @esquemaVisitante LIKE '%[^1-9-]%'
-            OR @esquemaVisitante LIKE '%--%' OR @esquemaVisitante LIKE '%[0-9][0-9]%'
-            OR (SELECT SUM(TRY_CAST(value AS int)) FROM STRING_SPLIT(@esquemaVisitante, '-')) <> 10)
+    IF @esquemaVisitante IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquemaVisitante) = 0
         SET @errores += CHAR(10) + N'- El esquema visitante debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
     IF @fechaHoraUTC IS NOT NULL
