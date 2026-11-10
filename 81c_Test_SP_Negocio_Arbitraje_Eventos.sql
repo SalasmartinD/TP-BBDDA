@@ -437,13 +437,13 @@ BEGIN CATCH
 END CATCH;
 
 -- PRUEBA 1.14: Esquema con formato válido que no suma 10 jugadores de campo ('4-4-3')
--- Resultado esperado: THROW 50002 "- El esquema táctico debe tener el formato N-N-N o N-N-N-N y sumar 10 jugadores de campo."
+-- Resultado esperado: THROW 50002 "- El esquema táctico debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3)."
 BEGIN TRY
     EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @esquema = '4-4-3';
     PRINT '[FALLO] PRUEBA 1.14: Permitió un esquema que suma 11.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El esquema táctico debe tener el formato N-N-N o N-N-N-N y sumar 10 jugadores de campo.%'
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El esquema táctico debe tener números de 1 a 9 separados por guiones que sumen 10%'
         PRINT '[OK] PRUEBA 1.14: Esquema inválido rechazado.';
     ELSE PRINT '[FALLO] PRUEBA 1.14: ' + ERROR_MESSAGE();
 END CATCH;
@@ -460,7 +460,7 @@ BEGIN CATCH
     IF ERROR_NUMBER() = 50002
        AND ERROR_MESSAGE() LIKE N'%- El partido especificado no existe.%'
        AND ERROR_MESSAGE() LIKE N'%(se informaron 10)%'
-       AND ERROR_MESSAGE() LIKE N'%- El esquema táctico debe tener el formato%'
+       AND ERROR_MESSAGE() LIKE N'%- El esquema táctico debe tener números de 1 a 9%'
         PRINT '[OK] PRUEBA 1.15: Acumulación de 3 errores verificada.';
     ELSE PRINT '[FALLO] PRUEBA 1.15: ' + ERROR_MESSAGE();
 END CATCH;
@@ -1180,8 +1180,8 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 5.1: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 5.2: Formación de A sin los suspendidos (A14 reemplaza a A11) y con esquema '4-2-3-1'
--- Resultado esperado: Formación registrada, esquemaLocal = '4-2-3-1' (y esquemaVisitante sigue
+-- PRUEBA 5.2: Formación de A sin los suspendidos (A14 reemplaza a A11) y con esquema '3-4-1-1-1' (5 líneas: antes se rechazaba)
+-- Resultado esperado: Formación registrada, esquemaLocal = '3-4-1-1-1' (y esquemaVisitante sigue
 --                     en '4-4-2', el de la prueba 1.1: no se pisa el esquema del rival) y las
 --                     suspensiones de A09, A10 y A11 pasan de 1 a 0 partidos restantes.
 DELETE FROM @lista;
@@ -1191,12 +1191,12 @@ FROM #jug WHERE sel = 'A' AND (nro <= 8 OR nro BETWEEN 12 AND 18);
 BEGIN TRY
     SELECT 'ANTES 5.2' AS momento, idPartido, idJugador, cantPartidos, partidosRestantes
     FROM Eventos.Suspension WHERE idJugador IN (@idA09, @idA10, @idA11) ORDER BY idJugador;
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @esquema = '4-2-3-1';
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @esquema = '3-4-1-1-1';
     SELECT 'DESPUES 5.2' AS momento, idPartido, idJugador, cantPartidos, partidosRestantes
     FROM Eventos.Suspension WHERE idJugador IN (@idA09, @idA10, @idA11) ORDER BY idJugador;
     SELECT 'PARTIDO 5.2' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
     IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA) = 15
-       AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaLocal = '4-2-3-1' AND esquemaVisitante = '4-4-2')
+       AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaLocal = '3-4-1-1-1' AND esquemaVisitante = '4-4-2')
        AND (SELECT COUNT(*) FROM Eventos.Suspension
             WHERE idJugador IN (@idA09, @idA10, @idA11) AND cantPartidos = 1 AND partidosRestantes = 0) = 3
         PRINT '[OK] PRUEBA 5.2: Formación registrada, ambos esquemas cargados y suspensiones de A09, A10 y A11 cumplidas.';

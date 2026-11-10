@@ -30,6 +30,8 @@
    validación y la escritura.
  - Los límites del reglamento se leen de Sistema.Parametro (no se cargan
    acá: si faltan, el SP lo informa como error).
+ - Requiere Torneo.fn_EsquemaTacticoValido (10a_ABM_Torneo.sql): ejecutar el
+   10a antes que este script.
  - Nombres en formato Esquema.VerboSustantivo.
  - Parámetros y variables locales estrictamente en @camelCase.
  - Todo set-based: cero cursores, cero SQL dinámico, cero CLR.
@@ -89,7 +91,7 @@ CREATE OR ALTER PROCEDURE Eventos.RegistrarFormacion
     @idPartido   int,
     @idSeleccion int,
     @jugadores   Eventos.FormacionJugadorLista READONLY,
-    @esquema     varchar(10) = NULL      -- '4-3-3', '4-2-3-1'; opcional
+    @esquema     varchar(10) = NULL      -- '4-3-3', '4-2-3-1', '3-4-1-1-1'; opcional
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -221,18 +223,10 @@ BEGIN
                    WHERE NULLIF(LTRIM(RTRIM(posicion)), '') NOT IN ('Arquero', 'Defensor', 'Mediocampista', 'Delantero'))
             SET @errores += CHAR(10) + N'- Hay posiciones inválidas: deben ser Arquero, Defensor, Mediocampista o Delantero.';
 
-        -- F14. Esquema táctico: N-N-N o N-N-N-N con dígitos 1-9 que suman 10
-        IF @esquema IS NOT NULL
-        BEGIN
-            IF @esquema NOT LIKE '[1-9]-[1-9]-[1-9]'
-               AND @esquema NOT LIKE '[1-9]-[1-9]-[1-9]-[1-9]'
-                SET @errores += CHAR(10) + N'- El esquema táctico debe tener el formato N-N-N o N-N-N-N y sumar 10 jugadores de campo.';
-            ELSE IF CAST(SUBSTRING(@esquema, 1, 1) AS int)
-                  + CAST(SUBSTRING(@esquema, 3, 1) AS int)
-                  + CAST(SUBSTRING(@esquema, 5, 1) AS int)
-                  + CASE WHEN LEN(@esquema) = 7 THEN CAST(SUBSTRING(@esquema, 7, 1) AS int) ELSE 0 END <> 10
-                SET @errores += CHAR(10) + N'- El esquema táctico debe tener el formato N-N-N o N-N-N-N y sumar 10 jugadores de campo.';
-        END;
+        -- F14. Esquema táctico: misma regla que Torneo.Partido_Alta (números de
+        --      1 a 9 separados por guiones que suman 10), vía Torneo.fn_EsquemaTacticoValido
+        IF @esquema IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquema) = 0
+            SET @errores += CHAR(10) + N'- El esquema táctico debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
         -- THROW único
         IF @errores <> N''
