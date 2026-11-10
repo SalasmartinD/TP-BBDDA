@@ -374,7 +374,7 @@ def main():
     ap.add_argument("--max", type=int, help="genera una muestra estratificada de como máximo N árbitros")
     ap.add_argument("--salida", help="nombre del XML de salida (por defecto arbitros_fifa.xml)")
     args = ap.parse_args()
-    salida = SALIDA.with_name(args.salida) if args.salida else SALIDA
+    salida = Path(args.salida) if args.salida else SALIDA
 
     html = Path(args.html).read_text(encoding="utf-8") if args.html else descargar(URL)
     datos = extraer_json(html)
@@ -402,7 +402,11 @@ def main():
     for o in sorted(oficiales, key=lambda x: (codigo_fifa(x), x["name"])):
         nombre, apellido = separar_nombre(o["name"], codigo_fifa(o))
         cod = codigo_fifa(o)
-        nombre_pais, iso2, iso3, idiomas = PAISES.get(cod, (o["country"]["name"], "", "", ""))
+        if cod in PAISES:
+            nombre_pais, iso2, iso3, idiomas = PAISES[cod]
+        else:
+            nombre_pais = (o.get("country") or {}).get("name") or ""
+            iso2 = iso3 = idiomas = ""
         lista_idiomas = list(dict.fromkeys(idiomas.split() + ["en"]))  # sin repetidos, 'en' al final
         anio = str(o.get("internationalSince") or "").strip()
 
