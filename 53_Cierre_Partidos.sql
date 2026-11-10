@@ -13,7 +13,9 @@
                Torneo.RegistrarResultado (20a).
 
  Orden       : Corre al final, después de 50c y de las cargas de Persona 2 y 3
-               (51, 52). 50c crea los partidos Programados porque
+               (51, 52), y por eso lleva el número 53: en orden numérico los
+               partidos se cierran recién cuando ya tienen formaciones y goles.
+               50c crea los partidos Programados porque
                Eventos.FormacionPartido_Alta no acepta formaciones en partidos
                finalizados; recién con las formaciones y los goles cargados se
                cierran. Si los goles de 51 no coinciden con estos resultados,

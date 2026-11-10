@@ -11,7 +11,7 @@
  Objetivo    : Carga base del fixture: los 31 partidos del Mundial 2026 jugados
                entre las 16 selecciones cargadas (24 de fase de grupos y 7 de
                eliminación directa). Los partidos se crean Programados: el
-               resultado y la asistencia los registra 50e_Cierre_Partidos.sql
+               resultado y la asistencia los registra 53_Cierre_Partidos.sql
                después de cargar formaciones y goles (51).
                La hora se guarda en UTC: hora local de la sede menos su
                desfasaje UTC de ese día (horario de verano incluido); el
