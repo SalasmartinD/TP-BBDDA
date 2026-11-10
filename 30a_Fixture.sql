@@ -83,7 +83,9 @@ GO
 /* =============================================================================
    2. SP: Torneo.ConsultarFixture
    Devuelve las columnas de la vista más fechaHoraConsulta: la hora del
-   partido en @husoHorarioConsulta (NULL si no se indica un huso).
+   partido en @husoHorarioConsulta (NULL si no se indica un huso). Las columnas
+   se listan a mano, así una columna nueva en la vista no cambia lo que
+   devuelve el SP.
    ============================================================================= */
 CREATE OR ALTER PROCEDURE Torneo.ConsultarFixture
     @idSede               int         = NULL,
@@ -120,7 +122,12 @@ BEGIN
         THROW 50001, @errores, 1;
     END;
 
-    SELECT v.*,
+    SELECT v.idPartido, v.nroPartidoOficial, v.idFase, v.fase, v.ordenFase,
+           v.estado, v.idSede, v.sede, v.ciudad, v.paisSede, v.husoHorarioSede,
+           v.fechaHoraUTC, v.fechaHoraLocal, v.fechaLocal, v.horaLocal,
+           v.idSeleccionLocal, v.seleccionLocal, v.abreviacionLocal, v.idSeleccionVisitante,
+           v.seleccionVisitante, v.abreviacionVisitante, v.golLocal, v.golVisitante,
+           v.cantPublico,
            CASE WHEN @husoHorarioConsulta IS NULL THEN NULL
                 ELSE v.fechaHoraUTC AT TIME ZONE 'UTC' AT TIME ZONE @husoHorarioConsulta
            END AS fechaHoraConsulta
