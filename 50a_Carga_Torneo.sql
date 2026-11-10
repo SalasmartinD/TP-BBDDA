@@ -124,10 +124,13 @@ DECLARE @estadio nvarchar(80), @ciudad nvarchar(60), @idPais int, @huso varchar(
 DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #sedes);
 WHILE @n <= @max
 BEGIN
+    SET @idPais = NULL;
     SELECT @estadio = s.nombreEstadio, @ciudad = s.ciudad, @idPais = p.id, @huso = s.husoHorario,
            @capacidad = s.capacidad, @latitud = s.latitud, @longitud = s.longitud
     FROM #sedes s JOIN Torneo.Pais p ON p.codigoISO3 = s.pais WHERE s.n = @n;
     BEGIN TRY
+        IF @idPais IS NULL
+            THROW 50001, N'El país de la sede no existe en Torneo.Pais.', 1;
         IF NOT EXISTS (SELECT 1 FROM Torneo.Sede WHERE nombreEstadio = @estadio AND ciudad = @ciudad)
             EXEC Torneo.Sede_Alta @nombreEstadio = @estadio, @ciudad = @ciudad, @idPais = @idPais,
                  @husoHorario = @huso, @capacidad = @capacidad, @latitud = @latitud, @longitud = @longitud;

@@ -64,9 +64,12 @@ DECLARE @abrev char(3), @idPais int, @conf varchar(10), @grupo char(1), @asoc nv
 DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #selecciones);
 WHILE @n <= @max
 BEGIN
+    SET @idPais = NULL;
     SELECT @abrev = s.abreviacion, @idPais = p.id, @conf = s.confederacion, @grupo = s.grupo, @asoc = s.nombreAsociacion
     FROM #selecciones s JOIN Torneo.Pais p ON p.codigoISO3 = s.pais WHERE s.n = @n;
     BEGIN TRY
+        IF @idPais IS NULL
+            THROW 50001, N'El país de la selección no existe en Torneo.Pais.', 1;
         IF NOT EXISTS (SELECT 1 FROM Equipos.Seleccion WHERE abreviacion = @abrev)
             EXEC Equipos.Seleccion_Alta @idPais = @idPais, @confederacion = @conf, @abreviacion = @abrev,
                  @nombreAsociacion = @asoc, @grupo = @grupo;
@@ -179,9 +182,12 @@ DECLARE @idSel int, @nombre nvarchar(60), @apellido nvarchar(60), @rol varchar(2
 DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #staff);
 WHILE @n <= @max
 BEGIN
+    SET @idSel = NULL;
     SELECT @idSel = s.id, @nombre = t.nombre, @apellido = t.apellido, @rol = t.rol
     FROM #staff t JOIN Equipos.Seleccion s ON s.abreviacion = t.seleccion WHERE t.n = @n;
     BEGIN TRY
+        IF @idSel IS NULL
+            THROW 50001, N'La selección del integrante del cuerpo técnico no existe en Equipos.Seleccion.', 1;
         IF NOT EXISTS (SELECT 1 FROM Equipos.Staff WHERE idSeleccion = @idSel AND nombre = @nombre AND apellido = @apellido)
             EXEC Equipos.Staff_Alta @idSeleccion = @idSel, @nombre = @nombre, @apellido = @apellido, @rol = @rol;
     END TRY
@@ -627,11 +633,14 @@ DECLARE @idSel int, @idJug int, @dorsal tinyint, @nombre nvarchar(60), @apellido
 DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #convocados);
 WHILE @n <= @max
 BEGIN
+    SET @idSel = NULL;
     SELECT @idSel = s.id, @dorsal = c.dorsal, @nombre = c.nombre, @apellido = c.apellido,
            @nacimiento = c.fechaNacimiento, @altura = c.altura, @peso = c.peso, @pierna = c.piernaHabil,
            @club = c.club, @posicion = c.posicion
     FROM #convocados c JOIN Equipos.Seleccion s ON s.abreviacion = c.seleccion WHERE c.n = @n;
     BEGIN TRY
+        IF @idSel IS NULL
+            THROW 50001, N'La selección del convocado no existe en Equipos.Seleccion.', 1;
         SET @idJug = (SELECT id FROM Equipos.Jugador
                       WHERE nombre = @nombre AND apellido = @apellido AND fechaNacimiento = @nacimiento);
         IF @idJug IS NULL

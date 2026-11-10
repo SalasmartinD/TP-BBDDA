@@ -75,6 +75,7 @@ DECLARE @nro int, @fase int, @local int, @visit int, @sede int, @fecha datetime2
 DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #partidos);
 WHILE @n <= @max
 BEGIN
+    SELECT @local = NULL, @visit = NULL, @sede = NULL;
     SELECT @nro = p.nroPartidoOficial, @fase = p.fase, @local = sl.id, @visit = sv.id, @sede = s.idSede,
            @fecha = p.fechaHoraUTC
     FROM #partidos p
@@ -83,6 +84,8 @@ BEGIN
     JOIN Torneo.Sede s ON s.nombreEstadio = p.nombreEstadio AND s.ciudad = p.ciudad
     WHERE p.n = @n;
     BEGIN TRY
+        IF @local IS NULL OR @visit IS NULL OR @sede IS NULL
+            THROW 50001, N'No se encontró la selección local, la visitante o la sede del partido.', 1;
         IF NOT EXISTS (SELECT 1 FROM Torneo.Partido WHERE nroPartidoOficial = @nro)
             EXEC Torneo.Partido_Alta @idSede = @sede, @idSeleccionLocal = @local, @idSeleccionVisitante = @visit,
                  @fase = @fase, @fechaHoraUTC = @fecha, @nroPartidoOficial = @nro;
