@@ -49,7 +49,7 @@ Cada script empieza con dos dígitos que indican el orden de ejecución. Cada un
 | SP de ABM | `10` ✅ | `11` ✅ | `12` 🔄 |
 | SP de negocio | `20` ✅ | `21` 🔄 | `22` 🔄 |
 | Vistas y funciones | `30` ✅ | `31` 🔄 | `32` 🔄 |
-| Importación | `40` (CSV) 🔄 · `43` (APIs) 🔄 | `41` (scraping) | |
+| Importación | `40` (CSV) 🔄 · `43` (APIs) 🔄 | `41` (scraping) 🔄 | |
 | Carga de datos | `50` (corre primero) ✅ · `53` (cierre de partidos, corre al final) ✅ | `51` | `52` 🔄 |
 | Reportes | `60` | `61` | `62` |
 | Seguridad | `70` (cifrado) | | `71` (roles) |
