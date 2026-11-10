@@ -25,7 +25,7 @@ Uso
 ---
     python scrap_fifa_arbitros.py                 # descarga la página
     python scrap_fifa_arbitros.py --html pag.html # reprocesa un HTML guardado
-    python scrap_fifa_arbitros.py --max 500 --salida arbitros_fifa_reducido.xml
+    python scrap_fifa_arbitros.py --max 500 --salida ../datasets/arbitros_fifa_reducido.xml
                                                   # muestra estratificada de hasta 500
 
 Solo usa la biblioteca estándar de Python (3.9+).
@@ -372,9 +372,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--html", help="procesar un HTML ya descargado en lugar de la URL")
     ap.add_argument("--max", type=int, help="genera una muestra estratificada de como máximo N árbitros")
-    ap.add_argument("--salida", help="nombre del XML de salida (por defecto arbitros_fifa.xml)")
+    ap.add_argument("--salida", help="XML de salida, relativo a la carpeta del script (por defecto arbitros_fifa.xml)")
     args = ap.parse_args()
-    salida = Path(args.salida) if args.salida else SALIDA
+    # Relativa a la carpeta del script (sin importar desde dónde se ejecute);
+    # una ruta absoluta se respeta tal cual.
+    salida = SALIDA.parent / args.salida if args.salida else SALIDA
 
     html = Path(args.html).read_text(encoding="utf-8") if args.html else descargar(URL)
     datos = extraer_json(html)
