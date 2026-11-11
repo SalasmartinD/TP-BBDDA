@@ -1,0 +1,6055 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Arbitros fuente="https://inside.fifa.com/refereeing/international-referees" fechaExtraccion="2026-11-09" cantidad="500">
+  <Arbitro idFifa="434148">
+    <Nombre>Jalil Ahmad</Nombre>
+    <Apellido>JAMI</Apellido>
+    <Pais codigoFIFA="AFG" codigoISO2="AF" codigoISO3="AFG">Afganistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ps</Idioma>
+      <Idioma>fa</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476755">
+    <Nombre>Florian</Nombre>
+    <Apellido>LATA</Apellido>
+    <Pais codigoFIFA="ALB" codigoISO2="AL" codigoISO3="ALB">Albania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sq</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425460">
+    <Nombre>Koleta</Nombre>
+    <Apellido>PRENGA</Apellido>
+    <Pais codigoFIFA="ALB" codigoISO2="AL" codigoISO3="ALB">Albania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sq</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="375314">
+    <Nombre>Mokrane</Nombre>
+    <Apellido>GOURARI</Apellido>
+    <Pais codigoFIFA="ALG" codigoISO2="DZ" codigoISO3="DZA">Argelia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434702">
+    <Nombre>Sara</Nombre>
+    <Apellido>KEMMAD</Apellido>
+    <Pais codigoFIFA="ALG" codigoISO2="DZ" codigoISO3="DZA">Argelia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434708">
+    <Nombre>Ghada</Nombre>
+    <Apellido>MEHAT</Apellido>
+    <Pais codigoFIFA="ALG" codigoISO2="DZ" codigoISO3="DZA">Argelia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400115">
+    <Nombre>Abbes Akram</Nombre>
+    <Apellido>ZERHOUNI</Apellido>
+    <Pais codigoFIFA="ALG" codigoISO2="DZ" codigoISO3="DZA">Argelia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511272">
+    <Nombre>Eric Jose</Nombre>
+    <Apellido>MACHADO GOMES</Apellido>
+    <Pais codigoFIFA="AND" codigoISO2="AD" codigoISO3="AND">Andorra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ca</Idioma>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511280">
+    <Nombre>Ana</Nombre>
+    <Apellido>PUMBA</Apellido>
+    <Pais codigoFIFA="ANG" codigoISO2="AO" codigoISO3="AGO">Angola</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476783">
+    <Nombre>Nelson Agostinho Da</Nombre>
+    <Apellido>SILVA</Apellido>
+    <Pais codigoFIFA="ANG" codigoISO2="AO" codigoISO3="AGO">Angola</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="448831">
+    <Nombre>Pablo German</Nombre>
+    <Apellido>DOVALO</Apellido>
+    <Pais codigoFIFA="ARG" codigoISO2="AR" codigoISO3="ARG">Argentina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424964">
+    <Nombre>Roberta</Nombre>
+    <Apellido>ECHEVERRIA</Apellido>
+    <Pais codigoFIFA="ARG" codigoISO2="AR" codigoISO3="ARG">Argentina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434983">
+    <Nombre>Carla Belen</Nombre>
+    <Apellido>LOPEZ</Apellido>
+    <Pais codigoFIFA="ARG" codigoISO2="AR" codigoISO3="ARG">Argentina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446926">
+    <Nombre>Maximiliano Nicolas</Nombre>
+    <Apellido>RAMIREZ</Apellido>
+    <Pais codigoFIFA="ARG" codigoISO2="AR" codigoISO3="ARG">Argentina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="315175">
+    <Nombre>Liana</Nombre>
+    <Apellido>GRIGORYAN</Apellido>
+    <Pais codigoFIFA="ARM" codigoISO2="AM" codigoISO3="ARM">Armenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hy</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428124">
+    <Nombre>Sargis</Nombre>
+    <Apellido>HOVHANNISYAN</Apellido>
+    <Pais codigoFIFA="ARM" codigoISO2="AM" codigoISO3="ARM">Armenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hy</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428122">
+    <Nombre>Henrik</Nombre>
+    <Apellido>NALBANDYAN</Apellido>
+    <Pais codigoFIFA="ARM" codigoISO2="AM" codigoISO3="ARM">Armenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hy</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476792">
+    <Nombre>Narek</Nombre>
+    <Apellido>POGHOSYAN</Apellido>
+    <Pais codigoFIFA="ARM" codigoISO2="AM" codigoISO3="ARM">Armenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hy</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="301979">
+    <Nombre>Araksya</Nombre>
+    <Apellido>SARIBEKYAN</Apellido>
+    <Pais codigoFIFA="ARM" codigoISO2="AM" codigoISO3="ARM">Armenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2009-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hy</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391864">
+    <Nombre>Iroots</Nombre>
+    <Apellido>APPLETON</Apellido>
+    <Pais codigoFIFA="ATG" codigoISO2="AG" codigoISO3="ATG">Antigua y Barbuda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434787">
+    <Nombre>Lauren</Nombre>
+    <Apellido>HARGRAVE</Apellido>
+    <Pais codigoFIFA="AUS" codigoISO2="AU" codigoISO3="AUS">Australia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416198">
+    <Nombre>Lara</Nombre>
+    <Apellido>LEE</Apellido>
+    <Pais codigoFIFA="AUS" codigoISO2="AU" codigoISO3="AUS">Australia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425222">
+    <Nombre>Walter</Nombre>
+    <Apellido>ALTMANN</Apellido>
+    <Pais codigoFIFA="AUT" codigoISO2="AT" codigoISO3="AUT">Austria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511293">
+    <Nombre>Fabienne</Nombre>
+    <Apellido>HOFER</Apellido>
+    <Pais codigoFIFA="AUT" codigoISO2="AT" codigoISO3="AUT">Austria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361913">
+    <Nombre>Biljana</Nombre>
+    <Apellido>ISKIN</Apellido>
+    <Pais codigoFIFA="AUT" codigoISO2="AT" codigoISO3="AUT">Austria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491407">
+    <Nombre>Jakob</Nombre>
+    <Apellido>SEMLER</Apellido>
+    <Pais codigoFIFA="AUT" codigoISO2="AT" codigoISO3="AUT">Austria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391873">
+    <Nombre>Robert</Nombre>
+    <Apellido>STEINACHER</Apellido>
+    <Pais codigoFIFA="AUT" codigoISO2="AT" codigoISO3="AUT">Austria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425382">
+    <Nombre>Elshad</Nombre>
+    <Apellido>ABDULLAYEV</Apellido>
+    <Pais codigoFIFA="AZE" codigoISO2="AZ" codigoISO3="AZE">Azerbaiyán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>az</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373058">
+    <Nombre>Farida</Nombre>
+    <Apellido>LUTFALIYEVA</Apellido>
+    <Pais codigoFIFA="AZE" codigoISO2="AZ" codigoISO3="AZE">Azerbaiyán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>az</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416306">
+    <Nombre>Krystal</Nombre>
+    <Apellido>EVANS</Apellido>
+    <Pais codigoFIFA="BAH" codigoISO2="BS" codigoISO3="BHS">Bahamas</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511302">
+    <Nombre>Md. Nazmul</Nombre>
+    <Apellido>HUDA</Apellido>
+    <Pais codigoFIFA="BAN" codigoISO2="BD" codigoISO3="BGD">Bangladés</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511335">
+    <Nombre>Celestin</Nombre>
+    <Apellido>NAHUMUREMYI</Apellido>
+    <Pais codigoFIFA="BDI" codigoISO2="BI" codigoISO3="BDI">Burundi</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>rn</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447043">
+    <Nombre>Olivier</Nombre>
+    <Apellido>NIBOGORA</Apellido>
+    <Pais codigoFIFA="BDI" codigoISO2="BI" codigoISO3="BDI">Burundi</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>rn</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="417087">
+    <Nombre>Bram</Nombre>
+    <Apellido>VAN DRIESSCHE</Apellido>
+    <Pais codigoFIFA="BEL" codigoISO2="BE" codigoISO3="BEL">Bélgica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447271">
+    <Nombre>Jasper</Nombre>
+    <Apellido>VERGOOTE</Apellido>
+    <Pais codigoFIFA="BEL" codigoISO2="BE" codigoISO3="BEL">Bélgica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447016">
+    <Nombre>Salim</Nombre>
+    <Apellido>ALAO</Apellido>
+    <Pais codigoFIFA="BEN" codigoISO2="BJ" codigoISO3="BEN">Benín</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="382863">
+    <Nombre>Adissa Abdul Raphiou</Nombre>
+    <Apellido>LIGALI</Apellido>
+    <Pais codigoFIFA="BEN" codigoISO2="BJ" codigoISO3="BEN">Benín</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="219227">
+    <Nombre>Sonia</Nombre>
+    <Apellido>LOUIS</Apellido>
+    <Pais codigoFIFA="BEN" codigoISO2="BJ" codigoISO3="BEN">Benín</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2005-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491427">
+    <Nombre>Amaury</Nombre>
+    <Apellido>MAJORS</Apellido>
+    <Pais codigoFIFA="BER" codigoISO2="BM" codigoISO3="BMU">Bermudas</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476836">
+    <Nombre>Korotoum</Nombre>
+    <Apellido>BALLO</Apellido>
+    <Pais codigoFIFA="BFA" codigoISO2="BF" codigoISO3="BFA">Burkina Faso</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428332">
+    <Nombre>Abdulla Yaqoob Yusuf Ahmed</Nombre>
+    <Apellido>ABDULLA</Apellido>
+    <Pais codigoFIFA="BHR" codigoISO2="BH" codigoISO3="BHR">Baréin</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416252">
+    <Nombre>Salman Mohamed Ebrahim Mohamed Salman</Nombre>
+    <Apellido>TALASI</Apellido>
+    <Pais codigoFIFA="BHR" codigoISO2="BH" codigoISO3="BHR">Baréin</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434197">
+    <Nombre />
+    <Apellido>PASSANG</Apellido>
+    <Pais codigoFIFA="BHU" codigoISO2="BT" codigoISO3="BTN">Bután</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>dz</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425333">
+    <Nombre>Pema</Nombre>
+    <Apellido />
+    <Pais codigoFIFA="BHU" codigoISO2="BT" codigoISO3="BTN">Bután</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>dz</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447179">
+    <Nombre>Merima</Nombre>
+    <Apellido>TANOVIC</Apellido>
+    <Pais codigoFIFA="BIH" codigoISO2="BA" codigoISO3="BIH">Bosnia y Herzegovina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bs</Idioma>
+      <Idioma>hr</Idioma>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476809">
+    <Nombre>Anton</Nombre>
+    <Apellido>LASHUK</Apellido>
+    <Pais codigoFIFA="BLR" codigoISO2="BY" codigoISO3="BLR">Bielorrusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>be</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446965">
+    <Nombre>Jesus</Nombre>
+    <Apellido>ANTELO</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383209">
+    <Nombre>Jose</Nombre>
+    <Apellido>ANTELO</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491436">
+    <Nombre>Wilma</Nombre>
+    <Apellido>BALDERRAMA VELASQUEZ</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391891">
+    <Nombre>Ines</Nombre>
+    <Apellido>CHOQUE QUISPE</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424947">
+    <Nombre>Ruben Erasmo</Nombre>
+    <Apellido>FLORES QUISPE</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383240">
+    <Nombre>Juan Nelio</Nombre>
+    <Apellido>GARCIA SALVATIERRA</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446934">
+    <Nombre>William</Nombre>
+    <Apellido>MEDINA</Apellido>
+    <Pais codigoFIFA="BOL" codigoISO2="BO" codigoISO3="BOL">Bolivia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="240236">
+    <Nombre>Keabetswe</Nombre>
+    <Apellido>DINTWA</Apellido>
+    <Pais codigoFIFA="BOT" codigoISO2="BW" codigoISO3="BWA">Botsuana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477281">
+    <Nombre>Fernanda</Nombre>
+    <Apellido>KRUGER</Apellido>
+    <Pais codigoFIFA="BRA" codigoISO2="BR" codigoISO3="BRA">Brasil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428787">
+    <Nombre>Rodrigo</Nombre>
+    <Apellido>NUNES DE SA</Apellido>
+    <Pais codigoFIFA="BRA" codigoISO2="BR" codigoISO3="BRA">Brasil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476833">
+    <Nombre>Rodrigo Jose</Nombre>
+    <Apellido>PEREIRA DE LIMA</Apellido>
+    <Pais codigoFIFA="BRA" codigoISO2="BR" codigoISO3="BRA">Brasil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361561">
+    <Nombre>Wilton</Nombre>
+    <Apellido>SAMPAIO</Apellido>
+    <Pais codigoFIFA="BRA" codigoISO2="BR" codigoISO3="BRA">Brasil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446909">
+    <Nombre>Abigail Natasha</Nombre>
+    <Apellido>BRATHWAITE</Apellido>
+    <Pais codigoFIFA="BRB" codigoISO2="BB" codigoISO3="BRB">Barbados</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491414">
+    <Nombre>Jaselle Kimberley</Nombre>
+    <Apellido>LOUISON</Apellido>
+    <Pais codigoFIFA="BRB" codigoISO2="BB" codigoISO3="BRB">Barbados</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408244">
+    <Nombre>Volen</Nombre>
+    <Apellido>CHINKOV</Apellido>
+    <Pais codigoFIFA="BUL" codigoISO2="BG" codigoISO3="BGR">Bulgaria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428216">
+    <Nombre>Kristina</Nombre>
+    <Apellido>GEORGIEVA</Apellido>
+    <Pais codigoFIFA="BUL" codigoISO2="BG" codigoISO3="BGR">Bulgaria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="399053">
+    <Nombre>Hristiyana</Nombre>
+    <Apellido>GUTEVA</Apellido>
+    <Pais codigoFIFA="BUL" codigoISO2="BG" codigoISO3="BGR">Bulgaria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="399192">
+    <Nombre>Pavleta</Nombre>
+    <Apellido>RASHKOVA</Apellido>
+    <Pais codigoFIFA="BUL" codigoISO2="BG" codigoISO3="BGR">Bulgaria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491451">
+    <Nombre>Todor</Nombre>
+    <Apellido>VUKOV</Apellido>
+    <Pais codigoFIFA="BUL" codigoISO2="BG" codigoISO3="BGR">Bulgaria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>bg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491453">
+    <Nombre>Chetra</Nombre>
+    <Apellido>HEM</Apellido>
+    <Pais codigoFIFA="CAM" codigoISO2="KH" codigoISO3="KHM">Camboya</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>km</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="314218">
+    <Nombre>Pisal</Nombre>
+    <Apellido>KIMSY</Apellido>
+    <Pais codigoFIFA="CAM" codigoISO2="KH" codigoISO3="KHM">Camboya</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>km</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511261">
+    <Nombre>Twayne</Nombre>
+    <Apellido>ANDERSON</Apellido>
+    <Pais codigoFIFA="CAN" codigoISO2="CA" codigoISO3="CAN">Canadá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+      <Idioma>fr</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="372930">
+    <Nombre>Drew</Nombre>
+    <Apellido>FISCHER</Apellido>
+    <Pais codigoFIFA="CAN" codigoISO2="CA" codigoISO3="CAN">Canadá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+      <Idioma>fr</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434303">
+    <Nombre>Carly</Nombre>
+    <Apellido>SHAW-MACLAREN</Apellido>
+    <Pais codigoFIFA="CAN" codigoISO2="CA" codigoISO3="CAN">Canadá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+      <Idioma>fr</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434300">
+    <Nombre>Stefan</Nombre>
+    <Apellido>TANAKA-FREUNDT</Apellido>
+    <Pais codigoFIFA="CAN" codigoISO2="CA" codigoISO3="CAN">Canadá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+      <Idioma>fr</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408506">
+    <Nombre>Chris</Nombre>
+    <Apellido>WATTAM</Apellido>
+    <Pais codigoFIFA="CAN" codigoISO2="CA" codigoISO3="CAN">Canadá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+      <Idioma>fr</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408206">
+    <Nombre>Dee-An Deonne</Nombre>
+    <Apellido>FOSTER</Apellido>
+    <Pais codigoFIFA="CAY" codigoISO2="KY" codigoISO3="CYM">Islas Caimán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425233">
+    <Nombre>Chany Yanes</Nombre>
+    <Apellido>MALONDI</Apellido>
+    <Pais codigoFIFA="CGO" codigoISO2="CG" codigoISO3="COG">Congo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="348871">
+    <Nombre>Styven</Nombre>
+    <Apellido>MOUTSASSI</Apellido>
+    <Pais codigoFIFA="CGO" codigoISO2="CG" codigoISO3="COG">Congo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400333">
+    <Nombre>Edson</Nombre>
+    <Apellido>CISTERNAS TORRES</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511358">
+    <Nombre>Franco</Nombre>
+    <Apellido>JIMENEZ LAZO</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428539">
+    <Nombre>Juan</Nombre>
+    <Apellido>LARA</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="492184">
+    <Nombre>Nicolas</Nombre>
+    <Apellido>MILLAS</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491461">
+    <Nombre>Wladimir</Nombre>
+    <Apellido>MUNOZ FIGUEROA</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391927">
+    <Nombre>Dione</Nombre>
+    <Apellido>RISSIOS</Apellido>
+    <Pais codigoFIFA="CHI" codigoISO2="CL" codigoISO3="CHL">Chile</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428806">
+    <Nombre>Fangyu</Nombre>
+    <Apellido>DONG</Apellido>
+    <Pais codigoFIFA="CHN" codigoISO2="CN" codigoISO3="CHN">China</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="328495">
+    <Nombre>Ning</Nombre>
+    <Apellido>MA</Apellido>
+    <Pais codigoFIFA="CHN" codigoISO2="CN" codigoISO3="CHN">China</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476862">
+    <Nombre>Mingxin</Nombre>
+    <Apellido>MU</Apellido>
+    <Pais codigoFIFA="CHN" codigoISO2="CN" codigoISO3="CHN">China</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425339">
+    <Nombre>Qiaoli</Nombre>
+    <Apellido>WU</Apellido>
+    <Pais codigoFIFA="CHN" codigoISO2="CN" codigoISO3="CHN">China</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383473">
+    <Nombre>Kouassi Frederic Francois</Nombre>
+    <Apellido>BIRO</Apellido>
+    <Pais codigoFIFA="CIV" codigoISO2="CI" codigoISO3="CIV">Costa de Marfil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436189">
+    <Nombre>Wenceslas</Nombre>
+    <Apellido>ETTIEN</Apellido>
+    <Pais codigoFIFA="CIV" codigoISO2="CI" codigoISO3="CIV">Costa de Marfil</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511345">
+    <Nombre>Hyacinthe</Nombre>
+    <Apellido>EMEYENE TOUKENE</Apellido>
+    <Pais codigoFIFA="CMR" codigoISO2="CM" codigoISO3="CMR">Camerún</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434139">
+    <Nombre>Aline</Nombre>
+    <Apellido>GUIMBANG</Apellido>
+    <Pais codigoFIFA="CMR" codigoISO2="CM" codigoISO3="CMR">Camerún</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476876">
+    <Nombre>Elaeis</Nombre>
+    <Apellido>TOMAKWIZA</Apellido>
+    <Pais codigoFIFA="COD" codigoISO2="CD" codigoISO3="COD">República Democrática del Congo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408582">
+    <Nombre>Carlos</Nombre>
+    <Apellido>BETANCUR</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428346">
+    <Nombre>David</Nombre>
+    <Apellido>FUENTES</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434935">
+    <Nombre>Leonard Yasser</Nombre>
+    <Apellido>MOSQUERA GOMEZ</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428957">
+    <Nombre>Richard Alexis</Nombre>
+    <Apellido>ORTIZ RAVE</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="280909">
+    <Nombre>Wilmar</Nombre>
+    <Apellido>ROLDAN</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2008-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416170">
+    <Nombre>Sebastian</Nombre>
+    <Apellido>VELA RODRIGUEZ</Apellido>
+    <Pais codigoFIFA="COL" codigoISO2="CO" codigoISO3="COL">Colombia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491383">
+    <Nombre>Ali Mohamed</Nombre>
+    <Apellido>HAZEM</Apellido>
+    <Pais codigoFIFA="COM" codigoISO2="KM" codigoISO3="COM">Comoras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491475">
+    <Nombre>Moustoifa Naoumane</Nombre>
+    <Apellido>KALIDO</Apellido>
+    <Pais codigoFIFA="COM" codigoISO2="KM" codigoISO3="COM">Comoras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="398986">
+    <Nombre>Helio</Nombre>
+    <Apellido>CORREIA SEMEDO</Apellido>
+    <Pais codigoFIFA="CPV" codigoISO2="CV" codigoISO3="CPV">Cabo Verde</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425108">
+    <Nombre>Ana</Nombre>
+    <Apellido>FERNANDES</Apellido>
+    <Pais codigoFIFA="CPV" codigoISO2="CV" codigoISO3="CPV">Cabo Verde</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428383">
+    <Nombre>Djery</Nombre>
+    <Apellido>GOMES LOPES</Apellido>
+    <Pais codigoFIFA="CPV" codigoISO2="CV" codigoISO3="CPV">Cabo Verde</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428381">
+    <Nombre>Juanilson Ailton</Nombre>
+    <Apellido>MOREIRA DOS REIS BORGES GOMES</Apellido>
+    <Pais codigoFIFA="CPV" codigoISO2="CV" codigoISO3="CPV">Cabo Verde</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428116">
+    <Nombre>Saphire</Nombre>
+    <Apellido>STOCKMAN</Apellido>
+    <Pais codigoFIFA="CRC" codigoISO2="CR" codigoISO3="CRI">Costa Rica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447194">
+    <Nombre>Ante</Nombre>
+    <Apellido>CULINA</Apellido>
+    <Pais codigoFIFA="CRO" codigoISO2="HR" codigoISO3="HRV">Croacia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391983">
+    <Nombre>Gordana</Nombre>
+    <Apellido>KATUSIC</Apellido>
+    <Pais codigoFIFA="CRO" codigoISO2="HR" codigoISO3="HRV">Croacia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511374">
+    <Nombre>Dario</Nombre>
+    <Apellido>KOLAREVIC</Apellido>
+    <Pais codigoFIFA="CRO" codigoISO2="HR" codigoISO3="HRV">Croacia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434223">
+    <Nombre>Kristijan</Nombre>
+    <Apellido>NOVOSEL</Apellido>
+    <Pais codigoFIFA="CRO" codigoISO2="HR" codigoISO3="HRV">Croacia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415890">
+    <Nombre>Marjan</Nombre>
+    <Apellido>TOMAS</Apellido>
+    <Pais codigoFIFA="CRO" codigoISO2="HR" codigoISO3="HRV">Croacia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="350089">
+    <Nombre>Barbara</Nombre>
+    <Apellido>KOZEREMBI</Apellido>
+    <Pais codigoFIFA="CTA" codigoISO2="CF" codigoISO3="CAF">República Centroafricana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>sg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476850">
+    <Nombre>Bodoin</Nombre>
+    <Apellido>MAINA</Apellido>
+    <Pais codigoFIFA="CTA" codigoISO2="CF" codigoISO3="CAF">República Centroafricana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>sg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391920">
+    <Nombre>Wilfried De Bozor</Nombre>
+    <Apellido>ORIYA ZAOUBAYE</Apellido>
+    <Pais codigoFIFA="CTA" codigoISO2="CF" codigoISO3="CAF">República Centroafricana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>sg</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447431">
+    <Nombre>Leonel</Nombre>
+    <Apellido>GARCIA ROMERO</Apellido>
+    <Pais codigoFIFA="CUB" codigoISO2="CU" codigoISO3="CUB">Cuba</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446919">
+    <Nombre>Norberto Domingos Freitas</Nombre>
+    <Apellido>DA SILVA COSTA</Apellido>
+    <Pais codigoFIFA="CUW" codigoISO2="CW" codigoISO3="CUW">Curazao</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415897">
+    <Nombre>Ioanna</Nombre>
+    <Apellido>ALLAYIOTOU</Apellido>
+    <Pais codigoFIFA="CYP" codigoISO2="CY" codigoISO3="CYP">Chipre</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>el</Idioma>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428322">
+    <Nombre>Petros</Nombre>
+    <Apellido>PETROU</Apellido>
+    <Pais codigoFIFA="CYP" codigoISO2="CY" codigoISO3="CYP">Chipre</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>el</Idioma>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511388">
+    <Nombre>Natalie</Nombre>
+    <Apellido>CAMPISOVA</Apellido>
+    <Pais codigoFIFA="CZE" codigoISO2="CZ" codigoISO3="CZE">Chequia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cs</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435371">
+    <Nombre>Tereza</Nombre>
+    <Apellido>HESSOVA</Apellido>
+    <Pais codigoFIFA="CZE" codigoISO2="CZ" codigoISO3="CZE">Chequia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cs</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447231">
+    <Nombre>Tereza</Nombre>
+    <Apellido>HOLAKOVSKA</Apellido>
+    <Pais codigoFIFA="CZE" codigoISO2="CZ" codigoISO3="CZE">Chequia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cs</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="327482">
+    <Nombre>Miroslav</Nombre>
+    <Apellido>ZELINKA</Apellido>
+    <Pais codigoFIFA="CZE" codigoISO2="CZ" codigoISO3="CZE">Chequia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cs</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511392">
+    <Nombre>Daniel</Nombre>
+    <Apellido>CORTZEN</Apellido>
+    <Pais codigoFIFA="DEN" codigoISO2="DK" codigoISO3="DNK">Dinamarca</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425296">
+    <Nombre>Jakob</Nombre>
+    <Apellido>MASTRUP</Apellido>
+    <Pais codigoFIFA="DEN" codigoISO2="DK" codigoISO3="DNK">Dinamarca</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476902">
+    <Nombre>Anna Kjaer</Nombre>
+    <Apellido>SCHMIDT</Apellido>
+    <Pais codigoFIFA="DEN" codigoISO2="DK" codigoISO3="DNK">Dinamarca</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434548">
+    <Nombre>Jakob Alexander</Nombre>
+    <Apellido>SUNDBERG</Apellido>
+    <Pais codigoFIFA="DEN" codigoISO2="DK" codigoISO3="DNK">Dinamarca</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434551">
+    <Nombre>Deniz</Nombre>
+    <Apellido>YURDAKUL</Apellido>
+    <Pais codigoFIFA="DEN" codigoISO2="DK" codigoISO3="DNK">Dinamarca</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511395">
+    <Nombre>Abdourahman</Nombre>
+    <Apellido>AHMED BARKADLEH</Apellido>
+    <Pais codigoFIFA="DJI" codigoISO2="DJ" codigoISO3="DJI">Yibuti</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476906">
+    <Nombre>George Alberto</Nombre>
+    <Apellido>SANTANA PEREZ</Apellido>
+    <Pais codigoFIFA="DOM" codigoISO2="DO" codigoISO3="DOM">República Dominicana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424927">
+    <Nombre>Juan</Nombre>
+    <Apellido>AGUIAR</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424925">
+    <Nombre>Augusto</Nombre>
+    <Apellido>ARAGON</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446959">
+    <Nombre>Bryan</Nombre>
+    <Apellido>LOAYZA</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476911">
+    <Nombre>Mauricio</Nombre>
+    <Apellido>LOZADA</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476913">
+    <Nombre>Kevin Fabricio</Nombre>
+    <Apellido>PAZMINO AREVALO</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361339">
+    <Nombre>Viviana</Nombre>
+    <Apellido>SEGURA</Apellido>
+    <Pais codigoFIFA="ECU" codigoISO2="EC" codigoISO3="ECU">Ecuador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="63050">
+    <Nombre>Abdel Aziz</Nombre>
+    <Apellido>EL SAID</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>1995-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383495">
+    <Nombre>Samir</Nombre>
+    <Apellido>GAMAL SAAD MOHAMED</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374447">
+    <Nombre>Ahmed</Nombre>
+    <Apellido>HOSSAM TAHA</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428810">
+    <Nombre>Tarek</Nombre>
+    <Apellido>MAGDY</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400074">
+    <Nombre>Shahenda</Nombre>
+    <Apellido>SAAD</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392023">
+    <Nombre>Noura</Nombre>
+    <Apellido>SAMIR HAMED ELSAYED</Apellido>
+    <Pais codigoFIFA="EGY" codigoISO2="EG" codigoISO3="EGY">Egipto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415927">
+    <Nombre>Abigail</Nombre>
+    <Apellido>BYRNE</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400226">
+    <Nombre>Ian</Nombre>
+    <Apellido>HUSSIN</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400069">
+    <Nombre>Adam</Nombre>
+    <Apellido>NUNN</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="347710">
+    <Nombre>Michael</Nombre>
+    <Apellido>OLIVER</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425357">
+    <Nombre>Stacey</Nombre>
+    <Apellido>PEARSON</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360460">
+    <Nombre>Anthony</Nombre>
+    <Apellido>TAYLOR</Apellido>
+    <Pais codigoFIFA="ENG" codigoISO2="" codigoISO3="">Inglaterra</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476925">
+    <Nombre>Antimo Esono</Nombre>
+    <Apellido>ESONO AVOMO</Apellido>
+    <Pais codigoFIFA="EQG" codigoISO2="GQ" codigoISO3="GNQ">Guinea Ecuatorial</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447112">
+    <Nombre>Henok</Nombre>
+    <Apellido>TESFAMICHAEL ZEROM</Apellido>
+    <Pais codigoFIFA="ERI" codigoISO2="ER" codigoISO3="ERI">Eritrea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ti</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408492">
+    <Nombre>Andrada</Nombre>
+    <Apellido>ALOMAN</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="382902">
+    <Nombre>Diego</Nombre>
+    <Apellido>BARBERO</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491798">
+    <Nombre>Elisabet</Nombre>
+    <Apellido>CALVO VALENTIN</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477152">
+    <Nombre>Iragartze</Nombre>
+    <Apellido>FERNANDEZ</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447209">
+    <Nombre>Ivan</Nombre>
+    <Apellido>MASSO GRANADO</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373849">
+    <Nombre>Angel</Nombre>
+    <Apellido>NEVADO RODRIGUEZ</Apellido>
+    <Pais codigoFIFA="ESP" codigoISO2="ES" codigoISO3="ESP">España</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491520">
+    <Nombre>Sintayehu Defersha</Nombre>
+    <Apellido>GEBREYES</Apellido>
+    <Pais codigoFIFA="ETH" codigoISO2="ET" codigoISO3="ETH">Etiopía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>am</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435609">
+    <Nombre>Mustofa</Nombre>
+    <Apellido>MEKI</Apellido>
+    <Pais codigoFIFA="ETH" codigoISO2="ET" codigoISO3="ETH">Etiopía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>am</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476931">
+    <Nombre>Siraj Nurbegen</Nombre>
+    <Apellido>MOHAMMED</Apellido>
+    <Pais codigoFIFA="ETH" codigoISO2="ET" codigoISO3="ETH">Etiopía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>am</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511435">
+    <Nombre>Yordanos Mulugeta</Nombre>
+    <Apellido>SHIBRE</Apellido>
+    <Pais codigoFIFA="ETH" codigoISO2="ET" codigoISO3="ETH">Etiopía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>am</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435623">
+    <Nombre>Manuhe</Nombre>
+    <Apellido>WOLDETSADIK</Apellido>
+    <Pais codigoFIFA="ETH" codigoISO2="ET" codigoISO3="ETH">Etiopía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>am</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428473">
+    <Nombre>Mohammad</Nombre>
+    <Apellido>AL-EMARA</Apellido>
+    <Pais codigoFIFA="FIN" codigoISO2="FI" codigoISO3="FIN">Finlandia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fi</Idioma>
+      <Idioma>sv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476937">
+    <Nombre>Christian</Nombre>
+    <Apellido>DE CASSERES</Apellido>
+    <Pais codigoFIFA="FIN" codigoISO2="FI" codigoISO3="FIN">Finlandia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fi</Idioma>
+      <Idioma>sv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447133">
+    <Nombre>Alexis</Nombre>
+    <Apellido>AUGER</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447250">
+    <Nombre>Clementine Muriel Jeromine</Nombre>
+    <Apellido>DUBREIL</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511444">
+    <Nombre>Hamid</Nombre>
+    <Apellido>GUENAOUI</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491526">
+    <Nombre>Romain</Nombre>
+    <Apellido>LISSORGUE</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373782">
+    <Nombre>Benoit</Nombre>
+    <Apellido>MILLOT</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408615">
+    <Nombre>Mehdi</Nombre>
+    <Apellido>RAHMOUNI</Apellido>
+    <Pais codigoFIFA="FRA" codigoISO2="FR" codigoISO3="FRA">Francia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447221">
+    <Nombre>Johan Hendrik</Nombre>
+    <Apellido>ELLEFSEN</Apellido>
+    <Pais codigoFIFA="FRO" codigoISO2="FO" codigoISO3="FRO">Islas Feroe</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fo</Idioma>
+      <Idioma>da</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447115">
+    <Nombre>Amos</Nombre>
+    <Apellido>ABEIGNE</Apellido>
+    <Pais codigoFIFA="GAB" codigoISO2="GA" codigoISO3="GAB">Gabón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447042">
+    <Nombre>Abdallah</Nombre>
+    <Apellido>JAMMEH L.</Apellido>
+    <Pais codigoFIFA="GAM" codigoISO2="GM" codigoISO3="GMB">Gambia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392044">
+    <Nombre>Abdul Aziz Bollel</Nombre>
+    <Apellido>JAWO</Apellido>
+    <Pais codigoFIFA="GAM" codigoISO2="GM" codigoISO3="GMB">Gambia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400389">
+    <Nombre>Goga</Nombre>
+    <Apellido>KIKACHEISHVILI</Apellido>
+    <Pais codigoFIFA="GEO" codigoISO2="GE" codigoISO3="GEO">Georgia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ka</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491536">
+    <Nombre>Bakur</Nombre>
+    <Apellido>NINUA</Apellido>
+    <Pais codigoFIFA="GEO" codigoISO2="GE" codigoISO3="GEO">Georgia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ka</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491537">
+    <Nombre>Sopiko</Nombre>
+    <Apellido>RIZHAMADZE</Apellido>
+    <Pais codigoFIFA="GEO" codigoISO2="GE" codigoISO3="GEO">Georgia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ka</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491362">
+    <Nombre>Benjamin</Nombre>
+    <Apellido>BRAND</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360608">
+    <Nombre>Christian</Nombre>
+    <Apellido>DINGERT</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416009">
+    <Nombre>Christian</Nombre>
+    <Apellido>GITTELMANN</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="301971">
+    <Nombre>Riem</Nombre>
+    <Apellido>HUSSEIN</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2009-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="432911">
+    <Nombre>Sven</Nombre>
+    <Apellido>JABLONSKI</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447153">
+    <Nombre>Lasse</Nombre>
+    <Apellido>KOSLOWSKI</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476951">
+    <Nombre>Jasmin</Nombre>
+    <Apellido>MATYSIAK</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435911">
+    <Nombre>Daniel</Nombre>
+    <Apellido>SCHLAGER</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392031">
+    <Nombre>Jan</Nombre>
+    <Apellido>SEIDEL</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428265">
+    <Nombre>Franziska</Nombre>
+    <Apellido>WILDFEUER</Apellido>
+    <Pais codigoFIFA="GER" codigoISO2="DE" codigoISO3="DEU">Alemania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446975">
+    <Nombre>Rita Ama</Nombre>
+    <Apellido>BOATENG-NKANSAH</Apellido>
+    <Pais codigoFIFA="GHA" codigoISO2="GH" codigoISO3="GHA">Ghana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408371">
+    <Nombre>Doris Essuman</Nombre>
+    <Apellido>DARKO</Apellido>
+    <Pais codigoFIFA="GHA" codigoISO2="GH" codigoISO3="GHA">Ghana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511450">
+    <Nombre>Nartey</Nombre>
+    <Apellido>RICHARD KWAKU</Apellido>
+    <Pais codigoFIFA="GHA" codigoISO2="GH" codigoISO3="GHA">Ghana</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435097">
+    <Nombre>Stefanos</Nombre>
+    <Apellido>KOUMPARAKIS</Apellido>
+    <Pais codigoFIFA="GRE" codigoISO2="GR" codigoISO3="GRC">Grecia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>el</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511454">
+    <Nombre>Dostin Michael</Nombre>
+    <Apellido>ACUTA GARCIA</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491558">
+    <Nombre>Alvaro Orlando</Nombre>
+    <Apellido>ALVARADO DE LEON</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="242388">
+    <Nombre>Walter</Nombre>
+    <Apellido>LOPEZ</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2006-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400154">
+    <Nombre>Humberto</Nombre>
+    <Apellido>PANJOJ</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491561">
+    <Nombre>Julio Cesar</Nombre>
+    <Apellido>PEREZ GARNICA</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="257082">
+    <Nombre>Lesbia</Nombre>
+    <Apellido>TZUL</Apellido>
+    <Pais codigoFIFA="GUA" codigoISO2="GT" codigoISO3="GTM">Guatemala</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2007-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491569">
+    <Nombre>Daouda</Nombre>
+    <Apellido>CAMARA</Apellido>
+    <Pais codigoFIFA="GUI" codigoISO2="GN" codigoISO3="GIN">Guinea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428834">
+    <Nombre>Kaba</Nombre>
+    <Apellido>FADIGA</Apellido>
+    <Pais codigoFIFA="GUI" codigoISO2="GN" codigoISO3="GIN">Guinea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="328599">
+    <Nombre>Sidiki</Nombre>
+    <Apellido>SIDIBE</Apellido>
+    <Pais codigoFIFA="GUI" codigoISO2="GN" codigoISO3="GIN">Guinea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416344">
+    <Nombre>Yamoussa</Nombre>
+    <Apellido>SYLLA</Apellido>
+    <Pais codigoFIFA="GUI" codigoISO2="GN" codigoISO3="GIN">Guinea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361769">
+    <Nombre>Mamady</Nombre>
+    <Apellido>TERE</Apellido>
+    <Pais codigoFIFA="GUI" codigoISO2="GN" codigoISO3="GIN">Guinea</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434678">
+    <Nombre>Lanchka</Nombre>
+    <Apellido>ELYSEE</Apellido>
+    <Pais codigoFIFA="HAI" codigoISO2="HT" codigoISO3="HTI">Haití</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>ht</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="281132">
+    <Nombre>Kwok Man</Nombre>
+    <Apellido>LIU</Apellido>
+    <Pais codigoFIFA="HKG" codigoISO2="HK" codigoISO3="HKG">Hong Kong</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2008-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="382885">
+    <Nombre>Kin Sun</Nombre>
+    <Apellido>LUK</Apellido>
+    <Pais codigoFIFA="HKG" codigoISO2="HK" codigoISO3="HKG">Hong Kong</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476975">
+    <Nombre>Jose Fernando</Nombre>
+    <Apellido>ESPINOZA BANEGAS</Apellido>
+    <Pais codigoFIFA="HON" codigoISO2="HN" codigoISO3="HND">Honduras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491581">
+    <Nombre>Nolvia Rosibel</Nombre>
+    <Apellido>HERNANDEZ CANALEZ</Apellido>
+    <Pais codigoFIFA="HON" codigoISO2="HN" codigoISO3="HND">Honduras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400191">
+    <Nombre>Said</Nombre>
+    <Apellido>MARTINEZ</Apellido>
+    <Pais codigoFIFA="HON" codigoISO2="HN" codigoISO3="HND">Honduras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428220">
+    <Nombre>Gerson Daniel</Nombre>
+    <Apellido>ORELLANA MARTINEZ</Apellido>
+    <Pais codigoFIFA="HON" codigoISO2="HN" codigoISO3="HND">Honduras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476976">
+    <Nombre>Jose Javier</Nombre>
+    <Apellido>VALLADARES CANALES</Apellido>
+    <Pais codigoFIFA="HON" codigoISO2="HN" codigoISO3="HND">Honduras</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511467">
+    <Nombre>Bence Peter</Nombre>
+    <Apellido>BELICZA</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476982">
+    <Nombre>Bence</Nombre>
+    <Apellido>CSONKA DR.</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="206623">
+    <Nombre>Judit</Nombre>
+    <Apellido>KULCSAR DR.</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2004-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="206611">
+    <Nombre>Katalin</Nombre>
+    <Apellido>KULCSAR</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2004-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416016">
+    <Nombre>Katalin</Nombre>
+    <Apellido>SIPOS</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="256651">
+    <Nombre>Istvan</Nombre>
+    <Apellido>VAD</Apellido>
+    <Pais codigoFIFA="HUN" codigoISO2="HU" codigoISO3="HUN">Hungría</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2007-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360820">
+    <Nombre>Bangbang</Nombre>
+    <Apellido>SYAMSUDAR</Apellido>
+    <Pais codigoFIFA="IDN" codigoISO2="ID" codigoISO3="IDN">Indonesia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>id</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476986">
+    <Nombre>Dipesh Manohar</Nombre>
+    <Apellido>SAWANT</Apellido>
+    <Pais codigoFIFA="IND" codigoISO2="IN" codigoISO3="IND">India</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>hi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361155">
+    <Nombre>Emmet</Nombre>
+    <Apellido>DYNAN</Apellido>
+    <Pais codigoFIFA="IRL" codigoISO2="IE" codigoISO3="IRL">Irlanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ga</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383654">
+    <Nombre>Robert</Nombre>
+    <Apellido>HARVEY</Apellido>
+    <Pais codigoFIFA="IRL" codigoISO2="IE" codigoISO3="IRL">Irlanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ga</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425247">
+    <Nombre>Amir</Nombre>
+    <Apellido>ARAB BARAGHI</Apellido>
+    <Pais codigoFIFA="IRN" codigoISO2="IR" codigoISO3="IRN">Irán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fa</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446834">
+    <Nombre>Farhad</Nombre>
+    <Apellido>FARHADPOOR</Apellido>
+    <Pais codigoFIFA="IRN" codigoISO2="IR" codigoISO3="IRN">Irán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fa</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400016">
+    <Nombre>Hayder Abdulhasan Ali</Nombre>
+    <Apellido>UBAYDEE</Apellido>
+    <Pais codigoFIFA="IRQ" codigoISO2="IQ" codigoISO3="IRQ">Irak</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>ku</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408592">
+    <Nombre>Ivar Orri</Nombre>
+    <Apellido>KRISTJANSSON</Apellido>
+    <Pais codigoFIFA="ISL" codigoISO2="IS" codigoISO3="ISL">Islandia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>is</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="187120">
+    <Nombre>Eli</Nombre>
+    <Apellido>HACMON</Apellido>
+    <Pais codigoFIFA="ISR" codigoISO2="IL" codigoISO3="ISR">Israel</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2002-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>he</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491601">
+    <Nombre>Gal</Nombre>
+    <Apellido>LEVI</Apellido>
+    <Pais codigoFIFA="ISR" codigoISO2="IL" codigoISO3="ISR">Israel</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>he</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491598">
+    <Nombre>Kamla</Nombre>
+    <Apellido>NASSAR</Apellido>
+    <Pais codigoFIFA="ISR" codigoISO2="IL" codigoISO3="ISR">Israel</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>he</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434759">
+    <Nombre>Giovanni</Nombre>
+    <Apellido>BACCINI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408209">
+    <Nombre>Daniele</Nombre>
+    <Apellido>DOVERI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415963">
+    <Nombre>Maria Sole</Nombre>
+    <Apellido>FERRIERI CAPUTI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476998">
+    <Nombre>Valerio</Nombre>
+    <Apellido>MARINI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374760">
+    <Nombre>Davide</Nombre>
+    <Apellido>MASSA</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491384">
+    <Nombre>Giuseppe</Nombre>
+    <Apellido>PERROTTI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415969">
+    <Nombre>Alberto</Nombre>
+    <Apellido>TEGONI</Apellido>
+    <Pais codigoFIFA="ITA" codigoISO2="IT" codigoISO3="ITA">Italia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416322">
+    <Nombre>Ojay</Nombre>
+    <Apellido>DUHANEY</Apellido>
+    <Pais codigoFIFA="JAM" codigoISO2="JM" codigoISO3="JAM">Jamaica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436228">
+    <Nombre>Neressa</Nombre>
+    <Apellido>GOLDSON</Apellido>
+    <Pais codigoFIFA="JAM" codigoISO2="JM" codigoISO3="JAM">Jamaica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446870">
+    <Nombre>Mckenzie</Nombre>
+    <Apellido>RICARDO</Apellido>
+    <Pais codigoFIFA="JAM" codigoISO2="JM" codigoISO3="JAM">Jamaica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408454">
+    <Nombre>Islam</Nombre>
+    <Apellido>AL-ABADI</Apellido>
+    <Pais codigoFIFA="JOR" codigoISO2="JO" codigoISO3="JOR">Jordania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="327165">
+    <Nombre>Mohammad</Nombre>
+    <Apellido>ALKALAF</Apellido>
+    <Pais codigoFIFA="JOR" codigoISO2="JO" codigoISO3="JOR">Jordania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511489">
+    <Nombre>Ahmad</Nombre>
+    <Apellido>ALKHAWALDEH</Apellido>
+    <Pais codigoFIFA="JOR" codigoISO2="JO" codigoISO3="JOR">Jordania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="417562">
+    <Nombre>Esraa</Nombre>
+    <Apellido>ALMBAIDEN</Apellido>
+    <Pais codigoFIFA="JOR" codigoISO2="JO" codigoISO3="JOR">Jordania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511485">
+    <Nombre>Kohei</Nombre>
+    <Apellido>ANDO</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400040">
+    <Nombre>Yusuke</Nombre>
+    <Apellido>ARAKI</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446825">
+    <Nombre>Takeshi</Nombre>
+    <Apellido>ASADA</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491608">
+    <Nombre>Masaru</Nombre>
+    <Apellido>HASEGAWA</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428369">
+    <Nombre>Azusa</Nombre>
+    <Apellido>SUGINO</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425375">
+    <Nombre>Yosuke</Nombre>
+    <Apellido>TAKEBE</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434161">
+    <Nombre>Ryo</Nombre>
+    <Apellido>TANIMOTO</Apellido>
+    <Pais codigoFIFA="JPN" codigoISO2="JP" codigoISO3="JPN">Japón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ja</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="437354">
+    <Nombre>Sayat</Nombre>
+    <Apellido>KARABAYEV</Apellido>
+    <Pais codigoFIFA="KAZ" codigoISO2="KZ" codigoISO3="KAZ">Kazajistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>kk</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416025">
+    <Nombre>Nargis</Nombre>
+    <Apellido>MAGAU</Apellido>
+    <Pais codigoFIFA="KAZ" codigoISO2="KZ" codigoISO3="KAZ">Kazajistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>kk</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435328">
+    <Nombre>Adam</Nombre>
+    <Apellido>NYONGESA</Apellido>
+    <Pais codigoFIFA="KEN" codigoISO2="KE" codigoISO3="KEN">Kenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428200">
+    <Nombre>Nurzatbek</Nombre>
+    <Apellido>ABDYKADYROV</Apellido>
+    <Pais codigoFIFA="KGZ" codigoISO2="KG" codigoISO3="KGZ">Kirguistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ky</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408597">
+    <Nombre>Yujeong</Nombre>
+    <Apellido>KIM</Apellido>
+    <Pais codigoFIFA="KOR" codigoISO2="KR" codigoISO3="KOR">Corea del Sur</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ko</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="218947">
+    <Nombre>Seul Gi</Nombre>
+    <Apellido>LEE</Apellido>
+    <Pais codigoFIFA="KOR" codigoISO2="KR" codigoISO3="KOR">Corea del Sur</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2005-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ko</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447283">
+    <Nombre>Fitore</Nombre>
+    <Apellido>GOVORI</Apellido>
+    <Pais codigoFIFA="KOS" codigoISO2="XK" codigoISO3="XKX">Kosovo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sq</Idioma>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400234">
+    <Nombre>Genc</Nombre>
+    <Apellido>NUZA</Apellido>
+    <Pais codigoFIFA="KOS" codigoISO2="XK" codigoISO3="XKX">Kosovo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sq</Idioma>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373827">
+    <Nombre>Mohammed</Nombre>
+    <Apellido>AL HOISH</Apellido>
+    <Pais codigoFIFA="KSA" codigoISO2="SA" codigoISO3="SAU">Arabia Saudita</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436268">
+    <Nombre>Sami Ahmed</Nombre>
+    <Apellido>ALJURAYS</Apellido>
+    <Pais codigoFIFA="KSA" codigoISO2="SA" codigoISO3="SAU">Arabia Saudita</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446853">
+    <Nombre>Saad</Nombre>
+    <Apellido>ALSUBAIE</Apellido>
+    <Pais codigoFIFA="KSA" codigoISO2="SA" codigoISO3="SAU">Arabia Saudita</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392109">
+    <Nombre>Abdulhadi Moab</Nombre>
+    <Apellido>ALANEZI</Apellido>
+    <Pais codigoFIFA="KUW" codigoISO2="KW" codigoISO3="KWT">Kuwait</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447072">
+    <Nombre>Saud</Nombre>
+    <Apellido>ALSAMHAN M M T A</Apellido>
+    <Pais codigoFIFA="KUW" codigoISO2="KW" codigoISO3="KWT">Kuwait</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476756">
+    <Nombre>Talal</Nombre>
+    <Apellido>ALSHAMMARI</Apellido>
+    <Pais codigoFIFA="KUW" codigoISO2="KW" codigoISO3="KWT">Kuwait</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415867">
+    <Nombre>Ali</Nombre>
+    <Apellido>JRAQ</Apellido>
+    <Pais codigoFIFA="KUW" codigoISO2="KW" codigoISO3="KWT">Kuwait</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="382692">
+    <Nombre>Kilar</Nombre>
+    <Apellido>LADSAVONG</Apellido>
+    <Pais codigoFIFA="LAO" codigoISO2="LA" codigoISO3="LAO">Laos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lo</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477011">
+    <Nombre>Loun</Nombre>
+    <Apellido>SOUTHIVONG</Apellido>
+    <Pais codigoFIFA="LAO" codigoISO2="LA" codigoISO3="LAO">Laos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lo</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361121">
+    <Nombre>Hussein</Nombre>
+    <Apellido>ABO YEHIA</Apellido>
+    <Pais codigoFIFA="LBN" codigoISO2="LB" codigoISO3="LBN">Líbano</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511255">
+    <Nombre>Ali</Nombre>
+    <Apellido>BARAKAT</Apellido>
+    <Pais codigoFIFA="LBN" codigoISO2="LB" codigoISO3="LBN">Líbano</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428156">
+    <Nombre>Ali</Nombre>
+    <Apellido>BERRY</Apellido>
+    <Pais codigoFIFA="LBN" codigoISO2="LB" codigoISO3="LBN">Líbano</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491627">
+    <Nombre>Jana</Nombre>
+    <Apellido>HAYDAR</Apellido>
+    <Pais codigoFIFA="LBN" codigoISO2="LB" codigoISO3="LBN">Líbano</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416552">
+    <Nombre>Joel</Nombre>
+    <Apellido>DOE</Apellido>
+    <Pais codigoFIFA="LBR" codigoISO2="LR" codigoISO3="LBR">Liberia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425140">
+    <Nombre>Shuhoub</Nombre>
+    <Apellido>ABDULBASIT</Apellido>
+    <Pais codigoFIFA="LBY" codigoISO2="LY" codigoISO3="LBY">Libia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477016">
+    <Nombre>Mathapelo Jeanett</Nombre>
+    <Apellido>MORAKE</Apellido>
+    <Pais codigoFIFA="LES" codigoISO2="LS" codigoISO3="LSO">Lesoto</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>st</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447218">
+    <Nombre>Kestutis</Nombre>
+    <Apellido>BARTUSKEVICIUS</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408383">
+    <Nombre>Gerda</Nombre>
+    <Apellido>BREZNEVA</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428188">
+    <Nombre>Mangirdas</Nombre>
+    <Apellido>MIRAUSKAS</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511519">
+    <Nombre>Vilius</Nombre>
+    <Apellido>PAULAUSKAS</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383591">
+    <Nombre>Ieva</Nombre>
+    <Apellido>RAMANAUSKIENE</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="348237">
+    <Nombre>Dovydas</Nombre>
+    <Apellido>SUZIEDELIS</Apellido>
+    <Pais codigoFIFA="LTU" codigoISO2="LT" codigoISO3="LTU">Lituania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425116">
+    <Nombre>Jasmin</Nombre>
+    <Apellido>SABOTIC</Apellido>
+    <Pais codigoFIFA="LUX" codigoISO2="LU" codigoISO3="LUX">Luxemburgo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lb</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511525">
+    <Nombre>Johnny</Nombre>
+    <Apellido>SANTOS LEITE</Apellido>
+    <Pais codigoFIFA="LUX" codigoISO2="LU" codigoISO3="LUX">Luxemburgo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lb</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477019">
+    <Nombre>Kevin</Nombre>
+    <Apellido>STAMMET</Apellido>
+    <Pais codigoFIFA="LUX" codigoISO2="LU" codigoISO3="LUX">Luxemburgo</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lb</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>de</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="281115">
+    <Nombre>Haralds</Nombre>
+    <Apellido>GUDERMANIS</Apellido>
+    <Pais codigoFIFA="LVA" codigoISO2="LV" codigoISO3="LVA">Letonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2008-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>lv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408702">
+    <Nombre>Kin Tou</Nombre>
+    <Apellido>CHANG</Apellido>
+    <Pais codigoFIFA="MAC" codigoISO2="MO" codigoISO3="MAC">Macao</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392160">
+    <Nombre>Ka Seng</Nombre>
+    <Apellido>HO</Apellido>
+    <Pais codigoFIFA="MAC" codigoISO2="MO" codigoISO3="MAC">Macao</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416537">
+    <Nombre>Dominique Rosa</Nombre>
+    <Apellido>HANJAVOLA</Apellido>
+    <Pais codigoFIFA="MAD" codigoISO2="MG" codigoISO3="MDG">Madagascar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mg</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491641">
+    <Nombre>Tahinjanahary Martine</Nombre>
+    <Apellido>HASINIAINA</Apellido>
+    <Pais codigoFIFA="MAD" codigoISO2="MG" codigoISO3="MDG">Madagascar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mg</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408325">
+    <Nombre>Zakia</Nombre>
+    <Apellido>EL GRINI</Apellido>
+    <Pais codigoFIFA="MAR" codigoISO2="MA" codigoISO3="MAR">Marruecos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416529">
+    <Nombre>Ihssane</Nombre>
+    <Apellido>ENNOUAJELI</Apellido>
+    <Pais codigoFIFA="MAR" codigoISO2="MA" codigoISO3="MAR">Marruecos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428828">
+    <Nombre>Hicham</Nombre>
+    <Apellido>TEMSAMANI</Apellido>
+    <Pais codigoFIFA="MAR" codigoISO2="MA" codigoISO3="MAR">Marruecos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408524">
+    <Nombre>Razlan Joffri</Nombre>
+    <Apellido>ALI</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428127">
+    <Nombre>Farhan</Nombre>
+    <Apellido>BIN ABDUL AZIZ</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400106">
+    <Nombre>Mohamad Zairul</Nombre>
+    <Apellido>BIN KHALIL TAN</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435493">
+    <Nombre>Nadziran</Nombre>
+    <Apellido>EZIZ</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447077">
+    <Nombre>Kesava Raj</Nombre>
+    <Apellido>S. NEELAMAGAN</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="347965">
+    <Nombre>Muazi</Nombre>
+    <Apellido>ZAINAL ABIDIN</Apellido>
+    <Pais codigoFIFA="MAS" codigoISO2="MY" codigoISO3="MYS">Malasia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="327635">
+    <Nombre>Natalia</Nombre>
+    <Apellido>CEBAN</Apellido>
+    <Pais codigoFIFA="MDA" codigoISO2="MD" codigoISO3="MDA">Moldavia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428728">
+    <Nombre>Ion</Nombre>
+    <Apellido>ORLIC</Apellido>
+    <Pais codigoFIFA="MDA" codigoISO2="MD" codigoISO3="MDA">Moldavia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491652">
+    <Nombre>Afsheen</Nombre>
+    <Apellido>NASEER</Apellido>
+    <Pais codigoFIFA="MDV" codigoISO2="MV" codigoISO3="MDV">Maldivas</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>dv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="349003">
+    <Nombre>Jaufar</Nombre>
+    <Apellido>RASHEED</Apellido>
+    <Pais codigoFIFA="MDV" codigoISO2="MV" codigoISO3="MDV">Maldivas</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>dv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446893">
+    <Nombre>Marco</Nombre>
+    <Apellido>BISGUERRA</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446877">
+    <Nombre>Victor Alfonso</Nombre>
+    <Apellido>CACERES HERNANDEZ</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="301954">
+    <Nombre>Enedina</Nombre>
+    <Apellido>CAUDILLO</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2009-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408521">
+    <Nombre>Fernando</Nombre>
+    <Apellido>HERNANDEZ GOMEZ</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491662">
+    <Nombre>Ismael</Nombre>
+    <Apellido>LOPEZ PENUELAS</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374810">
+    <Nombre>Cesar</Nombre>
+    <Apellido>RAMOS</Apellido>
+    <Pais codigoFIFA="MEX" codigoISO2="MX" codigoISO3="MEX">México</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400360">
+    <Nombre>Kushtrim</Nombre>
+    <Apellido>LIKA</Apellido>
+    <Pais codigoFIFA="MKD" codigoISO2="MK" codigoISO3="MKD">Macedonia del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511577">
+    <Nombre>Darko</Nombre>
+    <Apellido>VIDINIKJ</Apellido>
+    <Pais codigoFIFA="MKD" codigoISO2="MK" codigoISO3="MKD">Macedonia del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425403">
+    <Nombre>Ousmane</Nombre>
+    <Apellido>DIAKATE</Apellido>
+    <Pais codigoFIFA="MLI" codigoISO2="ML" codigoISO3="MLI">Malí</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373689">
+    <Nombre>Aissata</Nombre>
+    <Apellido>DIARRA</Apellido>
+    <Pais codigoFIFA="MLI" codigoISO2="ML" codigoISO3="MLI">Malí</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511530">
+    <Nombre>Adama</Nombre>
+    <Apellido>KONE</Apellido>
+    <Pais codigoFIFA="MLI" codigoISO2="ML" codigoISO3="MLI">Malí</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408463">
+    <Nombre>Modibo</Nombre>
+    <Apellido>SAMAKE</Apellido>
+    <Pais codigoFIFA="MLI" codigoISO2="ML" codigoISO3="MLI">Malí</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="348119">
+    <Nombre>Boubou</Nombre>
+    <Apellido>TRAORE</Apellido>
+    <Pais codigoFIFA="MLI" codigoISO2="ML" codigoISO3="MLI">Malí</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="476750">
+    <Nombre>Marko</Nombre>
+    <Apellido>GOJKOVIC</Apellido>
+    <Pais codigoFIFA="MNE" codigoISO2="ME" codigoISO3="MNE">Montenegro</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511541">
+    <Nombre>Enkhbold</Nombre>
+    <Apellido>BOLD</Apellido>
+    <Pais codigoFIFA="MNG" codigoISO2="MN" codigoISO3="MNG">Mongolia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392212">
+    <Nombre>Simoes Bernardo</Nombre>
+    <Apellido>GUAMBE</Apellido>
+    <Pais codigoFIFA="MOZ" codigoISO2="MZ" codigoISO3="MOZ">Mozambique</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416437">
+    <Nombre>Patrice</Nombre>
+    <Apellido>MILAZARE</Apellido>
+    <Pais codigoFIFA="MRI" codigoISO2="MU" codigoISO3="MUS">Mauricio</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425278">
+    <Nombre>Aswet</Nombre>
+    <Apellido>TEELUCK</Apellido>
+    <Pais codigoFIFA="MRI" codigoISO2="MU" codigoISO3="MUS">Mauricio</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434144">
+    <Nombre>Abderahmane</Nombre>
+    <Apellido>ANNE</Apellido>
+    <Pais codigoFIFA="MTN" codigoISO2="MR" codigoISO3="MRT">Mauritania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425309">
+    <Nombre>Moussa</Nombre>
+    <Apellido>DIOU</Apellido>
+    <Pais codigoFIFA="MTN" codigoISO2="MR" codigoISO3="MRT">Mauritania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416464">
+    <Nombre>Mohamed Mahmoud</Nombre>
+    <Apellido>YOUSSOUF</Apellido>
+    <Pais codigoFIFA="MTN" codigoISO2="MR" codigoISO3="MRT">Mauritania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511528">
+    <Nombre>Emily</Nombre>
+    <Apellido>CHATHAMTHUMBA</Apellido>
+    <Pais codigoFIFA="MWI" codigoISO2="MW" codigoISO3="MWI">Malaui</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ny</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477024">
+    <Nombre>Samuel</Nombre>
+    <Apellido>FUDZULANI</Apellido>
+    <Pais codigoFIFA="MWI" codigoISO2="MW" codigoISO3="MWI">Malaui</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ny</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491648">
+    <Nombre>Mayamiko</Nombre>
+    <Apellido>KANJERE</Apellido>
+    <Pais codigoFIFA="MWI" codigoISO2="MW" codigoISO3="MWI">Malaui</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ny</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="315763">
+    <Nombre>Happiness</Nombre>
+    <Apellido>MBANDAMBANDA</Apellido>
+    <Pais codigoFIFA="MWI" codigoISO2="MW" codigoISO3="MWI">Malaui</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ny</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400202">
+    <Nombre>Zayar</Nombre>
+    <Apellido>MAUNG</Apellido>
+    <Pais codigoFIFA="MYA" codigoISO2="MM" codigoISO3="MMR">Myanmar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>my</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447401">
+    <Nombre>Zin Mar</Nombre>
+    <Apellido>OO</Apellido>
+    <Pais codigoFIFA="MYA" codigoISO2="MM" codigoISO3="MMR">Myanmar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>my</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436136">
+    <Nombre>Khin Maung</Nombre>
+    <Apellido>SOE</Apellido>
+    <Pais codigoFIFA="MYA" codigoISO2="MM" codigoISO3="MMR">Myanmar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>my</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511556">
+    <Nombre>Thura</Nombre>
+    <Apellido>ZAW</Apellido>
+    <Pais codigoFIFA="MYA" codigoISO2="MM" codigoISO3="MMR">Myanmar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>my</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491684">
+    <Nombre>Petrus</Nombre>
+    <Apellido>AMUTENYA</Apellido>
+    <Pais codigoFIFA="NAM" codigoISO2="NA" codigoISO3="NAM">Namibia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>af</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416386">
+    <Nombre>Eveline Lungameni</Nombre>
+    <Apellido>AUGUSTINUS</Apellido>
+    <Pais codigoFIFA="NAM" codigoISO2="NA" codigoISO3="NAM">Namibia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>af</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408412">
+    <Nombre>Vistoria Nuusiku</Nombre>
+    <Apellido>SHANGULA</Apellido>
+    <Pais codigoFIFA="NAM" codigoISO2="NA" codigoISO3="NAM">Namibia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>af</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416329">
+    <Nombre>Jorge Luis</Nombre>
+    <Apellido>OJEDA SEQUEIRA</Apellido>
+    <Pais codigoFIFA="NCA" codigoISO2="NI" codigoISO3="NIC">Nicaragua</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491692">
+    <Nombre>Stefan</Nombre>
+    <Apellido>DE GROOT</Apellido>
+    <Pais codigoFIFA="NED" codigoISO2="NL" codigoISO3="NLD">Países Bajos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="432976">
+    <Nombre>Richard</Nombre>
+    <Apellido>MARTENS</Apellido>
+    <Pais codigoFIFA="NED" codigoISO2="NL" codigoISO3="NLD">Países Bajos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="432886">
+    <Nombre>Clay</Nombre>
+    <Apellido>RUPERTI</Apellido>
+    <Pais codigoFIFA="NED" codigoISO2="NL" codigoISO3="NLD">Países Bajos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477059">
+    <Nombre>Harish</Nombre>
+    <Apellido>KARKI</Apellido>
+    <Pais codigoFIFA="NEP" codigoISO2="NP" codigoISO3="NPL">Nepal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ne</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408540">
+    <Nombre>Abubakar</Nombre>
+    <Apellido>ABDULLAHI</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435003">
+    <Nombre>Kasimu</Nombre>
+    <Apellido>ABDULSALAM</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447433">
+    <Nombre>Tijjani</Nombre>
+    <Apellido>AHMAD MUSTAPHA</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511572">
+    <Nombre>Ridwan Temitope</Nombre>
+    <Apellido>LAWAL</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416393">
+    <Nombre>Abubakar</Nombre>
+    <Apellido>NURUDEEN</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425478">
+    <Nombre>Alaba</Nombre>
+    <Apellido>OLUFUNMILAYO ABIGAEL</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491702">
+    <Nombre>Emmanuel</Nombre>
+    <Apellido>OMADA</Apellido>
+    <Pais codigoFIFA="NGA" codigoISO2="NG" codigoISO3="NGA">Nigeria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416431">
+    <Nombre>Sakina</Nombre>
+    <Apellido>ALFA</Apellido>
+    <Pais codigoFIFA="NIG" codigoISO2="NE" codigoISO3="NER">Níger</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>ha</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392229">
+    <Nombre>Georgios</Nombre>
+    <Apellido>ARGYROPOULOS</Apellido>
+    <Pais codigoFIFA="NIR" codigoISO2="" codigoISO3="">Irlanda del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425397">
+    <Nombre>Andrew</Nombre>
+    <Apellido>NETHERY</Apellido>
+    <Pais codigoFIFA="NIR" codigoISO2="" codigoISO3="">Irlanda del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415940">
+    <Nombre>Anders Olav</Nombre>
+    <Apellido>DALE</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="348661">
+    <Nombre>Jan Erik</Nombre>
+    <Apellido>ENGAN</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400138">
+    <Nombre>Morten</Nombre>
+    <Apellido>JENSEN</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428244">
+    <Nombre>Runar</Nombre>
+    <Apellido>LANGSETH</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373990">
+    <Nombre>Henrikke</Nombre>
+    <Apellido>NERVIK</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408227">
+    <Nombre>Line Cathrine</Nombre>
+    <Apellido>NYMOEN</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477079">
+    <Nombre>Alf Olav</Nombre>
+    <Apellido>ROSSLAND</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447268">
+    <Nombre>Jorgen</Nombre>
+    <Apellido>VALSTADSVE</Apellido>
+    <Pais codigoFIFA="NOR" codigoISO2="NO" codigoISO3="NOR">Noruega</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>no</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="313983">
+    <Nombre>Anna-Marie</Nombre>
+    <Apellido>KEIGHLEY</Apellido>
+    <Pais codigoFIFA="NZL" codigoISO2="NZ" codigoISO3="NZL">Nueva Zelanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="432034">
+    <Nombre>Beth</Nombre>
+    <Apellido>RATTRAY</Apellido>
+    <Pais codigoFIFA="NZL" codigoISO2="NZ" codigoISO3="NZL">Nueva Zelanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>mi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446839">
+    <Nombre>Yahya Ahmed Ibrahim</Nombre>
+    <Apellido>AL BALUSHI</Apellido>
+    <Pais codigoFIFA="OMA" codigoISO2="OM" codigoISO3="OMN">Omán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383328">
+    <Nombre>Hamed Talib Saif</Nombre>
+    <Apellido>AL GHAFRI</Apellido>
+    <Pais codigoFIFA="OMA" codigoISO2="OM" codigoISO3="OMN">Omán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392239">
+    <Nombre>Qasim Matar Ali</Nombre>
+    <Apellido>AL HATMI</Apellido>
+    <Pais codigoFIFA="OMA" codigoISO2="OM" codigoISO3="OMN">Omán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360611">
+    <Nombre>Omar</Nombre>
+    <Apellido>AL YAQOUBI</Apellido>
+    <Pais codigoFIFA="OMA" codigoISO2="OM" codigoISO3="OMN">Omán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477338">
+    <Nombre>Ihsan</Nombre>
+    <Apellido>AHMED</Apellido>
+    <Pais codigoFIFA="PAK" codigoISO2="PK" codigoISO3="PAK">Pakistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ur</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424986">
+    <Nombre>Adeel</Nombre>
+    <Apellido>ANWER</Apellido>
+    <Pais codigoFIFA="PAK" codigoISO2="PK" codigoISO3="PAK">Pakistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ur</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435260">
+    <Nombre>Andres</Nombre>
+    <Apellido>VARGAS</Apellido>
+    <Pais codigoFIFA="PAN" codigoISO2="PA" codigoISO3="PAN">Panamá</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491717">
+    <Nombre>Derlis</Nombre>
+    <Apellido>BENITEZ</Apellido>
+    <Pais codigoFIFA="PAR" codigoISO2="PY" codigoISO3="PRY">Paraguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>gn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416161">
+    <Nombre>Kevin</Nombre>
+    <Apellido>ORTEGA</Apellido>
+    <Pais codigoFIFA="PER" codigoISO2="PE" codigoISO3="PER">Perú</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428802">
+    <Nombre>Fadi</Nombre>
+    <Apellido>ALSAMHORI</Apellido>
+    <Pais codigoFIFA="PLE" codigoISO2="PS" codigoISO3="PSE">Palestina</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477092">
+    <Nombre>Lukasz</Nombre>
+    <Apellido>KUZMA</Apellido>
+    <Pais codigoFIFA="POL" codigoISO2="PL" codigoISO3="POL">Polonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="327975">
+    <Nombre>Szymon</Nombre>
+    <Apellido>MARCINIAK</Apellido>
+    <Pais codigoFIFA="POL" codigoISO2="PL" codigoISO3="POL">Polonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491734">
+    <Nombre>Wojciech</Nombre>
+    <Apellido>MYC</Apellido>
+    <Pais codigoFIFA="POL" codigoISO2="PL" codigoISO3="POL">Polonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511600">
+    <Nombre>Kornel</Nombre>
+    <Apellido>PASZKIEWICZ</Apellido>
+    <Pais codigoFIFA="POL" codigoISO2="PL" codigoISO3="POL">Polonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425194">
+    <Nombre>Karolina</Nombre>
+    <Apellido>ZYGMOND</Apellido>
+    <Pais codigoFIFA="POL" codigoISO2="PL" codigoISO3="POL">Polonia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383651">
+    <Nombre>Tiago</Nombre>
+    <Apellido>MARTINS</Apellido>
+    <Pais codigoFIFA="POR" codigoISO2="PT" codigoISO3="PRT">Portugal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491746">
+    <Nombre>Raquel</Nombre>
+    <Apellido>MOREIRA PINHO</Apellido>
+    <Pais codigoFIFA="POR" codigoISO2="PT" codigoISO3="PRT">Portugal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511617">
+    <Nombre>David Rafael</Nombre>
+    <Apellido>OLIVEIRA SILVA</Apellido>
+    <Pais codigoFIFA="POR" codigoISO2="PT" codigoISO3="PRT">Portugal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447246">
+    <Nombre>Filipa</Nombre>
+    <Apellido>PEREIRA CUNHA</Apellido>
+    <Pais codigoFIFA="POR" codigoISO2="PT" codigoISO3="PRT">Portugal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425449">
+    <Nombre>Teresa Alice</Nombre>
+    <Apellido>PIMENTA OLIVEIRA</Apellido>
+    <Pais codigoFIFA="POR" codigoISO2="PT" codigoISO3="PRT">Portugal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400382">
+    <Nombre>Un Mi</Nombre>
+    <Apellido>HYON</Apellido>
+    <Pais codigoFIFA="PRK" codigoISO2="KP" codigoISO3="PRK">Corea del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ko</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400256">
+    <Nombre>Sol Mi</Nombre>
+    <Apellido>JON</Apellido>
+    <Pais codigoFIFA="PRK" codigoISO2="KP" codigoISO3="PRK">Corea del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ko</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434825">
+    <Nombre>Yong Jin</Nombre>
+    <Apellido>KANG</Apellido>
+    <Pais codigoFIFA="PRK" codigoISO2="KP" codigoISO3="PRK">Corea del Norte</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ko</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416303">
+    <Nombre>Jose</Nombre>
+    <Apellido>TORRES</Apellido>
+    <Pais codigoFIFA="PUR" codigoISO2="PR" codigoISO3="PRI">Puerto Rico</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383296">
+    <Nombre>Yousuf</Nombre>
+    <Apellido>AL SHAMARI</Apellido>
+    <Pais codigoFIFA="QAT" codigoISO2="QA" codigoISO3="QAT">Catar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416253">
+    <Nombre>Mohammed</Nombre>
+    <Apellido>ALSHAMMARI</Apellido>
+    <Pais codigoFIFA="QAT" codigoISO2="QA" codigoISO3="QAT">Catar</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="417169">
+    <Nombre>Marcel</Nombre>
+    <Apellido>BIRSAN</Apellido>
+    <Pais codigoFIFA="ROU" codigoISO2="RO" codigoISO3="ROU">Rumania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491758">
+    <Nombre>Adrian Sorin</Nombre>
+    <Apellido>COSTREIE</Apellido>
+    <Pais codigoFIFA="ROU" codigoISO2="RO" codigoISO3="ROU">Rumania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392276">
+    <Nombre>Iuliana</Nombre>
+    <Apellido>DEMETRESCU</Apellido>
+    <Pais codigoFIFA="ROU" codigoISO2="RO" codigoISO3="ROU">Rumania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435718">
+    <Nombre>Roxana</Nombre>
+    <Apellido>IVANOV</Apellido>
+    <Pais codigoFIFA="ROU" codigoISO2="RO" codigoISO3="ROU">Rumania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511621">
+    <Nombre>Ilinca</Nombre>
+    <Apellido>MAZGA</Apellido>
+    <Pais codigoFIFA="ROU" codigoISO2="RO" codigoISO3="ROU">Rumania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ro</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434879">
+    <Nombre>Cledwin</Nombre>
+    <Apellido>BALOYI</Apellido>
+    <Pais codigoFIFA="RSA" codigoISO2="ZA" codigoISO3="ZAF">Sudáfrica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>af</Idioma>
+      <Idioma>zu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416476">
+    <Nombre>Khamusi</Nombre>
+    <Apellido>RAZWIMISANI</Apellido>
+    <Pais codigoFIFA="RSA" codigoISO2="ZA" codigoISO3="ZAF">Sudáfrica</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>af</Idioma>
+      <Idioma>zu</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383659">
+    <Nombre>Igor</Nombre>
+    <Apellido>DEMESHKO</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="362583">
+    <Nombre>Maxim</Nombre>
+    <Apellido>GAVRILIN</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435190">
+    <Nombre>Evgenii</Nombre>
+    <Apellido>KUKULIAK</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="349195">
+    <Nombre>Ekaterina</Nombre>
+    <Apellido>KUROCHKINA</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="328218">
+    <Nombre>Dmitry</Nombre>
+    <Apellido>MOSYAKIN</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2008-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477104">
+    <Nombre>Varantso</Nombre>
+    <Apellido>PETROSYAN</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428867">
+    <Nombre>Andrei</Nombre>
+    <Apellido>VERETESHKIN</Apellido>
+    <Pais codigoFIFA="RUS" codigoISO2="RU" codigoISO3="RUS">Rusia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383770">
+    <Nombre>Justin</Nombre>
+    <Apellido>KARANGWA</Apellido>
+    <Pais codigoFIFA="RWA" codigoISO2="RW" codigoISO3="RWA">Ruanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>rw</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392292">
+    <Nombre>Regine</Nombre>
+    <Apellido>MUKAYIRANGA</Apellido>
+    <Pais codigoFIFA="RWA" codigoISO2="RW" codigoISO3="RWA">Ruanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>rw</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360964">
+    <Nombre>Abdoul Karim</Nombre>
+    <Apellido>TWAGIRUMUKIZA</Apellido>
+    <Pais codigoFIFA="RWA" codigoISO2="RW" codigoISO3="RWA">Ruanda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>rw</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415988">
+    <Nombre>Daniel</Nombre>
+    <Apellido>MCFARLANE</Apellido>
+    <Pais codigoFIFA="SCO" codigoISO2="" codigoISO3="">Escocia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392311">
+    <Nombre>Douglas</Nombre>
+    <Apellido>POTTER</Apellido>
+    <Pais codigoFIFA="SCO" codigoISO2="" codigoISO3="">Escocia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408440">
+    <Nombre>Nicolas</Nombre>
+    <Apellido>WALSH</Apellido>
+    <Pais codigoFIFA="SCO" codigoISO2="" codigoISO3="">Escocia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491803">
+    <Nombre>Abobakr Abdalbagi</Nombre>
+    <Apellido>AHMED</Apellido>
+    <Pais codigoFIFA="SDN" codigoISO2="SD" codigoISO3="SDN">Sudán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383781">
+    <Nombre>Khadmallah Elshayeb Angato</Nombre>
+    <Apellido>KOKO</Apellido>
+    <Pais codigoFIFA="SDN" codigoISO2="SD" codigoISO3="SDN">Sudán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477127">
+    <Nombre>Aida</Nombre>
+    <Apellido>SY</Apellido>
+    <Pais codigoFIFA="SEN" codigoISO2="SN" codigoISO3="SEN">Senegal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>wo</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511642">
+    <Nombre>Aminata</Nombre>
+    <Apellido>SYLLA</Apellido>
+    <Pais codigoFIFA="SEN" codigoISO2="SN" codigoISO3="SEN">Senegal</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>fr</Idioma>
+      <Idioma>wo</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491786">
+    <Nombre>Shadiq Al-Hussain</Nombre>
+    <Apellido>SO NAZEER HUSSAIN</Apellido>
+    <Pais codigoFIFA="SGP" codigoISO2="SG" codigoISO3="SGP">Singapur</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>ms</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="391996">
+    <Nombre>Jaime Alfredo</Nombre>
+    <Apellido>HERRERA BONILLA</Apellido>
+    <Pais codigoFIFA="SLV" codigoISO2="SV" codigoISO3="SLV">El Salvador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="446890">
+    <Nombre>Filiberto Enrique</Nombre>
+    <Apellido>MARTINEZ CALIX</Apellido>
+    <Pais codigoFIFA="SLV" codigoISO2="SV" codigoISO3="SLV">El Salvador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360681">
+    <Nombre>David</Nombre>
+    <Apellido>MORAN</Apellido>
+    <Pais codigoFIFA="SLV" codigoISO2="SV" codigoISO3="SLV">El Salvador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511424">
+    <Nombre>Cesar Eduardo</Nombre>
+    <Apellido>NOLASCO QUINTANILLA</Apellido>
+    <Pais codigoFIFA="SLV" codigoISO2="SV" codigoISO3="SLV">El Salvador</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383748">
+    <Nombre>Jeffery Asipara</Nombre>
+    <Apellido>SOLODIA</Apellido>
+    <Pais codigoFIFA="SOL" codigoISO2="SB" codigoISO3="SLB">Islas Salomón</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="435834">
+    <Nombre>Mowlid Rage</Nombre>
+    <Apellido>ALI</Apellido>
+    <Pais codigoFIFA="SOM" codigoISO2="SO" codigoISO3="SOM">Somalia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>so</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491792">
+    <Nombre>Abdullahi Hagi</Nombre>
+    <Apellido>HASSAN</Apellido>
+    <Pais codigoFIFA="SOM" codigoISO2="SO" codigoISO3="SOM">Somalia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>so</Idioma>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477134">
+    <Nombre>Pavle</Nombre>
+    <Apellido>ILIC</Apellido>
+    <Pais codigoFIFA="SRB" codigoISO2="RS" codigoISO3="SRB">Serbia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434413">
+    <Nombre>Aleksandra</Nombre>
+    <Apellido>KOSTIC</Apellido>
+    <Pais codigoFIFA="SRB" codigoISO2="RS" codigoISO3="SRB">Serbia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="279425">
+    <Nombre>Palitha</Nombre>
+    <Apellido>HEMATHUNGA</Apellido>
+    <Pais codigoFIFA="SRI" codigoISO2="LK" codigoISO3="LKA">Sri Lanka</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2008-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>si</Idioma>
+      <Idioma>ta</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416352">
+    <Nombre>Gilson</Nombre>
+    <Apellido>DA COSTA LIMA PEREIRA</Apellido>
+    <Pais codigoFIFA="STP" codigoISO2="ST" codigoISO3="STP">Santo Tomé y Príncipe</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477111">
+    <Nombre>Luis</Nombre>
+    <Apellido>DE CEITA FERREIRA</Apellido>
+    <Pais codigoFIFA="STP" codigoISO2="ST" codigoISO3="STP">Santo Tomé y Príncipe</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>pt</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383264">
+    <Nombre>Stephane</Nombre>
+    <Apellido>DE ALMEIDA</Apellido>
+    <Pais codigoFIFA="SUI" codigoISO2="CH" codigoISO3="CHE">Suiza</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436071">
+    <Nombre>Pascal</Nombre>
+    <Apellido>HIRZEL</Apellido>
+    <Pais codigoFIFA="SUI" codigoISO2="CH" codigoISO3="CHE">Suiza</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="314043">
+    <Nombre>Belinda</Nombre>
+    <Apellido>PIERRE</Apellido>
+    <Pais codigoFIFA="SUI" codigoISO2="CH" codigoISO3="CHE">Suiza</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2011-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425051">
+    <Nombre>Matthias</Nombre>
+    <Apellido>SBRISSA</Apellido>
+    <Pais codigoFIFA="SUI" codigoISO2="CH" codigoISO3="CHE">Suiza</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383265">
+    <Nombre>Sandro</Nombre>
+    <Apellido>SCHAERER</Apellido>
+    <Pais codigoFIFA="SUI" codigoISO2="CH" codigoISO3="CHE">Suiza</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>de</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>it</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416281">
+    <Nombre>Widjay Roy</Nombre>
+    <Apellido>SARDJOE</Apellido>
+    <Pais codigoFIFA="SUR" codigoISO2="SR" codigoISO3="SUR">Surinam</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374140">
+    <Nombre>Zachari</Nombre>
+    <Apellido>ZEEGELAAR</Apellido>
+    <Pais codigoFIFA="SUR" codigoISO2="SR" codigoISO3="SUR">Surinam</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>nl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511652">
+    <Nombre>Viktoria</Nombre>
+    <Apellido>RUGOLSKA</Apellido>
+    <Pais codigoFIFA="SVK" codigoISO2="SK" codigoISO3="SVK">Eslovaquia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511650">
+    <Nombre>Petra</Nombre>
+    <Apellido>VAJDECKOVA</Apellido>
+    <Pais codigoFIFA="SVK" codigoISO2="SK" codigoISO3="SVK">Eslovaquia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491788">
+    <Nombre>Alexandra</Nombre>
+    <Apellido>VARGOVA</Apellido>
+    <Pais codigoFIFA="SVK" codigoISO2="SK" codigoISO3="SVK">Eslovaquia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447155">
+    <Nombre>Vanja</Nombre>
+    <Apellido>JANKOVIC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425119">
+    <Nombre>Sladjana</Nombre>
+    <Apellido>JOVICIC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="415915">
+    <Nombre>Aleksandar</Nombre>
+    <Apellido>KASAPOVIC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374790">
+    <Nombre>Tomaz</Nombre>
+    <Apellido>KLANCNIK</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436391">
+    <Nombre>Asmir</Nombre>
+    <Apellido>SAGRKOVIC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="433320">
+    <Nombre>David</Nombre>
+    <Apellido>SMAJC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="315008">
+    <Nombre>Slavko</Nombre>
+    <Apellido>VINCIC</Apellido>
+    <Pais codigoFIFA="SVN" codigoISO2="SI" codigoISO3="SVN">Eslovenia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sl</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428479">
+    <Nombre>Alisa</Nombre>
+    <Apellido>LEVAELAMPI</Apellido>
+    <Pais codigoFIFA="SWE" codigoISO2="SE" codigoISO3="SWE">Suecia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sv</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477168">
+    <Nombre>Ammar</Nombre>
+    <Apellido>ABO ALO</Apellido>
+    <Pais codigoFIFA="SYR" codigoISO2="SY" codigoISO3="SYR">Siria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383360">
+    <Nombre>Hanna</Nombre>
+    <Apellido>HATTAB</Apellido>
+    <Pais codigoFIFA="SYR" codigoISO2="SY" codigoISO3="SYR">Siria</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="436099">
+    <Nombre>Ahmed</Nombre>
+    <Apellido>ARAJIGA</Apellido>
+    <Pais codigoFIFA="TAN" codigoISO2="TZ" codigoISO3="TZA">Tanzania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425407">
+    <Nombre>Glory</Nombre>
+    <Apellido>JOHN TESHA</Apellido>
+    <Pais codigoFIFA="TAN" codigoISO2="TZ" codigoISO3="TZA">Tanzania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408263">
+    <Nombre>Kassim Seif</Nombre>
+    <Apellido>MPANGA</Apellido>
+    <Pais codigoFIFA="TAN" codigoISO2="TZ" codigoISO3="TZA">Tanzania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="302229">
+    <Nombre>Folio</Nombre>
+    <Apellido>MOEAKI</Apellido>
+    <Pais codigoFIFA="TGA" codigoISO2="TO" codigoISO3="TON">Tonga</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2009-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>to</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392361">
+    <Nombre>Pattarapong</Nombre>
+    <Apellido>KIJSATHIT</Apellido>
+    <Pais codigoFIFA="THA" codigoISO2="TH" codigoISO3="THA">Tailandia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>th</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408202">
+    <Nombre>Vafo</Nombre>
+    <Apellido>KARAEV</Apellido>
+    <Pais codigoFIFA="TJK" codigoISO2="TJ" codigoISO3="TJK">Tayikistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tg</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="490738">
+    <Nombre>Natalia</Nombre>
+    <Apellido>SOTNIKOVA</Apellido>
+    <Pais codigoFIFA="TJK" codigoISO2="TJ" codigoISO3="TJK">Tayikistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tg</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491842">
+    <Nombre>Kristina</Nombre>
+    <Apellido>BERSENYOVA</Apellido>
+    <Pais codigoFIFA="TKM" codigoISO2="TM" codigoISO3="TKM">Turkmenistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tk</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511211">
+    <Nombre>Nariman</Nombre>
+    <Apellido>GARAJAYEV</Apellido>
+    <Pais codigoFIFA="TKM" codigoISO2="TM" codigoISO3="TKM">Turkmenistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tk</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491469">
+    <Nombre>Te En</Nombre>
+    <Apellido>LIN</Apellido>
+    <Pais codigoFIFA="TPE" codigoISO2="TW" codigoISO3="TWN">China Taipéi</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511360">
+    <Nombre>Huan Hsuan</Nombre>
+    <Apellido>PENG</Apellido>
+    <Pais codigoFIFA="TPE" codigoISO2="TW" codigoISO3="TWN">China Taipéi</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>zh</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477185">
+    <Nombre>Melissa</Nombre>
+    <Apellido>NICHOLAS</Apellido>
+    <Pais codigoFIFA="TRI" codigoISO2="TT" codigoISO3="TTO">Trinidad y Tobago</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447019">
+    <Nombre>Nidhal</Nombre>
+    <Apellido>BEN LTAIEF</Apellido>
+    <Pais codigoFIFA="TUN" codigoISO2="TN" codigoISO3="TUN">Túnez</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416498">
+    <Nombre>Asma</Nombre>
+    <Apellido>CHOUCHANE</Apellido>
+    <Pais codigoFIFA="TUN" codigoISO2="TN" codigoISO3="TUN">Túnez</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511191">
+    <Nombre>Abdellaoui</Nombre>
+    <Apellido>FREDJ</Apellido>
+    <Pais codigoFIFA="TUN" codigoISO2="TN" codigoISO3="TUN">Túnez</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408630">
+    <Nombre>Khalil</Nombre>
+    <Apellido>HASSANI</Apellido>
+    <Pais codigoFIFA="TUN" codigoISO2="TN" codigoISO3="TUN">Túnez</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392378">
+    <Nombre>Aymen</Nombre>
+    <Apellido>ISMAIL</Apellido>
+    <Pais codigoFIFA="TUN" codigoISO2="TN" codigoISO3="TUN">Túnez</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>fr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491830">
+    <Nombre>Bersan</Nombre>
+    <Apellido>DURAN</Apellido>
+    <Pais codigoFIFA="TUR" codigoISO2="TR" codigoISO3="TUR">Turquía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511202">
+    <Nombre>Ozan</Nombre>
+    <Apellido>ERGUEN</Apellido>
+    <Pais codigoFIFA="TUR" codigoISO2="TR" codigoISO3="TUR">Turquía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="447191">
+    <Nombre>Arzu</Nombre>
+    <Apellido>GOERGUEN</Apellido>
+    <Pais codigoFIFA="TUR" codigoISO2="TR" codigoISO3="TUR">Turquía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2023-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511203">
+    <Nombre>Oemer Faruk</Nombre>
+    <Apellido>TURTAY</Apellido>
+    <Pais codigoFIFA="TUR" codigoISO2="TR" codigoISO3="TUR">Turquía</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>tr</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="364725">
+    <Nombre>Ahmed</Nombre>
+    <Apellido>AL RASHADI</Apellido>
+    <Pais codigoFIFA="UAE" codigoISO2="AE" codigoISO3="ARE">Emiratos Árabes Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425381">
+    <Nombre>Yahya Ali Mohammad Hassan</Nombre>
+    <Apellido>ALMULLA</Apellido>
+    <Pais codigoFIFA="UAE" codigoISO2="AE" codigoISO3="ARE">Emiratos Árabes Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="398737">
+    <Nombre>Diana</Nombre>
+    <Apellido>MURUNGI</Apellido>
+    <Pais codigoFIFA="UGA" codigoISO2="UG" codigoISO3="UGA">Uganda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477198">
+    <Nombre>Brianson</Nombre>
+    <Apellido>MUSISI</Apellido>
+    <Pais codigoFIFA="UGA" codigoISO2="UG" codigoISO3="UGA">Uganda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="384016">
+    <Nombre>Jane</Nombre>
+    <Apellido>MUTONYI</Apellido>
+    <Pais codigoFIFA="UGA" codigoISO2="UG" codigoISO3="UGA">Uganda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360970">
+    <Nombre>Lydia</Nombre>
+    <Apellido>NANTABO</Apellido>
+    <Pais codigoFIFA="UGA" codigoISO2="UG" codigoISO3="UGA">Uganda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400348">
+    <Nombre>William</Nombre>
+    <Apellido>OLOYA</Apellido>
+    <Pais codigoFIFA="UGA" codigoISO2="UG" codigoISO3="UGA">Uganda</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sw</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400139">
+    <Nombre>Kristina</Nombre>
+    <Apellido>KOZOROH</Apellido>
+    <Pais codigoFIFA="UKR" codigoISO2="UA" codigoISO3="UKR">Ucrania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477200">
+    <Nombre>Dmytro</Nombre>
+    <Apellido>PANCHYSHYN</Apellido>
+    <Pais codigoFIFA="UKR" codigoISO2="UA" codigoISO3="UKR">Ucrania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511215">
+    <Nombre>Nazariy</Nombre>
+    <Apellido>TSMOKANYCH</Apellido>
+    <Pais codigoFIFA="UKR" codigoISO2="UA" codigoISO3="UKR">Ucrania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400031">
+    <Nombre>Oleksandra</Nombre>
+    <Apellido>VDOVINA</Apellido>
+    <Pais codigoFIFA="UKR" codigoISO2="UA" codigoISO3="UKR">Ucrania</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uk</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="434501">
+    <Nombre>Jose Javier</Nombre>
+    <Apellido>BURGOS TERRAZO</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2022-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="361321">
+    <Nombre>Andres</Nombre>
+    <Apellido>CUNHA</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="424959">
+    <Nombre>Santiago</Nombre>
+    <Apellido>FERNANDEZ GANDINI</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392396">
+    <Nombre>Horacio Jose</Nombre>
+    <Apellido>FERREIRO BRUGUERA</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428262">
+    <Nombre>Pablo</Nombre>
+    <Apellido>LLARENA</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="400222">
+    <Nombre>Silvia Giselle</Nombre>
+    <Apellido>RIOS RIBEIRO</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2017-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="348552">
+    <Nombre>Nicolas</Nombre>
+    <Apellido>TARAN</Apellido>
+    <Pais codigoFIFA="URU" codigoISO2="UY" codigoISO3="URY">Uruguay</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2012-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408396">
+    <Nombre>Kyle</Nombre>
+    <Apellido>ATKINS</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428434">
+    <Nombre>Allen</Nombre>
+    <Apellido>CHAPMAN</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477217">
+    <Nombre>Jon</Nombre>
+    <Apellido>FREEMON</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511225">
+    <Nombre>Rosendo</Nombre>
+    <Apellido>MENDOZA</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383462">
+    <Nombre>Corey</Nombre>
+    <Apellido>PARKER</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="360906">
+    <Nombre>Chris</Nombre>
+    <Apellido>PENSO</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2013-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="425219">
+    <Nombre>Nick</Nombre>
+    <Apellido>URANGA</Apellido>
+    <Pais codigoFIFA="USA" codigoISO2="US" codigoISO3="USA">Estados Unidos</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2020-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="374281">
+    <Nombre>Timur</Nombre>
+    <Apellido>GAYNULLIN</Apellido>
+    <Pais codigoFIFA="UZB" codigoISO2="UZ" codigoISO3="UZB">Uzbekistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uz</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477224">
+    <Nombre>Akmal</Nombre>
+    <Apellido>GIYOSOV</Apellido>
+    <Pais codigoFIFA="UZB" codigoISO2="UZ" codigoISO3="UZB">Uzbekistán</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>uz</Idioma>
+      <Idioma>ru</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="392407">
+    <Nombre>Emikar</Nombre>
+    <Apellido>CALDERAS</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2016-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491868">
+    <Nombre>Rony Daniel</Nombre>
+    <Apellido>CUEVA GONZALEZ</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="428635">
+    <Nombre>Antoni</Nombre>
+    <Apellido>GARCIA</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2021-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="221377">
+    <Nombre>Juan</Nombre>
+    <Apellido>SOTO</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2005-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408562">
+    <Nombre>Lubin</Nombre>
+    <Apellido>TORREALBA</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="262055">
+    <Nombre>Jorge</Nombre>
+    <Apellido>URREGO</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2007-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477231">
+    <Nombre>Alejandro Andres</Nombre>
+    <Apellido>VELASQUEZ FERNANDEZ</Apellido>
+    <Pais codigoFIFA="VEN" codigoISO2="VE" codigoISO3="VEN">Venezuela</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>es</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="317254">
+    <Nombre>Ngoc Ha</Nombre>
+    <Apellido>HOANG</Apellido>
+    <Pais codigoFIFA="VIE" codigoISO2="VN" codigoISO3="VNM">Vietnam</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2010-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>vi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="373535">
+    <Nombre>Trung Hau</Nombre>
+    <Apellido>NGUYEN</Apellido>
+    <Pais codigoFIFA="VIE" codigoISO2="VN" codigoISO3="VNM">Vietnam</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2014-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>vi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="416228">
+    <Nombre>Huy Hoang</Nombre>
+    <Apellido>PHAN</Apellido>
+    <Pais codigoFIFA="VIE" codigoISO2="VN" codigoISO3="VNM">Vietnam</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2019-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>vi</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383884">
+    <Nombre>Charlotte</Nombre>
+    <Apellido>CARPENTER</Apellido>
+    <Pais codigoFIFA="WAL" codigoISO2="" codigoISO3="">Gales</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cy</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477233">
+    <Nombre>Michelle Jane</Nombre>
+    <Apellido>PORTELLI</Apellido>
+    <Pais codigoFIFA="WAL" codigoISO2="" codigoISO3="">Gales</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>cy</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="408229">
+    <Nombre>Mokhtar Ahmed Mohammed</Nombre>
+    <Apellido>AL-ARAMI</Apellido>
+    <Pais codigoFIFA="YEM" codigoISO2="YE" codigoISO3="YEM">Yemen</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2018-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="491879">
+    <Nombre>Yaser</Nombre>
+    <Apellido>AL-DARWBI</Apellido>
+    <Pais codigoFIFA="YEM" codigoISO2="YE" codigoISO3="YEM">Yemen</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="383282">
+    <Nombre>Haithm Ebrahim Abbas</Nombre>
+    <Apellido>ALWALIDI</Apellido>
+    <Pais codigoFIFA="YEM" codigoISO2="YE" codigoISO3="YEM">Yemen</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2015-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>ar</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="511236">
+    <Nombre>Beauty</Nombre>
+    <Apellido>SIATONTOLA</Apellido>
+    <Pais codigoFIFA="ZAM" codigoISO2="ZM" codigoISO3="ZMB">Zambia</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2026-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477252">
+    <Nombre>Progress</Nombre>
+    <Apellido>CHATSAMWA</Apellido>
+    <Pais codigoFIFA="ZIM" codigoISO2="ZW" codigoISO3="ZWE">Zimbabue</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Femenino</Genero>
+    <FechaInternacional>2024-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+  <Arbitro idFifa="477250">
+    <Nombre>Owen</Nombre>
+    <Apellido>MANENDA</Apellido>
+    <Pais codigoFIFA="ZIM" codigoISO2="ZW" codigoISO3="ZWE">Zimbabue</Pais>
+    <Categoria>FIFA</Categoria>
+    <Genero>Masculino</Genero>
+    <FechaInternacional>2025-01-01</FechaInternacional>
+    <Idiomas>
+      <Idioma>sn</Idioma>
+      <Idioma>en</Idioma>
+    </Idiomas>
+  </Arbitro>
+</Arbitros>
