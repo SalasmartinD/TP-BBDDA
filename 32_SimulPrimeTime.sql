@@ -15,7 +15,10 @@
                2) Publicidad.SimularPrimeTimePorPais  — todos los países de
                   Torneo.Pais con husoHorario definido, con hora local del
                   partido y si es prime time. Versión más simple/global.
-               Implementados con SELECT y AT TIME ZONE (sin cursores).
+               Implementados con SELECT (sin cursores). La conversión a hora
+               local (AT TIME ZONE) y el cálculo del prime time están en las
+               funciones Publicidad.fn_HoraLocal y Publicidad.fn_EsPrimeTime
+               (22_Negocio_Publicidad.sql), las mismas que usa la asignación.
 ================================================================================
 */
 
@@ -71,24 +74,14 @@ BEGIN
         SET @fechaPartido = CAST(@fechaHoraUTC AS date);
 
         /* -----------------------------------------------------------------------
-           Parámetros de prime time
-        ----------------------------------------------------------------------- */
-        DECLARE @ptInicio int = ISNULL(
-            (SELECT valor FROM Sistema.Parametro WHERE clave = 'PRIME_TIME_INICIO'), 19);
-        DECLARE @ptFin    int = ISNULL(
-            (SELECT valor FROM Sistema.Parametro WHERE clave = 'PRIME_TIME_FIN'),    23);
-
-        /* -----------------------------------------------------------------------
            Result set:
            Países que tienen al menos una pieza de mercado candidata para este
            partido (campaña vigente, independientemente de si ya está asignada).
-           
-           Para la conversión de huso horario:
-             CAST(@fechaHoraUTC AS datetimeoffset) → produce datetimeoffset con
-             offset +00:00 (interpretado luego como UTC con AT TIME ZONE 'UTC').
-             AT TIME ZONE p.husoHorario → convierte al huso local del país.
-             DATEPART(HOUR, ...) → extrae la hora local.
-           
+
+           La hora local la calcula Publicidad.fn_HoraLocal (AT TIME ZONE) y el
+           flag de prime time Publicidad.fn_EsPrimeTime, que lee
+           PRIME_TIME_INICIO y PRIME_TIME_FIN de Sistema.Parametro.
+
            Los países sin husoHorario se excluyen (no se puede calcular hora local).
         ----------------------------------------------------------------------- */
         ;WITH
@@ -105,21 +98,11 @@ BEGIN
                 p.nombre                                    AS nombrePais,
                 p.husoHorario,
                 /* Hora local del partido en el huso de este país */
-                CAST(
-                    CAST(
-                        CAST(@fechaHoraUTC AS datetimeoffset)
-                        AT TIME ZONE 'UTC'
-                        AT TIME ZONE p.husoHorario
-                    AS datetimeoffset)
-                AS time(0))                                 AS horaLocalPartido,
-                /* Hora entera para comparar con prime time */
-                DATEPART(HOUR,
-                    CAST(
-                        CAST(@fechaHoraUTC AS datetimeoffset)
-                        AT TIME ZONE 'UTC'
-                        AT TIME ZONE p.husoHorario
-                    AS datetimeoffset)
-                )                                           AS horaEntera
+                CAST(Publicidad.fn_HoraLocal(@fechaHoraUTC, p.husoHorario) AS time(0))
+                                                            AS horaLocalPartido,
+                /* ¿Cae en la franja de prime time? */
+                Publicidad.fn_EsPrimeTime(@fechaHoraUTC, p.husoHorario)
+                                                            AS esPrimeTime
             FROM PaisesCandidatos        pc
             JOIN Torneo.Pais              p  ON p.id = pc.idPais
             WHERE p.husoHorario IS NOT NULL
@@ -129,11 +112,7 @@ BEGIN
             r.nombrePais,
             r.husoHorario,
             r.horaLocalPartido,
-            CAST(
-                CASE WHEN r.horaEntera BETWEEN @ptInicio AND @ptFin
-                     THEN 1 ELSE 0
-                END
-            AS bit)                                         AS esPrimeTime
+            r.esPrimeTime
         FROM Resultado r
         ORDER BY
             r.nombrePais;
@@ -192,17 +171,10 @@ BEGIN
         END;
 
         /* -----------------------------------------------------------------------
-           Parámetros de prime time
-        ----------------------------------------------------------------------- */
-        DECLARE @ptInicio int = ISNULL(
-            (SELECT valor FROM Sistema.Parametro WHERE clave = 'PRIME_TIME_INICIO'), 19);
-        DECLARE @ptFin    int = ISNULL(
-            (SELECT valor FROM Sistema.Parametro WHERE clave = 'PRIME_TIME_FIN'),    23);
-
-        /* -----------------------------------------------------------------------
            Result set: todos los países con husoHorario, calculando hora local.
-           
-           Misma lógica de conversión AT TIME ZONE que en SimularPrimeTimePartido.
+
+           Misma lógica que en SimularPrimeTimePartido: Publicidad.fn_HoraLocal
+           y Publicidad.fn_EsPrimeTime.
            Los países con husoHorario NULL se excluyen porque no es posible
            convertir la hora UTC sin una zona válida de sys.time_zone_info.
         ----------------------------------------------------------------------- */
@@ -211,27 +183,11 @@ BEGIN
             p.nombre                            AS nombrePais,
             p.husoHorario,
             /* Hora local del partido (sin fecha ni offset) */
-            CAST(
-                CAST(
-                    CAST(@fechaHoraUTC AS datetimeoffset)
-                    AT TIME ZONE 'UTC'
-                    AT TIME ZONE p.husoHorario
-                AS datetimeoffset)
-            AS time(0))                         AS horaLocalPartido,
+            CAST(Publicidad.fn_HoraLocal(@fechaHoraUTC, p.husoHorario) AS time(0))
+                                                AS horaLocalPartido,
             /* ¿Cae en la franja de prime time? */
-            CAST(
-                CASE
-                    WHEN DATEPART(HOUR,
-                             CAST(
-                                 CAST(@fechaHoraUTC AS datetimeoffset)
-                                 AT TIME ZONE 'UTC'
-                                 AT TIME ZONE p.husoHorario
-                             AS datetimeoffset)
-                         ) BETWEEN @ptInicio AND @ptFin
-                    THEN 1
-                    ELSE 0
-                END
-            AS bit)                             AS esPrimeTime
+            Publicidad.fn_EsPrimeTime(@fechaHoraUTC, p.husoHorario)
+                                                AS esPrimeTime
         FROM Torneo.Pais p
         WHERE p.husoHorario IS NOT NULL
         ORDER BY
