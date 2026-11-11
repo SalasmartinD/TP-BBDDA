@@ -133,7 +133,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.2: No detectó país inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%pa%s con id%no existe%'
         PRINT '[OK] PRUEBA 1.2: Error país inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.2: Error inesperado -> ' + ERROR_MESSAGE();
@@ -147,7 +147,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.3: No detectó nombre duplicado.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%Ya existe un anunciante%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%Ya existe un anunciante con el nombre%'
         PRINT '[OK] PRUEBA 1.3: Error nombre duplicado capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.3: Error inesperado -> ' + ERROR_MESSAGE();
@@ -184,7 +184,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.5: No detectó anunciante inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%anunciante con id%no existe%'
         PRINT '[OK] PRUEBA 1.5: Error anunciante inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.5: Error inesperado -> ' + ERROR_MESSAGE();
@@ -202,7 +202,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 1.6: Permitió borrar anunciante con campaña activa.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%activas%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%campa%as activas%'
         PRINT '[OK] PRUEBA 1.6: Error baja con campañas activas capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 1.6: Error inesperado -> ' + ERROR_MESSAGE();
@@ -286,7 +286,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 2.3: No detectó anunciante inexistente.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%no existe%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%anunciante con id%no existe%'
         PRINT '[OK] PRUEBA 2.3: Error anunciante inexistente capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 2.3: Error inesperado -> ' + ERROR_MESSAGE();
@@ -420,7 +420,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 4.2: No detectó ID duplicado en Ubicación.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ubicaci%n%id 91%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%con id 91%'
         PRINT '[OK] PRUEBA 4.2: Error ID duplicado capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 4.2: Error inesperado -> ' + ERROR_MESSAGE();
@@ -510,7 +510,7 @@ BEGIN TRY
     PRINT '[FALLO] PRUEBA 5.2: Permitió asignar dos piezas a la misma ubicación en un partido.';
 END TRY
 BEGIN CATCH
-    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ocupada%'
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%ya est% ocupada%'
         PRINT '[OK] PRUEBA 5.2: Error ubicación ocupada capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 5.2: Error inesperado -> ' + ERROR_MESSAGE();
@@ -602,6 +602,354 @@ BEGIN CATCH
         PRINT '[OK] PRUEBA 5.6: Error baja de exhibición histórica capturado correctamente.';
     ELSE
         PRINT '[FALLO] PRUEBA 5.6: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+
+/* =============================================================================
+   SECCIÓN 6: BAJAS Y MODIFICACIONES RESTANTES, DEPENDIENTES Y PARÁMETROS NULL
+   Cubre los SP que no tenían llamadas en las secciones anteriores:
+   Campania_Baja, PiezaContenido_Baja, PiezaContenido_Modificacion,
+   PiezaMercado_Baja, UbicacionPublicitaria_Baja, UbicacionPublicitaria_Modificacion,
+   Tarifa_Baja y Tarifa_Modificacion.
+   Las bajas con dependientes deben fallar con THROW 50001 (no con el error 547
+   de clave foránea del motor).
+   ============================================================================= */
+PRINT '--------------------------------------------------------------------------------';
+PRINT ' 6. PRUEBAS: bajas, modificaciones restantes y parámetros NULL';
+PRINT '--------------------------------------------------------------------------------';
+
+-- PRUEBA 6.1: Error Baja PiezaContenido - Tiene una exhibición ya realizada (histórica)
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Banner Principal');
+    EXEC Publicidad.PiezaContenido_Baja @id = @idPieza;
+    PRINT '[FALLO] PRUEBA 6.1: Permitió borrar una pieza con exhibiciones realizadas.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%exhibiciones ya realizadas%'
+        PRINT '[OK] PRUEBA 6.1: Error baja de pieza con exhibición histórica capturado correctamente (THROW 50001).';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.1: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.2: Modificación de PiezaContenido exitosa
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Secundaria');
+    EXEC Publicidad.PiezaContenido_Modificacion
+        @id = @idPieza,
+        @descripcion = N'Test Pieza Secundaria Modificada',
+        @idioma = 'pt';
+
+    IF EXISTS (SELECT 1 FROM Publicidad.PiezaContenido WHERE id = @idPieza AND descripcion = N'Test Pieza Secundaria Modificada' AND idioma = 'pt')
+        PRINT '[OK] PRUEBA 6.2: Pieza de contenido modificada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.2: La modificación no se reflejó.';
+
+    SELECT id, idCampania, descripcion, idioma FROM Publicidad.PiezaContenido WHERE id = @idPieza;
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.2: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.3: Error Modificación PiezaContenido - Idioma en mayúsculas ('ES' no cumple 2 letras minúsculas)
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Secundaria Modificada');
+    EXEC Publicidad.PiezaContenido_Modificacion @id = @idPieza, @descripcion = N'Test Pieza Secundaria Modificada', @idioma = 'ES';
+    PRINT '[FALLO] PRUEBA 6.3: Aceptó un idioma en mayúsculas.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%exactamente 2 letras%'
+        PRINT '[OK] PRUEBA 6.3: Error idioma en mayúsculas capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.3: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.4: Error Baja PiezaMercado - El par no existe
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Secundaria Modificada');
+    DECLARE @idPaisP1 int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'XP');
+    EXEC Publicidad.PiezaMercado_Baja @idPieza = @idPieza, @idPais = @idPaisP1;
+    PRINT '[FALLO] PRUEBA 6.4: No detectó un mercado inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%No existe un mercado registrado%'
+        PRINT '[OK] PRUEBA 6.4: Error mercado inexistente capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.4: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.5: Baja de PiezaMercado exitosa
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Secundaria Modificada');
+    DECLARE @idPaisP2 int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'XQ');
+    EXEC Publicidad.PiezaMercado_Alta @idPieza = @idPieza, @idPais = @idPaisP2;
+
+    PRINT 'Evidencia previa (mercados de la pieza):';
+    SELECT idPieza, idPais FROM Publicidad.PiezaMercado WHERE idPieza = @idPieza;
+
+    EXEC Publicidad.PiezaMercado_Baja @idPieza = @idPieza, @idPais = @idPaisP2;
+
+    IF NOT EXISTS (SELECT 1 FROM Publicidad.PiezaMercado WHERE idPieza = @idPieza AND idPais = @idPaisP2)
+        PRINT '[OK] PRUEBA 6.5: Mercado de la pieza eliminado exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.5: El mercado no fue eliminado.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.5: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.6: Baja de PiezaContenido exitosa (elimina también sus mercados)
+BEGIN TRY
+    DECLARE @idPieza int = (SELECT id FROM Publicidad.PiezaContenido WHERE descripcion = N'Test Pieza Secundaria Modificada');
+    DECLARE @idPaisP1 int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'XP');
+    EXEC Publicidad.PiezaMercado_Alta @idPieza = @idPieza, @idPais = @idPaisP1;
+
+    EXEC Publicidad.PiezaContenido_Baja @id = @idPieza;
+
+    IF NOT EXISTS (SELECT 1 FROM Publicidad.PiezaContenido WHERE id = @idPieza)
+       AND NOT EXISTS (SELECT 1 FROM Publicidad.PiezaMercado WHERE idPieza = @idPieza)
+        PRINT '[OK] PRUEBA 6.6: Pieza de contenido y sus mercados eliminados exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.6: La pieza o sus mercados no fueron eliminados.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.6: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.7: Error Baja Campania - Tiene piezas de contenido (antes llegaba el error 547 del motor)
+BEGIN TRY
+    DECLARE @idCampania int = (SELECT idCampania FROM Publicidad.Campania WHERE nombre = N'Test Camp Mundial 2026');
+    EXEC Publicidad.Campania_Baja @idCampania = @idCampania;
+    PRINT '[FALLO] PRUEBA 6.7: Permitió borrar una campaña con piezas.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%piezas de contenido asociadas%'
+        PRINT '[OK] PRUEBA 6.7: Error baja de campaña con piezas capturado correctamente (THROW 50001).';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.7: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.8: Baja de Campania exitosa (campaña sin piezas)
+BEGIN TRY
+    DECLARE @idAnunciante int = (SELECT id FROM Publicidad.Anunciante WHERE nombre = N'Test Anunciante Base');
+    EXEC Publicidad.Campania_Alta @idAnunciante = @idAnunciante, @nombre = N'Test Camp Baja', @fechaInicio = '2026-06-01', @fechaFin = '2026-06-30';
+    DECLARE @idCampania int = (SELECT idCampania FROM Publicidad.Campania WHERE nombre = N'Test Camp Baja');
+
+    EXEC Publicidad.Campania_Baja @idCampania = @idCampania;
+
+    IF NOT EXISTS (SELECT 1 FROM Publicidad.Campania WHERE idCampania = @idCampania)
+        PRINT '[OK] PRUEBA 6.8: Campaña eliminada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.8: La campaña no fue eliminada.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.8: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.9: Error Baja Anunciante - Tiene una campaña vencida (antes llegaba el error 547 del motor)
+BEGIN TRY
+    DECLARE @idAnunciante int = (SELECT id FROM Publicidad.Anunciante WHERE nombre = N'Test Anunciante Base');
+    EXEC Publicidad.Campania_Alta @idAnunciante = @idAnunciante, @nombre = N'Test Camp Vencida', @fechaInicio = '2020-01-01', @fechaFin = '2020-12-31';
+
+    EXEC Publicidad.Anunciante_Baja @id = @idAnunciante;
+    PRINT '[FALLO] PRUEBA 6.9: Permitió borrar un anunciante con una campaña vencida.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%campa%as vencidas%'
+        PRINT '[OK] PRUEBA 6.9: Error baja de anunciante con campaña vencida capturado correctamente (THROW 50001).';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.9: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+
+-- Limpieza de la campaña vencida con el SP (también ejercita su baja)
+DECLARE @idCampVencida int = (SELECT idCampania FROM Publicidad.Campania WHERE nombre = N'Test Camp Vencida');
+IF @idCampVencida IS NOT NULL
+    EXEC Publicidad.Campania_Baja @idCampania = @idCampVencida;
+GO
+
+-- PRUEBA 6.10: Modificación de UbicacionPublicitaria exitosa
+BEGIN TRY
+    EXEC Publicidad.UbicacionPublicitaria_Modificacion
+        @idUbicacion = 91,
+        @nombre = 'Test Ubicacion Led Modificada',
+        @descripcion = 'Pantalla Led de Prueba (modificada)';
+
+    IF EXISTS (SELECT 1 FROM Publicidad.UbicacionPublicitaria WHERE idUbicacion = 91 AND nombre = 'Test Ubicacion Led Modificada')
+        PRINT '[OK] PRUEBA 6.10: Ubicación publicitaria modificada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.10: La modificación no se reflejó.';
+
+    SELECT idUbicacion, nombre, descripcion FROM Publicidad.UbicacionPublicitaria WHERE idUbicacion = 91;
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.10: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.11: Error Modificación UbicacionPublicitaria - Ubicación inexistente
+BEGIN TRY
+    EXEC Publicidad.UbicacionPublicitaria_Modificacion @idUbicacion = 92, @nombre = 'Test Ubicacion Fantasma';
+    PRINT '[FALLO] PRUEBA 6.11: No detectó ubicación inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%con id 92%no existe%'
+        PRINT '[OK] PRUEBA 6.11: Error ubicación inexistente capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.11: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.12: Modificación de Tarifa exitosa
+BEGIN TRY
+    EXEC Publicidad.Tarifa_Modificacion @idFase = 998, @idUbicacion = 91, @montoUSD = 55000.00;
+
+    IF EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 998 AND idUbicacion = 91 AND montoUSD = 55000.00)
+        PRINT '[OK] PRUEBA 6.12: Tarifa modificada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.12: La modificación no se reflejó.';
+
+    SELECT idFase, idUbicacion, montoUSD FROM Publicidad.Tarifa WHERE idFase = 998 AND idUbicacion = 91;
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.12: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.13: Error Modificación Tarifa - Monto cero
+BEGIN TRY
+    EXEC Publicidad.Tarifa_Modificacion @idFase = 998, @idUbicacion = 91, @montoUSD = 0;
+    PRINT '[FALLO] PRUEBA 6.13: No detectó monto cero.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%mayor a cero%'
+        PRINT '[OK] PRUEBA 6.13: Error monto cero capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.13: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.14: Error Baja Tarifa - Hay exhibiciones de esa ubicación en partidos de la fase
+BEGIN TRY
+    EXEC Publicidad.Tarifa_Baja @idFase = 998, @idUbicacion = 91;
+    PRINT '[FALLO] PRUEBA 6.14: Permitió borrar una tarifa con exhibiciones asociadas.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%exhibiciones asociadas%'
+        PRINT '[OK] PRUEBA 6.14: Error baja de tarifa con exhibiciones capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.14: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.15: Baja de Tarifa exitosa (ubicación auxiliar 92 sin exhibiciones)
+BEGIN TRY
+    EXEC Publicidad.UbicacionPublicitaria_Alta @idUbicacion = 92, @nombre = 'Test Ubicacion Auxiliar';
+    EXEC Publicidad.Tarifa_Alta @idFase = 998, @idUbicacion = 92, @montoUSD = 10000.00;
+
+    EXEC Publicidad.Tarifa_Baja @idFase = 998, @idUbicacion = 92;
+
+    IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 998 AND idUbicacion = 92)
+        PRINT '[OK] PRUEBA 6.15: Tarifa eliminada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.15: La tarifa no fue eliminada.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.15: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.16: Error Baja UbicacionPublicitaria - Tiene tarifas y exhibiciones asociadas
+BEGIN TRY
+    EXEC Publicidad.UbicacionPublicitaria_Baja @idUbicacion = 91;
+    PRINT '[FALLO] PRUEBA 6.16: Permitió borrar una ubicación con tarifas y exhibiciones.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%tarifas asociadas%' AND ERROR_MESSAGE() LIKE '%exhibiciones asociadas%'
+        PRINT '[OK] PRUEBA 6.16: Error baja de ubicación con dependientes capturado correctamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.16: Error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.17: Baja de UbicacionPublicitaria exitosa (ubicación auxiliar 92, ya sin tarifas)
+BEGIN TRY
+    EXEC Publicidad.UbicacionPublicitaria_Baja @idUbicacion = 92;
+
+    IF NOT EXISTS (SELECT 1 FROM Publicidad.UbicacionPublicitaria WHERE idUbicacion = 92)
+        PRINT '[OK] PRUEBA 6.17: Ubicación publicitaria eliminada exitosamente.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.17: La ubicación no fue eliminada.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 6.17: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- PRUEBA 6.18: Parámetros NULL - deben dar THROW 50001 y no el error 515 del motor
+BEGIN TRY
+    EXEC Publicidad.Anunciante_Alta @nombre = N'Test Anunciante Nulo', @idPais = NULL;
+    PRINT '[FALLO] PRUEBA 6.18a: Aceptó idPais NULL.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%país con id NULL%'
+        PRINT '[OK] PRUEBA 6.18a: Anunciante_Alta con idPais NULL rechazado con THROW 50001.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.18a: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+
+BEGIN TRY
+    DECLARE @idPaisNulo int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'XP');
+    EXEC Publicidad.Anunciante_Alta @nombre = NULL, @idPais = @idPaisNulo;
+    PRINT '[FALLO] PRUEBA 6.18b: Aceptó nombre NULL.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%nombre del anunciante es obligatorio%'
+        PRINT '[OK] PRUEBA 6.18b: Anunciante_Alta con nombre NULL rechazado con THROW 50001.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.18b: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+
+BEGIN TRY
+    DECLARE @idAnuncianteNulo int = (SELECT id FROM Publicidad.Anunciante WHERE nombre = N'Test Anunciante Base');
+    EXEC Publicidad.Campania_Alta @idAnunciante = @idAnuncianteNulo, @nombre = N'Test Camp Nula', @fechaInicio = NULL, @fechaFin = '2026-07-01';
+    PRINT '[FALLO] PRUEBA 6.18c: Aceptó fechaInicio NULL.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%fecha de inicio es obligatoria%'
+        PRINT '[OK] PRUEBA 6.18c: Campania_Alta con fechaInicio NULL rechazada con THROW 50001.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.18c: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+
+BEGIN TRY
+    EXEC Publicidad.Tarifa_Alta @idFase = 998, @idUbicacion = 91, @montoUSD = NULL;
+    PRINT '[FALLO] PRUEBA 6.18d: Aceptó montoUSD NULL.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%mayor a cero%'
+        PRINT '[OK] PRUEBA 6.18d: Tarifa_Alta con montoUSD NULL rechazada con THROW 50001.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.18d: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
+END CATCH;
+
+BEGIN TRY
+    DECLARE @idCampaniaNula int = (SELECT idCampania FROM Publicidad.Campania WHERE nombre = N'Test Camp Mundial 2026');
+    EXEC Publicidad.PiezaContenido_Alta @idCampania = @idCampaniaNula, @descripcion = N'Test Pieza Nula', @idioma = NULL;
+    PRINT '[FALLO] PRUEBA 6.18e: Aceptó idioma NULL.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE '%exactamente 2 letras%'
+        PRINT '[OK] PRUEBA 6.18e: PiezaContenido_Alta con idioma NULL rechazada con THROW 50001.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 6.18e: Error inesperado -> ' + CAST(ERROR_NUMBER() AS varchar(10)) + ' ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
