@@ -1,4 +1,4 @@
-﻿/*
+/*
 ================================================================================
  Universidad : Universidad Nacional de La Matanza
  Materia     : 3641 - Bases de Datos Aplicada
@@ -9,24 +9,23 @@
  Fecha       : 09/11/2026
 
  Objetivo    : Carga de datos base (seed) para el esquema Publicidad.
-               Incluye datos de apoyo mínimos en Torneo y Equipos para poder
-               probar los SPs de Publicidad de forma independiente, antes de
-               que la Persona 1 suba su carga completa.
+               Usa los datos reales del torneo que cargan 50a, 50b y 50c
+               (fases, sedes, selecciones y los 31 partidos) y agrega solo los
+               países de mercado de los anunciantes que faltan.
                Claves propias en Sistema.Parametro:
                  PRIME_TIME_INICIO, PRIME_TIME_FIN, MAX_ESPACIOS_PARTIDO
-               Caso obligatorio: un partido cuyo horario cae en prime time
-               en más de 4 mercados candidatos.
+               Caso obligatorio: la Final real (partido 104, España–Argentina,
+               2026-07-19 19:00 UTC) cae en prime time en 7 mercados candidatos.
 
- NOTA SOBRE INSERTS DIRECTOS EN TABLAS DE OTROS ESQUEMAS:
- ---------------------------------------------------------
- Los SPs de Alta/Baja/Modificación para las tablas de Torneo (Pais, Fase,
- Sede, Partido) y Equipos (Seleccion) corresponden a la Persona 1 del grupo
- y aún no están disponibles en el repositorio. Por ese motivo, las secciones
- 2 y 3 de este script usan INSERT directo con guarda IF NOT EXISTS, que es el
- mecanismo equivalente y seguro para ejecuciones repetidas. En cuanto la
- Persona 1 suba sus SPs, se deberán reemplazar esos bloques por EXEC.
- Las tablas del esquema Publicidad se cargan exclusivamente a través de los
- SPs del script 12_ABM_Publicidad.sql.
+ DEPENDENCIAS Y ORDEN:
+ ---------------------
+ Corre después de 10a (SP de Torneo), 12 (SP de Publicidad), 22 (funciones de
+ prime time) y 50a, 50b y 50c. Todas las altas pasan por los SP: no hay INSERT
+ directo en ninguna tabla. Cada alta verifica antes si el registro ya existe,
+ así que el script se puede ejecutar varias veces sin duplicar datos.
+ AsignarPiezasPartido solo acepta partidos Programado o En juego, y 53 deja los
+ 31 partidos Finalizado: para asignar piezas a partidos reales (por ejemplo la
+ Final) hay que ejecutar la asignación antes de 53.
 ================================================================================
 */
 
@@ -92,332 +91,142 @@ IF NOT EXISTS (SELECT 1 FROM Publicidad.UbicacionPublicitaria WHERE idUbicacion 
 
 GO
 
-/* ======= SECCION 3: Datos de apoyo en Torneo y Equipos (INSERT directo) ======= */
+/* ======= SECCION 3: Datos de apoyo — verificación de la carga real y países de mercado ======= */
 /*
-   Ver nota al inicio del script: se usan INSERTs directos con IF NOT EXISTS
-   porque los SPs de la Persona 1 todavía no están disponibles.
+   El torneo (7 fases, 16 sedes, 16 selecciones y los 31 partidos) lo cargan 50a, 50b
+   y 50c con los SP de Torneo y Equipos. Este script usa esos datos reales: no inserta
+   fases, sedes, selecciones ni partidos propios.
+
+   Lo único que falta son los países de mercado de los anunciantes que no juegan los
+   partidos cargados (Brasil, Alemania, Italia, Países Bajos, Portugal y Japón). Se dan
+   de alta con Torneo.Pais_Alta. A los que ya existen (Argentina, España, Francia y
+   Reino Unido, que 50a carga como Inglaterra) se les completa el PBI con
+   Torneo.Pais_Modificacion solo si está en NULL, para no pisar el valor que cargue
+   la API del Banco Mundial.
+
+   CASO OBLIGATORIO: la Final real (partido 104, España–Argentina) es el 2026-07-19 a las
+   19:00 UTC. Con el horario de verano europeo, la hora local en cada mercado es:
+     - Alemania    (UTC+2, 'W. Europe Standard Time')   → 21:00  PRIME TIME
+     - España      (UTC+2, 'Romance Standard Time')     → 21:00  PRIME TIME
+     - Francia     (UTC+2, 'Romance Standard Time')     → 21:00  PRIME TIME
+     - Italia      (UTC+2, 'W. Europe Standard Time')   → 21:00  PRIME TIME
+     - Países Bajos (UTC+2, 'W. Europe Standard Time')  → 21:00  PRIME TIME
+     - Portugal    (UTC+1, 'GMT Standard Time')         → 20:00  PRIME TIME
+     - Reino Unido (UTC+1, 'GMT Standard Time')         → 20:00  PRIME TIME
+     - Argentina y Brasil (UTC-3)                       → 16:00  no
+     - Japón       (UTC+9)                              → 04:00  no
+   Son 7 mercados en prime time simultáneo, más que los 4 espacios por partido: se
+   activa la priorización del SP AsignarPiezasPartido.
 */
 
-/* --- 3.1 Torneo.Pais — 10 países con husoHorario válido (sys.time_zone_info) --- */
-/*
-   Países elegidos estratégicamente para el caso obligatorio de prime time:
-   El partido Argentina vs Brasil está programado para el 2026-06-15 a las 18:00 UTC.
-   En esa fecha (verano europeo), los países con UTC+1 / UTC+2 ven el partido en
-   horario prime time (19:00–23:00 local):
-     - Alemania   (UTC+2 en verano, 'W. Europe Standard Time')   → 20:00 ✓
-     - España     (UTC+2 en verano, 'Romance Standard Time')     → 20:00 ✓
-     - Francia    (UTC+2 en verano, 'Romance Standard Time')     → 20:00 ✓
-     - Italia     (UTC+2 en verano, 'W. Europe Standard Time')   → 20:00 ✓
-     - Países Bajos (UTC+2 en verano, 'W. Europe Standard Time') → 20:00 ✓
-     - Portugal   (UTC+1 en verano, 'GMT Standard Time')         → 19:00 ✓
-     - Reino Unido (UTC+1 en verano, 'GMT Standard Time')        → 19:00 ✓
-   Son 7 mercados europeos en prime time simultáneo, superando el límite de 4
-   espacios → se activa la priorización del SP AsignarPiezasPartido.
-*/
-
--- Argentina (UTC-3)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'AR')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Argentina', 'AR', 'ARG', 'Argentina Standard Time', 'ARS', 13700.00, 46000000);
-
--- Brasil (UTC-3)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'BR')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Brasil', 'BR', 'BRA', 'E. South America Standard Time', 'BRL', 9100.00, 215000000);
-
--- Alemania (UTC+1, UTC+2 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'DE')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Alemania', 'DE', 'DEU', 'W. Europe Standard Time', 'EUR', 51200.00, 84000000);
-
--- España (UTC+1, UTC+2 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'ES')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'España', 'ES', 'ESP', 'Romance Standard Time', 'EUR', 30100.00, 47000000);
-
--- Francia (UTC+1, UTC+2 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'FR')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Francia', 'FR', 'FRA', 'Romance Standard Time', 'EUR', 44000.00, 68000000);
-
--- Italia (UTC+1, UTC+2 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'IT')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Italia', 'IT', 'ITA', 'W. Europe Standard Time', 'EUR', 36000.00, 59000000);
-
--- Países Bajos (UTC+1, UTC+2 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'NL')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Países Bajos', 'NL', 'NLD', 'W. Europe Standard Time', 'EUR', 60000.00, 17900000);
-
--- Portugal (UTC+0, UTC+1 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'PT')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Portugal', 'PT', 'PRT', 'GMT Standard Time', 'EUR', 25000.00, 10300000);
-
--- Reino Unido (UTC+0, UTC+1 en verano)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'GB')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Reino Unido', 'GB', 'GBR', 'GMT Standard Time', 'GBP', 46200.00, 67000000);
-
--- Japón (UTC+9)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Pais WHERE codigoISO2 = 'JP')
-    INSERT INTO Torneo.Pais (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion)
-    VALUES (N'Japón', 'JP', 'JPN', 'Tokyo Standard Time', 'JPY', 42200.00, 125000000);
+IF (SELECT COUNT(*) FROM Torneo.Fase WHERE idFase BETWEEN 1 AND 7) < 7
+   OR NOT EXISTS (SELECT 1 FROM Torneo.Partido WHERE nroPartidoOficial = 104)
+    THROW 50001, N'Faltan las fases o el partido 104 del torneo. Ejecutar antes 50a, 50b y 50c.', 1;
 
 GO
 
-/* --- 3.2 Torneo.Fase — 6 fases del torneo --- */
+DROP TABLE IF EXISTS #mercados;
+CREATE TABLE #mercados (n int IDENTITY(1,1) PRIMARY KEY, nombre nvarchar(60), codigoISO2 char(2),
+                        codigoISO3 char(3), husoHorario varchar(50), moneda char(3),
+                        pbiPerCapita decimal(12,2), poblacion bigint);
+INSERT INTO #mercados (nombre, codigoISO2, codigoISO3, husoHorario, moneda, pbiPerCapita, poblacion) VALUES
+    (N'Argentina',    N'AR', N'ARG', N'Argentina Standard Time',        N'ARS', 13700.00,  46000000),
+    (N'Brasil',       N'BR', N'BRA', N'E. South America Standard Time', N'BRL',  9100.00, 215000000),
+    (N'Alemania',     N'DE', N'DEU', N'W. Europe Standard Time',        N'EUR', 51200.00,  84000000),
+    (N'España',       N'ES', N'ESP', N'Romance Standard Time',          N'EUR', 30100.00,  47000000),
+    (N'Francia',      N'FR', N'FRA', N'Romance Standard Time',          N'EUR', 44000.00,  68000000),
+    (N'Italia',       N'IT', N'ITA', N'W. Europe Standard Time',        N'EUR', 36000.00,  59000000),
+    (N'Países Bajos', N'NL', N'NLD', N'W. Europe Standard Time',        N'EUR', 60000.00,  17900000),
+    (N'Portugal',     N'PT', N'PRT', N'GMT Standard Time',              N'EUR', 25000.00,  10300000),
+    (N'Reino Unido',  N'GB', N'GBR', N'GMT Standard Time',              N'GBP', 46200.00,  67000000),
+    (N'Japón',        N'JP', N'JPN', N'Tokyo Standard Time',            N'JPY', 42200.00, 125000000);
 
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 1)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (1, 'Fase de Grupos', 0, 1);
-
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 2)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (2, 'Dieciseisavos de Final', 1, 2);
-
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 3)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (3, 'Octavos de Final', 1, 3);
-
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 4)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (4, 'Cuartos de Final', 1, 4);
-
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 5)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (5, 'Semifinal', 1, 5);
-
-IF NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = 6)
-    INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
-    VALUES (6, 'Final', 1, 6);
-
-GO
-
-/* --- 3.3 Torneo.Sede — 2 sedes de apoyo --- */
-
--- Estadio Monumental, Buenos Aires, Argentina (lat: -34.545, lon: -58.449)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Monumental' AND ciudad = 'Buenos Aires')
-    INSERT INTO Torneo.Sede (nombreEstadio, ciudad, idPais, capacidad, husoHorario, latitud, longitud)
-    VALUES (
-        'Estadio Monumental',
-        'Buenos Aires',
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'AR'),
-        80000,
-        'Argentina Standard Time',
-        -34.545400,
-        -58.449800
-    );
-
--- Arena Corinthians, São Paulo, Brasil (lat: -23.545, lon: -46.473)
-IF NOT EXISTS (SELECT 1 FROM Torneo.Sede WHERE nombreEstadio = 'Arena Corinthians' AND ciudad = 'São Paulo')
-    INSERT INTO Torneo.Sede (nombreEstadio, ciudad, idPais, capacidad, husoHorario, latitud, longitud)
-    VALUES (
-        'Arena Corinthians',
-        'São Paulo',
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'BR'),
-        68000,
-        'E. South America Standard Time',
-        -23.545300,
-        -46.473100
-    );
+DECLARE @nombre nvarchar(60), @iso2 char(2), @iso3 char(3), @huso varchar(50), @moneda char(3),
+        @pbi decimal(12,2), @poblacion bigint, @idPais int;
+DECLARE @nombreAct nvarchar(60), @iso2Act char(2), @iso3Act char(3), @husoAct varchar(50),
+        @monedaAct char(3), @poblacionAct bigint;
+DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #mercados);
+WHILE @n <= @max
+BEGIN
+    SELECT @nombre = nombre, @iso2 = codigoISO2, @iso3 = codigoISO3, @huso = husoHorario,
+           @moneda = moneda, @pbi = pbiPerCapita, @poblacion = poblacion
+    FROM #mercados WHERE n = @n;
+    BEGIN TRY
+        SET @idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO3 = @iso3);
+        IF @idPais IS NULL
+            EXEC Torneo.Pais_Alta @nombre = @nombre, @codigoISO2 = @iso2, @codigoISO3 = @iso3,
+                 @husoHorario = @huso, @moneda = @moneda, @pbiPerCapita = @pbi, @poblacion = @poblacion;
+        ELSE IF EXISTS (SELECT 1 FROM Torneo.Pais WHERE id = @idPais AND pbiPerCapita IS NULL)
+        BEGIN
+            -- El país ya lo cargó 50a sin PBI: se completa conservando el resto de sus datos
+            SELECT @nombreAct = nombre, @iso2Act = codigoISO2, @iso3Act = codigoISO3,
+                   @husoAct = husoHorario, @monedaAct = moneda, @poblacionAct = poblacion
+            FROM Torneo.Pais WHERE id = @idPais;
+            SET @poblacionAct = ISNULL(@poblacionAct, @poblacion);
+            EXEC Torneo.Pais_Modificacion @id = @idPais, @nombre = @nombreAct, @codigoISO2 = @iso2Act,
+                 @codigoISO3 = @iso3Act, @husoHorario = @husoAct, @moneda = @monedaAct,
+                 @pbiPerCapita = @pbi, @poblacion = @poblacionAct;
+        END;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al cargar el país de la fila ' + CAST(@n AS varchar(10)) + ' de #mercados.';
+        THROW;
+    END CATCH;
+    SET @n += 1;
+END;
 
 GO
 
-/* --- 3.4 Equipos.Seleccion — 4 selecciones de apoyo --- */
-
--- Argentina
-IF NOT EXISTS (SELECT 1 FROM Equipos.Seleccion WHERE idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'AR'))
-    INSERT INTO Equipos.Seleccion (idPais, confederacion, nombreAsociacion, abreviacion, grupo)
-    VALUES (
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'AR'),
-        'CONMEBOL',
-        'Asociación del Fútbol Argentino',
-        'ARG',
-        'A'
-    );
-
--- Brasil
-IF NOT EXISTS (SELECT 1 FROM Equipos.Seleccion WHERE idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'BR'))
-    INSERT INTO Equipos.Seleccion (idPais, confederacion, nombreAsociacion, abreviacion, grupo)
-    VALUES (
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'BR'),
-        'CONMEBOL',
-        'Confederação Brasileira de Futebol',
-        'BRA',
-        'A'
-    );
-
--- Alemania
-IF NOT EXISTS (SELECT 1 FROM Equipos.Seleccion WHERE idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'DE'))
-    INSERT INTO Equipos.Seleccion (idPais, confederacion, nombreAsociacion, abreviacion, grupo)
-    VALUES (
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'DE'),
-        'UEFA',
-        'Deutscher Fußball-Bund',
-        'GER',
-        'B'
-    );
-
--- Japón
-IF NOT EXISTS (SELECT 1 FROM Equipos.Seleccion WHERE idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'JP'))
-    INSERT INTO Equipos.Seleccion (idPais, confederacion, nombreAsociacion, abreviacion, grupo)
-    VALUES (
-        (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'JP'),
-        'AFC',
-        'Japan Football Association',
-        'JPN',
-        'B'
-    );
-
-GO
-
-/* --- 3.5 Torneo.Partido — 3 partidos de apoyo --- */
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-
-/*
-   PARTIDO 1 (CASO OBLIGATORIO):
-   Argentina vs Brasil — 2026-06-15 18:00 UTC — Estadio Monumental — Fase de Grupos.
-   
-   Horarios locales el 15/06/2026 (horario de verano europeo activo):
-     - Argentina  (UTC-3,  'Argentina Standard Time')     → 15:00  NO prime time
-     - Brasil     (UTC-3,  'E. South America Std Time')   → 15:00  NO prime time
-     - Alemania   (UTC+2,  'W. Europe Standard Time')     → 20:00  ✓ PRIME TIME
-     - España     (UTC+2,  'Romance Standard Time')       → 20:00  ✓ PRIME TIME
-     - Francia    (UTC+2,  'Romance Standard Time')       → 20:00  ✓ PRIME TIME
-     - Italia     (UTC+2,  'W. Europe Standard Time')     → 20:00  ✓ PRIME TIME
-     - Países Bajos (UTC+2,'W. Europe Standard Time')     → 20:00  ✓ PRIME TIME
-     - Portugal   (UTC+1,  'GMT Standard Time')           → 19:00  ✓ PRIME TIME
-     - Reino Unido (UTC+1, 'GMT Standard Time')           → 19:00  ✓ PRIME TIME
-     - Japón      (UTC+9,  'Tokyo Standard Time')         → 03:00  NO prime time
-   
-   7 mercados europeos en prime time → supera el límite de MAX_ESPACIOS_PARTIDO=4
-   → el SP Publicidad.AsignarPiezasPartido debe aplicar criterios de priorización.
-*/
-
-IF NOT EXISTS (
-    SELECT 1 FROM Torneo.Partido
-    WHERE idSeleccionLocal      = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'ARG')
-      AND idSeleccionVisitante  = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'BRA')
-      AND fechaHoraUTC          = '2026-06-15 18:00:00'
-)
-    INSERT INTO Torneo.Partido (nroPartidoOficial, idSede, idSeleccionLocal, idSeleccionVisitante, fase, fechaHoraUTC, estado)
-    VALUES (
-        1,
-        (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Monumental' AND ciudad = 'Buenos Aires'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'ARG'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'BRA'),
-        1,                          -- Fase de Grupos
-        '2026-06-15 18:00:00',
-        'Programado'
-    );
-
--- PARTIDO 2: Alemania vs Japón — 2026-06-16 15:00 UTC — Arena Corinthians (sede alternativa) — Fase de Grupos
-IF NOT EXISTS (
-    SELECT 1 FROM Torneo.Partido
-    WHERE idSeleccionLocal      = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'GER')
-      AND idSeleccionVisitante  = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'JPN')
-      AND fechaHoraUTC          = '2026-06-16 15:00:00'
-)
-    INSERT INTO Torneo.Partido (nroPartidoOficial, idSede, idSeleccionLocal, idSeleccionVisitante, fase, fechaHoraUTC, estado)
-    VALUES (
-        2,
-        (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio = 'Arena Corinthians' AND ciudad = 'São Paulo'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'GER'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'JPN'),
-        1,                          -- Fase de Grupos
-        '2026-06-16 15:00:00',
-        'Programado'
-    );
-
--- PARTIDO 3: Argentina vs Alemania — Cuartos de Final — 2026-07-05 20:00 UTC — Estadio Monumental
-IF NOT EXISTS (
-    SELECT 1 FROM Torneo.Partido
-    WHERE idSeleccionLocal      = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'ARG')
-      AND idSeleccionVisitante  = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'GER')
-      AND fechaHoraUTC          = '2026-07-05 20:00:00'
-)
-    INSERT INTO Torneo.Partido (nroPartidoOficial, idSede, idSeleccionLocal, idSeleccionVisitante, fase, fechaHoraUTC, estado)
-    VALUES (
-        3,
-        (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Monumental' AND ciudad = 'Buenos Aires'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'ARG'),
-        (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'GER'),
-        4,                          -- Cuartos de Final
-        '2026-07-05 20:00:00',
-        'Programado'
-    );
-
-GO
-
-/* ======= SECCION 4: Publicidad.Tarifa — 6 fases × 4 ubicaciones (24 tarifas) ======= */
+/* ======= SECCION 4: Publicidad.Tarifa — 7 fases × 4 ubicaciones (28 tarifas) ======= */
 /*
    Se usa EXEC Publicidad.Tarifa_Alta.
    El SP valida que el par (idFase, idUbicacion) no exista, por lo que
    se envuelve cada llamada en IF NOT EXISTS.
+   Las fases se buscan por nombre en Torneo.Fase (los 7 nombres de 50a) y no por id,
+   así cada tarifa queda en la fase correcta: el tercer puesto (fase 6) y la Final
+   (fase 7) tienen tarifas propias.
 */
 
--- ── Fase 1: Fase de Grupos ──────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 1 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 1, @idUbicacion = 1, @montoUSD =  50000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 1 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 1, @idUbicacion = 2, @montoUSD =  35000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 1 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 1, @idUbicacion = 3, @montoUSD =  35000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 1 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 1, @idUbicacion = 4, @montoUSD =  80000.00;
+DROP TABLE IF EXISTS #tarifas;
+CREATE TABLE #tarifas (n int IDENTITY(1,1) PRIMARY KEY, nombreFase varchar(60),
+                       idUbicacion tinyint, montoUSD decimal(12,2));
+INSERT INTO #tarifas (nombreFase, idUbicacion, montoUSD) VALUES
+    ('Fase de grupos',          1,  50000.00), ('Fase de grupos',          2,  35000.00),
+    ('Fase de grupos',          3,  35000.00), ('Fase de grupos',          4,  80000.00),
+    ('Dieciseisavos de final',  1,  60000.00), ('Dieciseisavos de final',  2,  42000.00),
+    ('Dieciseisavos de final',  3,  42000.00), ('Dieciseisavos de final',  4,  96000.00),
+    ('Octavos de final',        1,  70000.00), ('Octavos de final',        2,  50000.00),
+    ('Octavos de final',        3,  50000.00), ('Octavos de final',        4, 112000.00),
+    ('Cuartos de final',        1,  90000.00), ('Cuartos de final',        2,  65000.00),
+    ('Cuartos de final',        3,  65000.00), ('Cuartos de final',        4, 145000.00),
+    ('Semifinal',               1, 120000.00), ('Semifinal',               2,  85000.00),
+    ('Semifinal',               3,  85000.00), ('Semifinal',               4, 190000.00),
+    ('Tercer puesto',           1, 100000.00), ('Tercer puesto',           2,  70000.00),
+    ('Tercer puesto',           3,  70000.00), ('Tercer puesto',           4, 160000.00),
+    ('Final',                   1, 200000.00), ('Final',                   2, 140000.00),
+    ('Final',                   3, 140000.00), ('Final',                   4, 320000.00);
 
--- ── Fase 2: Dieciseisavos de Final ─────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 2 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 2, @idUbicacion = 1, @montoUSD =  60000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 2 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 2, @idUbicacion = 2, @montoUSD =  42000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 2 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 2, @idUbicacion = 3, @montoUSD =  42000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 2 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 2, @idUbicacion = 4, @montoUSD =  96000.00;
-
--- ── Fase 3: Octavos de Final ────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 3 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 3, @idUbicacion = 1, @montoUSD =  70000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 3 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 3, @idUbicacion = 2, @montoUSD =  50000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 3 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 3, @idUbicacion = 3, @montoUSD =  50000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 3 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 3, @idUbicacion = 4, @montoUSD = 112000.00;
-
--- ── Fase 4: Cuartos de Final ────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 4 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 4, @idUbicacion = 1, @montoUSD =  90000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 4 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 4, @idUbicacion = 2, @montoUSD =  65000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 4 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 4, @idUbicacion = 3, @montoUSD =  65000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 4 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 4, @idUbicacion = 4, @montoUSD = 145000.00;
-
--- ── Fase 5: Semifinal ───────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 5 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 5, @idUbicacion = 1, @montoUSD = 120000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 5 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 5, @idUbicacion = 2, @montoUSD =  85000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 5 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 5, @idUbicacion = 3, @montoUSD =  85000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 5 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 5, @idUbicacion = 4, @montoUSD = 190000.00;
-
--- ── Fase 6: Final ───────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 6 AND idUbicacion = 1)
-    EXEC Publicidad.Tarifa_Alta @idFase = 6, @idUbicacion = 1, @montoUSD = 200000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 6 AND idUbicacion = 2)
-    EXEC Publicidad.Tarifa_Alta @idFase = 6, @idUbicacion = 2, @montoUSD = 140000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 6 AND idUbicacion = 3)
-    EXEC Publicidad.Tarifa_Alta @idFase = 6, @idUbicacion = 3, @montoUSD = 140000.00;
-IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = 6 AND idUbicacion = 4)
-    EXEC Publicidad.Tarifa_Alta @idFase = 6, @idUbicacion = 4, @montoUSD = 320000.00;
+DECLARE @idFase int, @idUbicacion tinyint, @montoUSD decimal(12,2);
+DECLARE @n int = 1, @max int = (SELECT MAX(n) FROM #tarifas);
+WHILE @n <= @max
+BEGIN
+    SELECT @idFase = NULL;
+    SELECT @idFase = f.idFase, @idUbicacion = t.idUbicacion, @montoUSD = t.montoUSD
+    FROM #tarifas t
+    JOIN Torneo.Fase f ON f.nombre = t.nombreFase
+    WHERE t.n = @n;
+    BEGIN TRY
+        IF @idFase IS NULL
+            THROW 50001, N'La fase de la tarifa no existe en Torneo.Fase.', 1;
+        IF NOT EXISTS (SELECT 1 FROM Publicidad.Tarifa WHERE idFase = @idFase AND idUbicacion = @idUbicacion)
+            EXEC Publicidad.Tarifa_Alta @idFase = @idFase, @idUbicacion = @idUbicacion, @montoUSD = @montoUSD;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al cargar la tarifa de la fila ' + CAST(@n AS varchar(10)) + ' de #tarifas.';
+        THROW;
+    END CATCH;
+    SET @n += 1;
+END;
 
 GO
 
@@ -721,11 +530,13 @@ IF NOT EXISTS (
       AND descripcion = N'Sony - Vive cada gol (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Sony Vive el Momento';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Sony - Vive cada gol (es)',
         @idioma      = 'es';
+END;
 
 IF NOT EXISTS (
     SELECT 1 FROM Publicidad.PiezaContenido
@@ -733,11 +544,13 @@ IF NOT EXISTS (
       AND descripcion = N'Sony - Feel Every Moment (ja)'
       AND idioma      = 'ja'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Sony Vive el Momento';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Sony - Feel Every Moment (ja)',
         @idioma      = 'ja';
+END;
 
 -- ── L Oreal (campania: 'L Oreal Brilla en el Mundial') ────────────────────
 IF NOT EXISTS (
@@ -746,11 +559,13 @@ IF NOT EXISTS (
       AND descripcion = N'L Oreal - Porque tu lo vales (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'L Oreal Brilla en el Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'L Oreal - Porque tu lo vales (es)',
         @idioma      = 'es';
+END;
 
 IF NOT EXISTS (
     SELECT 1 FROM Publicidad.PiezaContenido
@@ -758,11 +573,13 @@ IF NOT EXISTS (
       AND descripcion = N'L Oreal - Parce que je le vaux bien (fr)'
       AND idioma      = 'fr'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'L Oreal Brilla en el Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'L Oreal - Parce que je le vaux bien (fr)',
         @idioma      = 'fr';
+END;
 
 -- ── Ferrari (campania: 'Ferrari Pasion por la Velocidad') ─────────────────
 IF NOT EXISTS (
@@ -771,11 +588,13 @@ IF NOT EXISTS (
       AND descripcion = N'Ferrari - Pasion italiana (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Ferrari Pasion por la Velocidad';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Ferrari - Pasion italiana (es)',
         @idioma      = 'es';
+END;
 
 IF NOT EXISTS (
     SELECT 1 FROM Publicidad.PiezaContenido
@@ -783,11 +602,13 @@ IF NOT EXISTS (
       AND descripcion = N'Ferrari - La passione italiana (it)'
       AND idioma      = 'it'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Ferrari Pasion por la Velocidad';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Ferrari - La passione italiana (it)',
         @idioma      = 'it';
+END;
 
 -- ── Zara (campania: 'Zara Style Mundial') ─────────────────────────────────
 IF NOT EXISTS (
@@ -796,11 +617,13 @@ IF NOT EXISTS (
       AND descripcion = N'Zara - Moda en el estadio (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Zara Style Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Zara - Moda en el estadio (es)',
         @idioma      = 'es';
+END;
 
 IF NOT EXISTS (
     SELECT 1 FROM Publicidad.PiezaContenido
@@ -808,11 +631,13 @@ IF NOT EXISTS (
       AND descripcion = N'Zara - Estilo sin limites (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Zara Style Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Zara - Estilo sin limites (es)',
         @idioma      = 'es';
+END;
 
 -- ── Heineken (campania: 'Heineken Brindis Mundial') ────────────────────────
 IF NOT EXISTS (
@@ -821,11 +646,13 @@ IF NOT EXISTS (
       AND descripcion = N'Heineken - Brindamos por el futbol (es)'
       AND idioma      = 'es'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Heineken Brindis Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Heineken - Brindamos por el futbol (es)',
         @idioma      = 'es';
+END;
 
 IF NOT EXISTS (
     SELECT 1 FROM Publicidad.PiezaContenido
@@ -833,11 +660,13 @@ IF NOT EXISTS (
       AND descripcion = N'Heineken - Open Your World (nl)'
       AND idioma      = 'nl'
 )
+BEGIN
     SELECT @idCampania_current = idCampania FROM Publicidad.Campania WHERE nombre = N'Heineken Brindis Mundial';
     EXEC Publicidad.PiezaContenido_Alta
         @idCampania  = @idCampania_current,
         @descripcion = N'Heineken - Open Your World (nl)',
         @idioma      = 'nl';
+END;
 
 GO
 
@@ -865,7 +694,7 @@ DECLARE @idPais_PT int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'PT');
    CASO OBLIGATORIO — Adidas:
    Las 2 piezas de Adidas tienen mercados en los 7 países europeos en prime time
    (Alemania, España, Francia, Italia, Países Bajos, Portugal, Reino Unido).
-   Para el partido ARG vs BRA del 15/06 a las 18:00 UTC, los 7 mercados europeos
+   Para la Final real (partido 104, 2026-07-19 19:00 UTC), los 7 mercados europeos
    están en prime time pero solo hay 4 ubicaciones → se activa la priorización.
 */
 
@@ -1235,41 +1064,27 @@ ORDER BY tabla;
 
 /*
    ── Verificacion del caso obligatorio ────────────────────────────────────────
-   El siguiente SELECT muestra los países en prime time para el partido
-   Argentina vs Brasil (2026-06-15 18:00 UTC), confirmando que ≥ 5 mercados
-   de las piezas de Adidas caen en prime time.
-   Si se ejecuta EXEC Publicidad.AsignarPiezasPartido con el idPartido
-   correspondiente, el sistema debe seleccionar solo 4 de los 7 mercados
-   en prime time, aplicando los criterios de priorización del SP.
+   El siguiente SELECT muestra, para la Final real (partido 104, España–Argentina,
+   2026-07-19 19:00 UTC), la hora local de cada mercado de las piezas y si cae en
+   prime time, confirmando que 7 mercados (más de 4) están en prime time.
+   Si se ejecuta EXEC Publicidad.AsignarPiezasPartido con el idPartido de la Final
+   (antes de 53_Cierre_Partidos.sql), el sistema selecciona solo 4 de las piezas
+   aplicando los criterios de priorización del SP.
 */
+DECLARE @fechaFinal datetime2(0) = (SELECT fechaHoraUTC FROM Torneo.Partido WHERE nroPartidoOficial = 104);
+
 SELECT
-    pa.nombre                             AS pais,
+    pa.nombre                                                AS pais,
     pa.husoHorario,
-    CAST(
-        CAST(CAST('2026-06-15 18:00:00' AS datetime2(0)) AS datetimeoffset)
-        AT TIME ZONE 'UTC'
-        AT TIME ZONE pa.husoHorario
-    AS datetimeoffset)                    AS horaLocal,
-    DATEPART(HOUR,
-        CAST(
-            CAST(CAST('2026-06-15 18:00:00' AS datetime2(0)) AS datetimeoffset)
-            AT TIME ZONE 'UTC'
-            AT TIME ZONE pa.husoHorario
-        AS datetimeoffset)
-    )                                     AS horaLocalInt,
+    Publicidad.fn_HoraLocal(@fechaFinal, pa.husoHorario)     AS horaLocal,
     CASE
-        WHEN DATEPART(HOUR,
-            CAST(
-                CAST(CAST('2026-06-15 18:00:00' AS datetime2(0)) AS datetimeoffset)
-                AT TIME ZONE 'UTC'
-                AT TIME ZONE pa.husoHorario
-            AS datetimeoffset)
-        ) BETWEEN 19 AND 23
-        THEN 'PRIME TIME ✓'
+        WHEN Publicidad.fn_EsPrimeTime(@fechaFinal, pa.husoHorario) = 1
+        THEN 'PRIME TIME'
         ELSE 'fuera de prime time'
-    END                                   AS esPrimeTime
+    END                                                      AS esPrimeTime
 FROM Torneo.Pais pa
 WHERE pa.husoHorario IS NOT NULL
+  AND pa.id IN (SELECT idPais FROM Publicidad.PiezaMercado)
 ORDER BY esPrimeTime DESC, pa.nombre;
 
 GO
