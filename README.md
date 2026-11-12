@@ -77,6 +77,21 @@ DROP DATABASE IF EXISTS MundialFutbol;
 
 > Antes de abrir una PR tenemos que comprobar que la base se recrea desde cero sin errores con nuestros cambios.
 
+### Requisitos del servidor para las APIs
+
+Los scripts `43` y `50f` consumen APIs (Banco Mundial y Frankfurter) desde T-SQL con `sp_OACreate`, así que necesitan:
+
+- **"Ole Automation Procedures" habilitado** (viene apagado por defecto; requiere ser sysadmin):
+
+  ```sql
+  EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+  EXEC sp_configure 'Ole Automation Procedures', 1; RECONFIGURE;
+  ```
+
+- **Acceso a internet** desde el servidor.
+
+Se usa `sp_OACreate` y no `sp_invoke_external_rest_endpoint` porque este último solo existe en Azure SQL y SQL Server 2025 (el motivo completo está en el encabezado de `43_Importar_APIs.sql`). Todo el código es T-SQL, sin CLR ni scripts por fuera del motor. Sin Ole o sin internet, la base se recrea igual: `50f` informa el motivo y las pruebas en vivo de `80h` dan `[OMITIDA]`.
+
 ---
 
 ## 3. Reglas generales
