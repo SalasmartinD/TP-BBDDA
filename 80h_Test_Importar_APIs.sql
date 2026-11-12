@@ -176,7 +176,7 @@ GO
 
 -- PRUEBA 1.7: un fallo transitorio de red se reintenta antes de rendirse
 -- Se pide a una dirección que no responde con espera de 1 segundo y 1 reintento.
--- Resultado esperado: THROW 50003 que informa "tras 2 intentos"
+-- Resultado esperado: THROW 50003 que informa "tras 2 intentos"; [OMITIDA] si no hay Ole Automation
 DECLARE @r nvarchar(max);
 BEGIN TRY
     EXEC Sistema.ConsultarAPI @url = N'https://10.255.255.1/', @respuesta = @r OUTPUT, @timeoutSeg = 1, @reintentos = 1;
@@ -185,6 +185,8 @@ END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50003 AND ERROR_MESSAGE() LIKE N'%[[]tras 2 intentos]%'
         PRINT '[OK] PRUEBA 1.7: el fallo de red se reintentó (2 intentos) antes de cortar con 50003.';
+    ELSE IF ERROR_NUMBER() = 50003 AND ERROR_MESSAGE() LIKE N'%(crear el objeto HTTP)%'
+        PRINT '[OMITIDA] PRUEBA 1.7: sin Ole Automation (' + LEFT(ERROR_MESSAGE(), 120) + ').';
     ELSE PRINT '[FALLO] PRUEBA 1.7: ' + ISNULL(ERROR_MESSAGE(), 'sin mensaje');
 END CATCH;
 GO
