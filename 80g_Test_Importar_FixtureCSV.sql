@@ -16,9 +16,12 @@
 
  Requisitos  : - Ejecutar en modo SQLCMD (en SSMS: Consulta > Modo SQLCMD),
                  porque usa la variable RUTA_DATASETS.
-               - Cambiar RUTA_DATASETS (más abajo) por la carpeta datasets/ de
-                 la repo en esta máquina, terminada en \ y legible por la
-                 cuenta que ejecuta.
+               - Cambiar RUTA_DATASETS (la línea :setvar de más abajo, por
+                 defecto C:\TP-BBDDA\datasets\) por la carpeta datasets/ de la
+                 repo en esta máquina, terminada en \ y legible por la cuenta
+                 que ejecuta. Si la ruta no coincide, todas las pruebas fallan.
+                 Se cambia editando esa línea, tanto en SSMS como con sqlcmd:
+                 el :setvar del archivo pisa a la opción -v de sqlcmd.
                - 00_InitialSchema.sql, 10a, 10b, 40a y la carga base 50a, 50b y
                  50c (el test usa las selecciones de España, Argentina, Francia,
                  Inglaterra, Noruega y Ghana, y las sedes de Miami y Atlanta).
@@ -213,7 +216,8 @@ END CATCH;
 -- PRUEBA 2.3: repetir el primer archivo con los partidos ya existentes
 -- Resultado esperado: 9001 y 9002 ya existen, así que no se insertan. 9002 vuelve a las 18:00
 -- (1 actualizado); 9001 queda sin cambios porque el archivo no trae resultado y se conserva
--- el 3-2 (junto con el partido 14, 2 sin cambios). Las demás filas dan los mismos 11 errores.
+-- el 3-2 (junto con el partido 14, 2 sin cambios). Las demás filas dan los mismos 11 errores,
+-- y en Sistema.ErrorImportacion siguen quedando 11 filas de ese archivo (no se acumulan).
 BEGIN TRY
     DELETE FROM #r;
     INSERT INTO #r EXEC Torneo.Importar_FixtureCSV @rutaArchivo = N'$(RUTA_DATASETS)prueba_fixture_1.csv';
@@ -222,7 +226,9 @@ BEGIN TRY
                AND sinCambios = 2 AND conError = 11)
        AND (SELECT COUNT(*) FROM Torneo.Partido WHERE nroPartidoOficial IN (9001, 9002)) = 2
        AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE nroPartidoOficial = 9001 AND golLocal = 3 AND golVisitante = 2)
-        PRINT '[OK] PRUEBA 2.3: la clave natural evita duplicar partidos al reimportar.';
+       AND (SELECT COUNT(*) FROM Sistema.ErrorImportacion
+            WHERE archivo LIKE N'%prueba_fixture_1.csv' AND tablaDestino = 'Torneo.Partido') = 11
+        PRINT '[OK] PRUEBA 2.3: reimportar no duplica ni los partidos ni los errores registrados.';
     ELSE PRINT '[FALLO] PRUEBA 2.3: el resultado de la importación no es el esperado.';
 END TRY
 BEGIN CATCH

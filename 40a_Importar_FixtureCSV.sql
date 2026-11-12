@@ -21,7 +21,8 @@
  - Upsert sin duplicados: la clave natural es Match Number, que es
    Partido.nroPartidoOficial. Si el partido no existe se da de alta; si existe
    y algún dato cambió se modifica; si no cambió, no se toca. Repetir la
-   importación del mismo archivo no duplica nada.
+   importación del mismo archivo no duplica nada: ni los partidos ni los
+   errores, porque los de la corrida anterior de ese archivo se reemplazan.
  - El nombre del archivo es el parámetro. BULK INSERT no acepta variables
    para el nombre, por eso es el único SQL dinámico y está justificado.
  - El archivo se lee a una tabla temporal con todas las columnas como texto y
@@ -238,6 +239,9 @@ BEGIN
     /* -------------------------------------------------------------------------
        4. Filas inválidas a Sistema.ErrorImportacion
        ------------------------------------------------------------------------- */
+    -- Los errores de una corrida anterior del mismo archivo se reemplazan, para que reimportar no los duplique
+    DELETE FROM Sistema.ErrorImportacion WHERE archivo = @rutaArchivo AND tablaDestino = 'Torneo.Partido';
+
     INSERT INTO Sistema.ErrorImportacion (archivo, tablaDestino, nroFila, datoOriginal, mensajeError)
     SELECT @rutaArchivo, 'Torneo.Partido', fila,
            CONCAT_WS(N',', matchNumber, ronda, fecha, ubicacion, equipoLocal, equipoVisitante, grupo, resultado),
