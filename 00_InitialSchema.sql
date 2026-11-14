@@ -418,6 +418,19 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'Eventos.CuerpoTecnicoPartido', N'U') IS NULL
+BEGIN
+    CREATE TABLE Eventos.CuerpoTecnicoPartido (
+        idPartido  int  NOT NULL,
+        idStaff    int  NOT NULL,
+
+        CONSTRAINT PK_CuerpoTecnicoPartido         PRIMARY KEY (idPartido, idStaff),
+        CONSTRAINT FK_CuerpoTecnicoPartido_Partido FOREIGN KEY (idPartido) REFERENCES Torneo.Partido (idPartido),
+        CONSTRAINT FK_CuerpoTecnicoPartido_Staff   FOREIGN KEY (idStaff)   REFERENCES Equipos.Staff (id)
+    );
+END
+GO
+
 IF OBJECT_ID(N'Eventos.Gol', N'U') IS NULL
 BEGIN
     CREATE TABLE Eventos.Gol (
@@ -507,11 +520,13 @@ BEGIN
         idStaff            int               NULL,
         cantPartidos       tinyint           NOT NULL,
         partidosRestantes  tinyint           NOT NULL,
+        idTarjeta          int               NULL,       -- tarjeta que originó la suspensión (NULL = suspensión manual)
 
         CONSTRAINT PK_Suspension                PRIMARY KEY (id),
         CONSTRAINT FK_Suspension_Partido        FOREIGN KEY (idPartido) REFERENCES Torneo.Partido (idPartido),
         CONSTRAINT FK_Suspension_Jugador        FOREIGN KEY (idJugador) REFERENCES Equipos.Jugador (id),
         CONSTRAINT FK_Suspension_Staff          FOREIGN KEY (idStaff)   REFERENCES Equipos.Staff (id),
+        CONSTRAINT FK_Suspension_Tarjeta        FOREIGN KEY (idTarjeta) REFERENCES Eventos.Tarjeta (idTarjeta),
         -- exactamente uno de los dos: la suspensión es de un jugador o de un integrante del staff
         CONSTRAINT CK_Suspension_JugadorOStaff  CHECK ((idJugador IS NOT NULL AND idStaff IS NULL)
                                                     OR (idJugador IS NULL AND idStaff IS NOT NULL)),
@@ -519,6 +534,15 @@ BEGIN
         CONSTRAINT CK_Suspension_Restantes      CHECK (partidosRestantes <= cantPartidos)
     );
 END
+GO
+
+-- Una tarjeta origina como máximo una suspensión
+IF NOT EXISTS (SELECT 1 FROM sys.indexes
+               WHERE name = N'UX_Suspension_Tarjeta'
+                 AND object_id = OBJECT_ID(N'Eventos.Suspension'))
+    CREATE UNIQUE INDEX UX_Suspension_Tarjeta
+        ON Eventos.Suspension (idTarjeta)
+        WHERE idTarjeta IS NOT NULL;
 GO
 
 /* =============================================================================
