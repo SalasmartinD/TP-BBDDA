@@ -787,6 +787,13 @@ BEGIN
        AND EXISTS (SELECT 1 FROM Eventos.FormacionPartido WHERE idPartido = @idPartido)
         SET @errores += CHAR(10) + N'- No se pueden cambiar las selecciones porque el partido ya tiene formaciones cargadas.';
 
+    -- El cuerpo técnico se armó con el staff de las selecciones originales
+    IF EXISTS (SELECT 1 FROM Torneo.Partido
+               WHERE idPartido = @idPartido
+                 AND (idSeleccionLocal <> @idSeleccionLocal OR idSeleccionVisitante <> @idSeleccionVisitante))
+       AND EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartido)
+        SET @errores += CHAR(10) + N'- No se pueden cambiar las selecciones porque el partido ya tiene cuerpo técnico cargado.';
+
     IF @estado = 'Programado'
        AND (EXISTS (SELECT 1 FROM Eventos.Gol WHERE idPartido = @idPartido)
             OR EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idPartido = @idPartido)
@@ -829,6 +836,9 @@ BEGIN
 
     IF EXISTS (SELECT 1 FROM Eventos.FormacionPartido WHERE idPartido = @idPartido)
         SET @errores += CHAR(10) + N'- El partido tiene formaciones cargadas.';
+
+    IF EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartido)
+        SET @errores += CHAR(10) + N'- El partido tiene cuerpo técnico cargado.';
 
     IF EXISTS (SELECT 1 FROM Eventos.Gol WHERE idPartido = @idPartido)
        OR EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idPartido = @idPartido)

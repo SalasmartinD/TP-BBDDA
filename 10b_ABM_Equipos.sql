@@ -437,6 +437,11 @@ BEGIN
             OR EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @id))
         SET @errores += CHAR(10) + N'- No se puede cambiar la selección porque el integrante tiene tarjetas o suspensiones.';
 
+    -- El cuerpo técnico de cada partido se armó con la selección del integrante
+    IF EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @id AND idSeleccion <> @idSeleccion)
+       AND EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idStaff = @id)
+        SET @errores += CHAR(10) + N'- No se puede cambiar la selección porque el integrante figura en el cuerpo técnico de algún partido.';
+
     IF @errores <> N''
     BEGIN
         SET @errores = N'No se pudo modificar el integrante del cuerpo técnico:' + @errores;
@@ -467,6 +472,9 @@ BEGIN
     IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idStaff = @id)
        OR EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @id)
         SET @errores += CHAR(10) + N'- El integrante tiene tarjetas o suspensiones registradas.';
+
+    IF EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idStaff = @id)
+        SET @errores += CHAR(10) + N'- El integrante figura en el cuerpo técnico de algún partido.';
 
     IF @errores <> N''
     BEGIN

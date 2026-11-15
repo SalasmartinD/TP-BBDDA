@@ -43,6 +43,7 @@ GO
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
     AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
 DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido = N'Prueba80b');
 DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80b';
 DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80b';
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98011;
@@ -405,6 +406,41 @@ END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 3.6: ' + ERROR_MESSAGE();
 END CATCH;
+
+-- Integrante que figura en el cuerpo técnico del partido 98011 (INSERT directo como fixture)
+DECLARE @selS int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QSA');
+DECLARE @idPartidoCT int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 98011);
+EXEC Equipos.Staff_Alta @idSeleccion = @selR, @nombre = N'ConPartido', @apellido = N'Prueba80b',
+     @rol = 'Ayudante', @id = @id OUTPUT;
+INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff) VALUES (@idPartidoCT, @id);
+
+-- PRUEBA 3.7: baja de un integrante que figura en el cuerpo técnico de un partido
+-- Resultado esperado: error 50001 "El integrante figura en el cuerpo técnico de algún partido."
+BEGIN TRY
+    EXEC Equipos.Staff_Baja @id = @id;
+    PRINT '[FALLO] PRUEBA 3.7: se dio de baja a un integrante con partidos en su cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%figura en el cuerpo técnico de algún partido%'
+        PRINT '[OK] PRUEBA 3.7: baja rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.7: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.8: cambio de selección de un integrante que figura en el cuerpo técnico de un partido
+-- Resultado esperado: error 50001 "No se puede cambiar la selección porque el integrante figura en el cuerpo técnico de algún partido."
+BEGIN TRY
+    EXEC Equipos.Staff_Modificacion @id = @id, @idSeleccion = @selS, @nombre = N'ConPartido',
+         @apellido = N'Prueba80b', @rol = 'Ayudante';
+    PRINT '[FALLO] PRUEBA 3.8: se cambió la selección de un integrante con partidos en su cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001
+       AND ERROR_MESSAGE() LIKE N'%No se puede cambiar la selección porque el integrante figura en el cuerpo técnico de algún partido%'
+        PRINT '[OK] PRUEBA 3.8: cambio de selección rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.8: ' + ERROR_MESSAGE();
+END CATCH;
+
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff = @id;
 GO
 
 /* =============================================================================
@@ -683,6 +719,7 @@ GO
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
     AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
 DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido = N'Prueba80b');
 DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80b';
 DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80b';
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98011;
@@ -692,6 +729,6 @@ DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('QR', 'QS', 'QT', 'QU');
 DELETE FROM Torneo.Fase WHERE idFase = 903;
 
 PRINT '================================================================================';
-PRINT ' FIN DE LAS PRUEBAS: 10b_ABM_Equipos.sql (39 pruebas)';
+PRINT ' FIN DE LAS PRUEBAS: 10b_ABM_Equipos.sql (41 pruebas)';
 PRINT '================================================================================';
 GO

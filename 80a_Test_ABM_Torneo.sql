@@ -44,8 +44,10 @@ GO
    ============================================================================= */
 DELETE FROM Eventos.Gol WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004
     OR idSede IN (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%');
+DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80a';
 DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80a';
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QMA', 'QNA', 'QOA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%';
@@ -690,6 +692,45 @@ END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5.15: ' + ERROR_MESSAGE();
 END CATCH;
+
+-- Partido 98004 con un integrante del cuerpo técnico de la selección A (INSERT directo como fixture)
+DECLARE @idStaff int;
+EXEC Torneo.Partido_Alta @idSede = @sede1, @idSeleccionLocal = @selA, @idSeleccionVisitante = @selB, @fase = 901,
+     @fechaHoraUTC = '2030-08-01 18:00', @nroPartidoOficial = 98004, @idPartido = @idPartido OUTPUT;
+EXEC Equipos.Staff_Alta @idSeleccion = @selA, @nombre = N'Ayudante', @apellido = N'Prueba80a',
+     @rol = 'Ayudante', @id = @idStaff OUTPUT;
+INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff) VALUES (@idPartido, @idStaff);
+
+-- PRUEBA 5.16: cambiar las selecciones de un partido con cuerpo técnico
+-- Resultado esperado: error 50001 "No se pueden cambiar las selecciones porque el partido ya tiene cuerpo técnico cargado."
+BEGIN TRY
+    EXEC Torneo.Partido_Modificacion @idPartido = @idPartido, @idSede = @sede1, @idSeleccionLocal = @selC,
+         @idSeleccionVisitante = @selB, @fase = 901, @fechaHoraUTC = '2030-08-01 18:00', @estado = 'Programado',
+         @nroPartidoOficial = 98004;
+    PRINT '[FALLO] PRUEBA 5.16: se cambiaron las selecciones de un partido con cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%ya tiene cuerpo técnico cargado%'
+        PRINT '[OK] PRUEBA 5.16: cambio de selecciones con cuerpo técnico rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 5.16: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.17: baja de un partido con cuerpo técnico
+-- Resultado esperado: error 50001 "El partido tiene cuerpo técnico cargado."
+BEGIN TRY
+    EXEC Torneo.Partido_Baja @idPartido = @idPartido;
+    PRINT '[FALLO] PRUEBA 5.17: se eliminó un partido con cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%partido tiene cuerpo técnico cargado%'
+        PRINT '[OK] PRUEBA 5.17: baja de partido con cuerpo técnico rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 5.17: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- Se retira el fixture para no afectar las pruebas de la sección 6
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartido;
+DELETE FROM Equipos.Staff WHERE id = @idStaff;
+DELETE FROM Torneo.Partido WHERE idPartido = @idPartido;
 GO
 
 /* =============================================================================
@@ -775,8 +816,10 @@ GO
    ============================================================================= */
 DELETE FROM Eventos.Gol WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004
     OR idSede IN (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%');
+DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80a';
 DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80a';
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QMA', 'QNA', 'QOA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%';
@@ -785,6 +828,6 @@ DELETE FROM Torneo.Fase WHERE idFase IN (901, 902);
 DELETE FROM Torneo.Periodo WHERE idPeriodo IN (201, 202);
 
 PRINT '================================================================================';
-PRINT ' FIN DE LAS PRUEBAS: 10a_ABM_Torneo.sql (46 pruebas)';
+PRINT ' FIN DE LAS PRUEBAS: 10a_ABM_Torneo.sql (48 pruebas)';
 PRINT '================================================================================';
 GO
