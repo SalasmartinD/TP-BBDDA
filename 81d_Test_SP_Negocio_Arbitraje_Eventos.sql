@@ -97,7 +97,7 @@ FROM Sistema.Parametro p
 JOIN #parametrosOriginales o ON o.clave = p.clave;
 
 INSERT INTO Sistema.Parametro (clave, valor, descripcion)
-SELECT clave, valorPrueba, 'Valor de prueba (81c)'
+SELECT clave, valorPrueba, 'Valor de prueba (81d)'
 FROM #parametrosOriginales
 WHERE existia = 0;
 
