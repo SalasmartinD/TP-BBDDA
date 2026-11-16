@@ -30,6 +30,13 @@
                  vacía, repetidos, integrantes ajenos a la selección, más de un
                  Director Principal, integrantes suspendidos (antes de descontar
                  las suspensiones cumplidas) y cuerpo técnico ya registrado.
+                 Es intencional: el cuerpo técnico de cada selección en el partido
+                 se registra junto con la formación, en la misma transacción. Si
+                 ya fue cargado antes con Eventos.CuerpoTecnicoPartido_Alta (11c),
+                 RegistrarFormacion lo rechaza (F20) para no duplicar ni mezclar
+                 integrantes. El ABM del 11c queda para armar o corregir el cuerpo
+                 técnico de partidos cuya formación no se registra con este SP o
+                 para ajustarlo después.
                - RegistrarTarjeta recibe @idJugador o @idStaff (exactamente uno).
                  Un integrante del cuerpo técnico solo recibe tarjeta si figura en
                  CuerpoTecnicoPartido del partido. Su roja suspende siempre 1
@@ -106,6 +113,13 @@ GO
      repetidos, tiene que ser del Equipos.Staff de la selección y a lo sumo un
      integrante con rol 'Director Principal'. Se guarda en
      Eventos.CuerpoTecnicoPartido (igual que los jugadores en FormacionPartido).
+   - Cuerpo técnico ya cargado (F20), decisión intencional: el cuerpo técnico de
+     cada selección en el partido se registra junto con la formación, en la
+     misma transacción. Si ya fue cargado antes con
+     Eventos.CuerpoTecnicoPartido_Alta (11c), RegistrarFormacion lo rechaza para
+     no duplicar ni mezclar integrantes. El ABM del 11c queda para armar o
+     corregir el cuerpo técnico de partidos cuya formación no se registra con
+     este SP o para ajustarlo después.
    - Un integrante del cuerpo técnico suspendido tampoco puede figurar en el
      partido (F19). Esa validación ocurre antes del descuento: como todo es una
      sola transacción y el THROW sale antes de escribir, un rechazo no descuenta
