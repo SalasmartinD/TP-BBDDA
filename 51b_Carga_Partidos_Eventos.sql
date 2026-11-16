@@ -32,12 +32,17 @@
       4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 y 5-4-1 según el partido y la
       selección; si por las suspensiones no alcanzan jugadores de una posición,
       se usa el siguiente esquema posible, así siempre hay 11 titulares. Los
-      jugadores con suspensión activa no se incluyen.
+      jugadores con suspensión activa no se incluyen. El cuerpo técnico es todo
+      el Equipos.Staff de la selección menos los integrantes con suspensión
+      activa (un cuerpo técnico sin Director Principal es válido).
    c) Pase a 'En juego' con Torneo.Partido_Modificacion (con los valores
       actuales: no pisa los esquemas guardados por la formación).
    d) Cambios, tarjetas y goles (reanudable por fila: cada uno se carga solo
       si todavía no está), definidos como datos por abreviación de
-      selección y dorsal (se resuelven a id con joins), en ese orden.
+      selección y dorsal (se resuelven a id con joins), en ese orden. Las
+      tarjetas al cuerpo técnico se definen por abreviación, rol y ordinal del
+      integrante dentro de su rol, y se cargan después de las de los jugadores
+      del mismo partido.
 
  Casos de la consigna (todos se muestran con PRINT; un rechazo esperado se
  captura con TRY/CATCH, y si el SP no rechaza el script avisa y falla):
@@ -46,14 +51,23 @@
    CASO OBLIGATORIO 2 - Suspensión por acumulación: URU 6 con amarilla en los
                         partidos 13 y 37; en el 66 (URU-ESP) se rechaza su
                         inclusión y se registra la formación sin él.
-   CASO OBLIGATORIO 3 - Cambio por lesión en el minuto 17 del partido 17.
-   CASO OBLIGATORIO 4 - Designación rechazada por conflicto de nacionalidad
+   CASO OBLIGATORIO 3 - Roja a un integrante del cuerpo técnico: roja directa
+                        al Director Principal de NOR en el partido 41 (NOR-SEN);
+                        en el 61 (NOR-FRA) se rechaza su inclusión en el cuerpo
+                        técnico y se registra la formación sin él.
+   CASO OBLIGATORIO 4 - Cambio por lesión en el minuto 17 del partido 17.
+   CASO OBLIGATORIO 5 - Designación rechazada por conflicto de nacionalidad
                         (partido 19, ARG-ALG) y designación válida.
    EXTRA E1 - Designación con dos conflictos de nacionalidad (partido 20).
    EXTRA E2 - Sexto cambio rechazado por MAX_CAMBIOS (partido 22).
    EXTRA E3 - Tarjeta a un jugador ya expulsado, rechazada (partido 18).
    EXTRA E4 - Formación con un suspendido por expulsión, rechazada (IRQ en el
               partido 42 y JOR en el 70; la de URU en el 66 es el caso 2).
+   EXTRA E5 - Acumulación de amarillas del cuerpo técnico (parámetro
+              AMARILLAS_SUSPENSION_STAFF = 2): amarilla al Ayudante nro 1 de ESP
+              en los partidos 14 y 38; la 2ª genera la suspensión. En el 66
+              (URU-ESP) se rechaza su inclusión en el cuerpo técnico y se
+              registra la formación sin él.
    Además, los partidos eliminatorios muestran la advertencia de cruce.
 
  Uso         : Todas las altas pasan por los SP de 10a, 11 y 21.
@@ -62,6 +76,12 @@
                cuerpo técnico, así que cada llamada (la del rechazo esperado del
                suspendido y la válida) se arma con todo el Equipos.Staff de la
                selección y lo pasa en @cuerpoTecnico.
+
+ Cambio cuerpo técnico (Fase 3): se cargan tarjetas al cuerpo técnico con
+               Eventos.RegistrarTarjeta @idStaff (caso 3 y extra E5), la
+               formación excluye al staff con suspensión activa y se agrega el
+               rechazo esperado del staff suspendido (F19). Los casos
+               obligatorios pasan a numerarse según la consigna vigente (5).
 ================================================================================
 */
 
@@ -227,6 +247,19 @@ INSERT INTO #tarjetas (nro, sel, dorsal, color, minuto, minutoAdicional, motivo)
     (103, 'FRA', 2, 'A', 50, NULL, 'Falta'), (103, 'ENG', 3, 'A', 66, NULL, 'Juego brusco'),
     (104, 'ESP', 5, 'A', 44, NULL, 'Falta'), (104, 'ARG', 7, 'A', 77, NULL, 'Protesta');
 
+-- Tarjetas al cuerpo técnico: (partido, selección, rol, ordinal del integrante dentro de su rol en esa
+-- selección (por Staff.id), color, minuto, adicional, motivo). Con AMARILLAS_SUSPENSION_STAFF = 2:
+--   caso 3: roja directa al Director Principal de NOR en el 41 (su partido siguiente es el 61, NOR-FRA).
+--   extra E5: amarilla al Ayudante nro 1 de ESP en el 14 y en el 38; la 2ª suspende 1 partido (siguiente: el 66).
+DROP TABLE IF EXISTS #tarjetasStaff;
+CREATE TABLE #tarjetasStaff (n int IDENTITY(1,1) PRIMARY KEY, nro int NOT NULL, sel char(3) NOT NULL, rol varchar(20) NOT NULL,
+                             ordinal int NOT NULL, color char(1) NOT NULL, minuto tinyint NOT NULL,
+                             minutoAdicional tinyint NULL, motivo varchar(80) NOT NULL);
+INSERT INTO #tarjetasStaff (nro, sel, rol, ordinal, color, minuto, minutoAdicional, motivo) VALUES
+    (14, 'ESP', 'Ayudante', 1, 'A', 58, NULL, 'Protestas'),
+    (38, 'ESP', 'Ayudante', 1, 'A', 63, NULL, 'Falta de respeto al cuarto árbitro'),
+    (41, 'NOR', 'Director Principal', 1, 'R', 77, NULL, 'Protestas airadas al cuarto árbitro');
+
 -- Goles: (partido, selección del AUTOR, dorsal del autor, dorsal del asistente, minuto, adicional, tipo).
 -- Dan exactamente el marcador de #marcadores. Los 'En contra' (partidos 37 y 102) los hace un jugador del
 -- equipo que los recibe: suman al rival. Los partidos 86, 99 y 104 tienen goles en el alargue.
@@ -284,7 +317,7 @@ CREATE TABLE #intentoArbitros (nro int PRIMARY KEY, etiqueta varchar(40) NOT NUL
                                principal nvarchar(60), asistente1 nvarchar(60), asistente2 nvarchar(60),
                                cuarto nvarchar(60), var nvarchar(60));
 INSERT INTO #intentoArbitros (nro, etiqueta, descripcion, principal, asistente1, asistente2, cuarto, var) VALUES
-    (19, 'CASO OBLIGATORIO 4', 'un árbitro argentino como principal de ARG-ALG', N'Ferreyra', N'Villaseñor', N'Montoya', N'Thornton', N'Whitfield'),
+    (19, 'CASO OBLIGATORIO 5', 'un árbitro argentino como principal de ARG-ALG', N'Ferreyra', N'Villaseñor', N'Montoya', N'Thornton', N'Whitfield'),
     (20, 'EXTRA E1', 'dos conflictos de nacionalidad a la vez (un árbitro austríaco y uno jordano en AUT-JOR)', N'Brandstätter', N'Haddad', N'Beaulieu', N'McAllister', N'Villaseñor');
 
 DROP TABLE IF EXISTS #intentoCambio;
@@ -335,6 +368,27 @@ JOIN Equipos.Seleccion s ON s.abreviacion = t.sel
 LEFT JOIN Equipos.ListadoJugadores lj ON lj.idSeleccion = s.id AND lj.dorsal = t.dorsal AND lj.fechaBaja IS NULL
 ORDER BY t.nro, t.minuto * 1000 + ISNULL(t.minutoAdicional, 0), t.n;
 
+-- Cada integrante se identifica por selección + rol + ordinal dentro de su rol (ROW_NUMBER por Staff.id)
+DROP TABLE IF EXISTS #tarjetasStaffRes;
+CREATE TABLE #tarjetasStaffRes (ord int IDENTITY(1,1) PRIMARY KEY, nro int NOT NULL, idStaff int NULL,
+                                idPeriodo tinyint NOT NULL, color char(1) NOT NULL, minuto tinyint NOT NULL,
+                                minutoAdicional tinyint NULL, motivo varchar(80) NOT NULL);
+CREATE INDEX IX_tarjetasStaffRes_nro ON #tarjetasStaffRes (nro, ord);
+
+WITH staffOrd AS (
+    SELECT st.id AS idStaff, st.idSeleccion, st.rol,
+           ROW_NUMBER() OVER (PARTITION BY st.idSeleccion, st.rol ORDER BY st.id) AS ordinal
+    FROM Equipos.Staff st
+)
+INSERT INTO #tarjetasStaffRes (nro, idStaff, idPeriodo, color, minuto, minutoAdicional, motivo)
+SELECT t.nro, so.idStaff,
+       CASE WHEN t.minuto <= 45 THEN 1 WHEN t.minuto <= 90 THEN 2 WHEN t.minuto <= 105 THEN 3 ELSE 4 END,
+       t.color, t.minuto, t.minutoAdicional, t.motivo
+FROM #tarjetasStaff t
+JOIN Equipos.Seleccion s ON s.abreviacion = t.sel
+LEFT JOIN staffOrd so ON so.idSeleccion = s.id AND so.rol = t.rol AND so.ordinal = t.ordinal
+ORDER BY t.nro, t.minuto * 1000 + ISNULL(t.minutoAdicional, 0), t.n;
+
 DROP TABLE IF EXISTS #golesRes;
 CREATE TABLE #golesRes (ord int IDENTITY(1,1) PRIMARY KEY, nro int NOT NULL, idJugador int NULL, idAsistidor int NULL,
                         asistenteNoEncontrado bit NOT NULL, idPeriodo tinyint NOT NULL, minuto tinyint NOT NULL,
@@ -360,6 +414,12 @@ BEGIN
     UNION ALL SELECT 'tarjeta', nro, ord FROM #tarjetasRes WHERE idJugador IS NULL
     UNION ALL SELECT 'gol', nro, ord FROM #golesRes WHERE idJugador IS NULL OR asistenteNoEncontrado = 1;
     THROW 50001, N'Hay jugadores de los datos de eventos que no se encontraron por abreviación de selección y dorsal.', 1;
+END;
+
+IF EXISTS (SELECT 1 FROM #tarjetasStaffRes WHERE idStaff IS NULL)
+BEGIN
+    SELECT 'tarjeta al cuerpo técnico' AS evento, nro, ord FROM #tarjetasStaffRes WHERE idStaff IS NULL;
+    THROW 50001, N'Hay integrantes del cuerpo técnico de los datos de tarjetas que no se encontraron por abreviación de selección, rol y ordinal.', 1;
 END;
 
 /* =============================================================================
@@ -388,12 +448,15 @@ DECLARE @n int, @max int, @lado int,
         @idPpal int, @idAs1 int, @idAs2 int, @idCuarto int, @idVar int, @advertencia nvarchar(2000),
         @idSel int, @abrevSel char(3), @base int, @esquema varchar(10), @cantDef int, @cantMed int, @cantDel int,
         @idSusp int, @dorsalSusp int, @posSusp varchar(15), @cantTit int, @cantSup int,
+        @idSuspStaff int, @apellidoSuspStaff nvarchar(60), @etiquetaStaff varchar(40),
+        @idStaff int, @idTarjeta int, @rolStaff varchar(20), @abrevStaff char(3),
         @cantCambios int, @cantTarjetas int, @cantGoles int,
         @ord int, @idSale int, @idIngresa int, @idJugador int, @idAsistidor int,
         @idPeriodo tinyint, @minuto tinyint, @minutoAdic tinyint, @motivo varchar(80), @color char(1), @tipo varchar(20);
 DECLARE @jugadores    Eventos.FormacionJugadorLista;
 DECLARE @jugadoresMal Eventos.FormacionJugadorLista;
 DECLARE @cuerpoTecnico Eventos.CuerpoTecnicoLista;
+DECLARE @cuerpoTecnicoMal Eventos.CuerpoTecnicoLista;
 
 SELECT @n = 1, @max = (SELECT MAX(n) FROM #orden);
 WHILE @n <= @max
@@ -416,7 +479,7 @@ BEGIN
         IF @estado = 'Programado'
            AND NOT EXISTS (SELECT 1 FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido)
         BEGIN
-            -- Designación que debe ser rechazada por conflicto de nacionalidad (caso 4 y extra E1)
+            -- Designación que debe ser rechazada por conflicto de nacionalidad (caso 5 y extra E1)
             SET @etiqueta = NULL;
             SELECT @etiqueta = i.etiqueta, @descripcion = i.descripcion,
                    @idPpal   = (SELECT a.idArbitro FROM Arbitraje.Arbitro a WHERE a.apellido = i.principal),
@@ -539,12 +602,32 @@ BEGIN
                 FROM #disponibles d
                 ORDER BY d.dorsal;
 
-                -- Cuerpo técnico: todo el Equipos.Staff de la selección
+                -- Cuerpo técnico: todo el Equipos.Staff de la selección menos los integrantes con suspensión
+                -- activa para este partido (la misma regla que F19 de RegistrarFormacion)
                 DELETE FROM @cuerpoTecnico;
                 INSERT INTO @cuerpoTecnico (idStaff)
                 SELECT st.id
                 FROM Equipos.Staff st
-                WHERE st.idSeleccion = @idSel;
+                WHERE st.idSeleccion = @idSel
+                  AND NOT EXISTS (SELECT 1
+                                  FROM Eventos.Suspension su
+                                  JOIN Torneo.Partido ps ON ps.idPartido = su.idPartido
+                                  WHERE su.idStaff = st.id
+                                    AND su.partidosRestantes > 0
+                                    AND ps.fechaHoraUTC < @fecha);
+
+                -- Integrante del cuerpo técnico con suspensión activa (si lo hay): se intenta incluirlo
+                SELECT @idSuspStaff = NULL;
+                SELECT TOP (1) @idSuspStaff = st.id, @apellidoSuspStaff = st.apellido
+                FROM Equipos.Staff st
+                WHERE st.idSeleccion = @idSel
+                  AND EXISTS (SELECT 1
+                              FROM Eventos.Suspension su
+                              JOIN Torneo.Partido ps ON ps.idPartido = su.idPartido
+                              WHERE su.idStaff = st.id
+                                AND su.partidosRestantes > 0
+                                AND ps.fechaHoraUTC < @fecha)
+                ORDER BY st.id;
 
                 -- Convocado con suspensión activa: se intenta incluirlo como titular y el SP debe rechazarlo
                 SELECT @idSusp = NULL;
@@ -606,6 +689,49 @@ BEGIN
                     END;
                 END;
 
+                -- Integrante del cuerpo técnico con suspensión activa: se intenta incluirlo y el SP debe rechazarlo
+                -- (roja del staff = caso 3; acumulación de amarillas del staff = extra E5)
+                IF @idSuspStaff IS NOT NULL
+                BEGIN
+                    SET @etiquetaStaff = CASE WHEN EXISTS (SELECT 1
+                                                           FROM Eventos.Suspension su
+                                                           JOIN Eventos.Tarjeta t ON t.idPartido = su.idPartido
+                                                                                 AND t.idStaff = su.idStaff AND t.color = 'R'
+                                                           WHERE su.idStaff = @idSuspStaff)
+                                              THEN 'CASO OBLIGATORIO 3' ELSE 'EXTRA E5' END;
+
+                    SELECT @etiquetaStaff + ' - suspensión del cuerpo técnico ANTES de la formación' AS evidencia, @nro AS nroPartido,
+                           @abrevSel AS seleccion, st.apellido, st.rol, su.idPartido AS partidoOrigen,
+                           su.cantPartidos, su.partidosRestantes
+                    FROM Eventos.Suspension su
+                    JOIN Equipos.Staff st ON st.id = su.idStaff
+                    WHERE su.idStaff = @idSuspStaff;
+
+                    DELETE FROM @cuerpoTecnicoMal;
+                    INSERT INTO @cuerpoTecnicoMal (idStaff) SELECT idStaff FROM @cuerpoTecnico;
+                    INSERT INTO @cuerpoTecnicoMal (idStaff) VALUES (@idSuspStaff);
+
+                    SET @rechazado = 0;
+                    BEGIN TRY
+                        EXEC Eventos.RegistrarFormacion @idPartido = @idPartido, @idSeleccion = @idSel,
+                             @jugadores = @jugadores, @cuerpoTecnico = @cuerpoTecnicoMal, @esquema = @esquema;
+                    END TRY
+                    BEGIN CATCH
+                        SET @rechazado = 1;
+                        IF ERROR_NUMBER() <> 50002 THROW;
+                        PRINT @etiquetaStaff + ' - rechazo esperado (' + CAST(ERROR_NUMBER() AS varchar(10))
+                            + '): formación de ' + @abrevSel + ' en el partido nro ' + CAST(@nro AS varchar(10))
+                            + ' con el integrante suspendido ' + @apellidoSuspStaff + ' en el cuerpo técnico.';
+                        PRINT ERROR_MESSAGE();
+                    END CATCH;
+                    IF @rechazado = 0
+                    BEGIN
+                        PRINT 'FALLA - ' + @etiquetaStaff + ': el SP no rechazó la formación con un integrante suspendido del cuerpo técnico ('
+                            + @abrevSel + ', partido nro ' + CAST(@nro AS varchar(10)) + ').';
+                        THROW 50099, N'Un rechazo esperado de la formación con un integrante suspendido del cuerpo técnico no ocurrió.', 1;
+                    END;
+                END;
+
                 -- Formación válida (sin los suspendidos)
                 EXEC Eventos.RegistrarFormacion @idPartido = @idPartido, @idSeleccion = @idSel,
                      @jugadores = @jugadores, @cuerpoTecnico = @cuerpoTecnico, @esquema = @esquema;
@@ -622,6 +748,14 @@ BEGIN
                     FROM Eventos.Suspension su
                     JOIN Equipos.Jugador j ON j.id = su.idJugador
                     WHERE su.idJugador = @idSusp;
+
+                IF @idSuspStaff IS NOT NULL
+                    SELECT @etiquetaStaff + ' - suspensión del cuerpo técnico DESPUÉS de la formación válida' AS evidencia, @nro AS nroPartido,
+                           @abrevSel AS seleccion, st.apellido, st.rol, su.idPartido AS partidoOrigen,
+                           su.cantPartidos, su.partidosRestantes
+                    FROM Eventos.Suspension su
+                    JOIN Equipos.Staff st ON st.id = su.idStaff
+                    WHERE su.idStaff = @idSuspStaff;
             END;
             SET @lado += 1;
         END;
@@ -664,7 +798,7 @@ BEGIN
                          @idPeriodo = @idPeriodo, @minuto = @minuto, @minutoAdicional = @minutoAdic, @motivo = @motivo;
 
                     IF @motivo = 'Lesion' AND @minuto <= 20
-                        PRINT 'CASO OBLIGATORIO 3 - cambio por lesión en el minuto ' + CAST(@minuto AS varchar(10))
+                        PRINT 'CASO OBLIGATORIO 4 - cambio por lesión en el minuto ' + CAST(@minuto AS varchar(10))
                             + ' del partido nro ' + CAST(@nro AS varchar(10)) + ' registrado.';
                 END;
 
@@ -728,6 +862,44 @@ BEGIN
             IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idPartido = @idPartido AND tipoRoja = 'Doble amarilla')
                 PRINT 'CASO OBLIGATORIO 1 - doble amarilla en el partido nro ' + CAST(@nro AS varchar(10))
                     + ': la segunda amarilla generó sola la roja y la suspensión de 1 partido.';
+
+            -- Tarjetas al cuerpo técnico (caso 3 y extra E5), después de las de los jugadores del partido
+            SELECT @ord = MIN(ord) FROM #tarjetasStaffRes WHERE nro = @nro;
+            WHILE @ord IS NOT NULL
+            BEGIN
+                SELECT @idStaff = idStaff, @idPeriodo = idPeriodo, @color = color, @minuto = minuto,
+                       @minutoAdic = minutoAdicional, @motivo = motivo
+                FROM #tarjetasStaffRes WHERE ord = @ord;
+
+                IF NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta
+                               WHERE idPartido = @idPartido AND idStaff = @idStaff AND color = @color
+                                 AND minuto = @minuto AND ISNULL(CAST(minutoAdicional AS int), -1) = ISNULL(CAST(@minutoAdic AS int), -1))
+                BEGIN
+                    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartido, @idStaff = @idStaff, @idPeriodo = @idPeriodo,
+                         @color = @color, @minuto = @minuto, @minutoAdicional = @minutoAdic, @motivo = @motivo,
+                         @idTarjeta = @idTarjeta OUTPUT;
+
+                    SELECT @rolStaff = st.rol, @abrevStaff = se.abreviacion
+                    FROM Equipos.Staff st
+                    JOIN Equipos.Seleccion se ON se.id = st.idSeleccion
+                    WHERE st.id = @idStaff;
+
+                    IF @color = 'R'
+                        PRINT 'CASO OBLIGATORIO 3 - roja al ' + @rolStaff + ' de ' + @abrevStaff + ' en el partido nro '
+                            + CAST(@nro AS varchar(10)) + ' (minuto ' + CAST(@minuto AS varchar(10))
+                            + ') y suspensión de 1 partido generada.';
+                    ELSE IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idTarjeta = @idTarjeta)
+                        PRINT 'EXTRA E5 - amarilla al ' + @rolStaff + ' de ' + @abrevStaff + ' en el partido nro '
+                            + CAST(@nro AS varchar(10)) + ' (minuto ' + CAST(@minuto AS varchar(10))
+                            + '): acumulación de amarillas del cuerpo técnico y suspensión de 1 partido generada.';
+                    ELSE
+                        PRINT 'EXTRA E5 - amarilla al ' + @rolStaff + ' de ' + @abrevStaff + ' en el partido nro '
+                            + CAST(@nro AS varchar(10)) + ' (minuto ' + CAST(@minuto AS varchar(10))
+                            + '): todavía sin suspensión (no alcanza AMARILLAS_SUSPENSION_STAFF).';
+                END;
+
+                SELECT @ord = MIN(ord) FROM #tarjetasStaffRes WHERE nro = @nro AND ord > @ord;
+            END;
 
             -- Tarjeta a un jugador ya expulsado, que el SP debe rechazar (extra E3)
             SET @etiqueta = NULL;
@@ -802,6 +974,7 @@ SELECT p.nroPartidoOficial AS nro, sl.abreviacion + '-' + sv.abreviacion AS part
        (SELECT COUNT(*) FROM Eventos.FormacionPartido f WHERE f.idPartido = p.idPartido AND f.titular = 0) AS suplentes,
        (SELECT COUNT(*) FROM Eventos.Sustitucion s WHERE s.idPartido = p.idPartido) AS cambios,
        (SELECT COUNT(*) FROM Eventos.Tarjeta t WHERE t.idPartido = p.idPartido) AS tarjetas,
+       (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido ct WHERE ct.idPartido = p.idPartido) AS cuerpoTecnico,
        g.goles, g.golesLocal, g.golesVisitante, m.golLocal AS esperadoLocal, m.golVisitante AS esperadoVisitante,
        CASE WHEN g.golesLocal = m.golLocal AND g.golesVisitante = m.golVisitante THEN 'OK' ELSE 'DIFIERE' END AS marcador
 FROM Torneo.Partido p
@@ -827,7 +1000,9 @@ SELECT (SELECT COUNT(*) FROM Arbitraje.cuerpoArbitral) AS designaciones,
        (SELECT COUNT(*) FROM Eventos.Tarjeta) AS tarjetas,
        (SELECT COUNT(*) FROM Eventos.Gol) AS goles,
        (SELECT COUNT(*) FROM Eventos.Gol WHERE tipo = 'En contra') AS golesEnContra,
-       (SELECT COUNT(*) FROM Eventos.Suspension) AS suspensiones;
+       (SELECT COUNT(*) FROM Eventos.Suspension) AS suspensiones,
+       (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido) AS filasCuerpoTecnico,
+       (SELECT COUNT(*) FROM Eventos.Suspension WHERE idTarjeta IS NULL) AS suspensionesSinTarjeta;   -- debe dar 0
 
 SELECT estado, COUNT(*) AS partidos FROM Torneo.Partido GROUP BY estado;
 
@@ -843,10 +1018,16 @@ UNION ALL
 SELECT 'amarilla a un jugador fuera de la cancha', t.idTarjeta
 FROM Eventos.Tarjeta t
 WHERE t.color = 'A'
+  AND t.idJugador IS NOT NULL   -- las tarjetas al cuerpo técnico tienen idJugador NULL
   AND NOT EXISTS (SELECT 1 FROM Eventos.fn_EquipoEnCancha(t.idPartido, t.minuto) c WHERE c.idJugador = t.idJugador)
   -- la segunda amarilla de una doble amarilla genera una roja en el mismo minuto
   AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta r WHERE r.idPartido = t.idPartido AND r.idJugador = t.idJugador
-                                                     AND r.color = 'R' AND r.minuto = t.minuto);
+                                                     AND r.color = 'R' AND r.minuto = t.minuto)
+UNION ALL
+SELECT 'tarjeta a un integrante que no figura en el cuerpo técnico del partido', t.idTarjeta
+FROM Eventos.Tarjeta t
+WHERE t.idStaff IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido ct WHERE ct.idPartido = t.idPartido AND ct.idStaff = t.idStaff);
 
 -- CASO OBLIGATORIO 1 (evidencia): rojas (doble amarilla y directa) con su suspensión
 SELECT 'CASO OBLIGATORIO 1' AS caso, p.nroPartidoOficial AS nro, s.abreviacion AS seleccion, lj.dorsal, j.apellido,
@@ -857,7 +1038,18 @@ JOIN Equipos.Jugador j       ON j.id = t.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL
 JOIN Equipos.Seleccion s     ON s.id = lj.idSeleccion
 LEFT JOIN Eventos.Suspension su ON su.idPartido = t.idPartido AND su.idJugador = t.idJugador
-WHERE t.color = 'R'
+WHERE t.color = 'R' AND t.idJugador IS NOT NULL
+ORDER BY p.fechaHoraUTC, t.idTarjeta;
+
+-- CASO OBLIGATORIO 3 (evidencia): rojas al cuerpo técnico con su suspensión
+SELECT 'CASO OBLIGATORIO 3' AS caso, p.nroPartidoOficial AS nro, s.abreviacion AS seleccion, st.apellido, st.rol,
+       t.color, t.minuto, t.tipoRoja, su.cantPartidos, su.partidosRestantes, su.idTarjeta
+FROM Eventos.Tarjeta t
+JOIN Torneo.Partido p        ON p.idPartido = t.idPartido
+JOIN Equipos.Staff st        ON st.id = t.idStaff
+JOIN Equipos.Seleccion s     ON s.id = st.idSeleccion
+LEFT JOIN Eventos.Suspension su ON su.idTarjeta = t.idTarjeta
+WHERE t.color = 'R' AND t.idStaff IS NOT NULL
 ORDER BY p.fechaHoraUTC, t.idTarjeta;
 
 -- Suspensiones (la de URU 6 viene de la acumulación de amarillas: CASO OBLIGATORIO 2)
@@ -870,10 +1062,24 @@ JOIN Torneo.Partido p        ON p.idPartido = su.idPartido
 JOIN Equipos.Jugador j       ON j.id = su.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL
 JOIN Equipos.Seleccion s     ON s.id = lj.idSeleccion
+WHERE su.idJugador IS NOT NULL
 ORDER BY p.fechaHoraUTC, su.id;
 
--- CASO OBLIGATORIO 3 (evidencia): cambio por lesión en los primeros 20 minutos
-SELECT 'CASO OBLIGATORIO 3' AS caso, p.nroPartidoOficial AS nro, su.minuto, su.motivo,
+-- Suspensiones del cuerpo técnico (el Director Principal de NOR viene de una roja: CASO OBLIGATORIO 3;
+-- el Ayudante de ESP, de la acumulación de amarillas: EXTRA E5)
+SELECT p.nroPartidoOficial AS nroPartidoOrigen, s.abreviacion AS seleccion, st.rol, st.apellido,
+       su.cantPartidos, su.partidosRestantes, su.idTarjeta,
+       CASE WHEN t.color = 'R' THEN 'Expulsion' ELSE 'Acumulacion de amarillas' END AS origen
+FROM Eventos.Suspension su
+JOIN Torneo.Partido p        ON p.idPartido = su.idPartido
+JOIN Equipos.Staff st        ON st.id = su.idStaff
+JOIN Equipos.Seleccion s     ON s.id = st.idSeleccion
+LEFT JOIN Eventos.Tarjeta t  ON t.idTarjeta = su.idTarjeta
+WHERE su.idStaff IS NOT NULL
+ORDER BY p.fechaHoraUTC, su.id;
+
+-- CASO OBLIGATORIO 4 (evidencia): cambio por lesión en los primeros 20 minutos
+SELECT 'CASO OBLIGATORIO 4' AS caso, p.nroPartidoOficial AS nro, su.minuto, su.motivo,
        js.apellido AS sale, ji.apellido AS entra
 FROM Eventos.Sustitucion su
 JOIN Torneo.Partido p ON p.idPartido = su.idPartido
