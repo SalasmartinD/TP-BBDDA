@@ -6,14 +6,17 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 11/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Carga de datos de Persona 2 (parte 3 de 3): informes arbitrales
                de los 31 partidos.
                - Un informe general (esSancion = 0) por partido, a nombre del
                  árbitro Principal designado, con la fecha UTC del partido.
                - Una sanción (esSancion = 1, con detalle) por cada partido en
-                 que hubo una expulsión, a nombre del Principal.
+                 que hubo una expulsión, a nombre del Principal. El detalle
+                 nombra a los jugadores y a los integrantes del cuerpo técnico
+                 expulsados (por ejemplo, el Director Principal de NOR en el
+                 partido 41).
 
  Orden       : Corre después de 51b (necesita el cuerpo arbitral y las
                tarjetas) y antes de 53.
@@ -64,14 +67,25 @@ SELECT p.idPartido, ca.idArbitro, CAST(p.fechaHoraUTC AS date), 1,
        N'Expulsión informada en el partido nro ' + CAST(p.nroPartidoOficial AS nvarchar(10)) + N': ' + exp.detalle
 FROM Torneo.Partido p
 JOIN Arbitraje.cuerpoArbitral ca ON ca.idPartido = p.idPartido AND ca.rol = 'Principal'
-CROSS APPLY (SELECT STRING_AGG(CAST(j.apellido + N' (' + s.abreviacion + N'), minuto ' + CAST(t.minuto AS nvarchar(10))
-                                + N', ' + LOWER(t.tipoRoja) AS nvarchar(max)), N'; ')
-                    WITHIN GROUP (ORDER BY t.idTarjeta) AS detalle
-             FROM Eventos.Tarjeta t
-             JOIN Equipos.Jugador j            ON j.id = t.idJugador
-             JOIN Eventos.FormacionPartido fp  ON fp.idPartido = t.idPartido AND fp.idJugador = t.idJugador
-             JOIN Equipos.Seleccion s          ON s.id = fp.idSeleccion
-             WHERE t.idPartido = p.idPartido AND t.color = 'R') exp
+CROSS APPLY (SELECT STRING_AGG(CAST(x.texto AS nvarchar(max)), N'; ') WITHIN GROUP (ORDER BY x.idTarjeta) AS detalle
+             FROM (-- rojas de jugadores
+                   SELECT t.idTarjeta,
+                          j.apellido + N' (' + s.abreviacion + N'), minuto ' + CAST(t.minuto AS nvarchar(10))
+                          + N', ' + LOWER(t.tipoRoja) AS texto
+                   FROM Eventos.Tarjeta t
+                   JOIN Equipos.Jugador j            ON j.id = t.idJugador
+                   JOIN Eventos.FormacionPartido fp  ON fp.idPartido = t.idPartido AND fp.idJugador = t.idJugador
+                   JOIN Equipos.Seleccion s          ON s.id = fp.idSeleccion
+                   WHERE t.idPartido = p.idPartido AND t.color = 'R'
+                   UNION ALL
+                   -- rojas de integrantes del cuerpo técnico
+                   SELECT t.idTarjeta,
+                          st.apellido + N' (' + s.abreviacion + N', cuerpo técnico), minuto ' + CAST(t.minuto AS nvarchar(10))
+                          + N', ' + LOWER(t.tipoRoja) AS texto
+                   FROM Eventos.Tarjeta t
+                   JOIN Equipos.Staff st             ON st.id = t.idStaff
+                   JOIN Equipos.Seleccion s          ON s.id = st.idSeleccion
+                   WHERE t.idPartido = p.idPartido AND t.color = 'R') x) exp
 WHERE p.estado <> 'Programado'
   AND exp.detalle IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM Arbitraje.InformeArbitral i

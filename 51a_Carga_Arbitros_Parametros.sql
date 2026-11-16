@@ -6,14 +6,15 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 11/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Carga de datos de Persona 2 (parte 1 de 3): reglas del
                reglamento en Sistema.Parametro y plantel de árbitros con sus
                idiomas.
                - Parámetros que leen los SP de 21: AMARILLAS_SUSPENSION,
-                 MAX_CAMBIOS, MAX_VENTANAS, CAMBIO_EXTRA_ALARGUE y
-                 MAX_SUPLENTES.
+                 AMARILLAS_SUSPENSION_STAFF (amarillas del cuerpo técnico que
+                 generan una suspensión; 0 = no acumulan), MAX_CAMBIOS,
+                 MAX_VENTANAS, CAMBIO_EXTRA_ALARGUE y MAX_SUPLENTES.
                - 20 árbitros FIFA FICTICIOS (los nombres son inventados), de 17
                  de los 19 países cargados en 50a (faltan Cabo Verde e Irak):
                  6 de los anfitriones (México, Estados Unidos y Canadá, siempre
@@ -53,6 +54,7 @@ INSERT INTO Sistema.Parametro (clave, valor, descripcion)
 SELECT nuevo.clave, nuevo.valor, nuevo.descripcion
 FROM (VALUES
     ('AMARILLAS_SUSPENSION',   2,  'Amarillas en partidos distintos que generan una suspensión de un partido'),
+    ('AMARILLAS_SUSPENSION_STAFF', 2, 'Amarillas del cuerpo técnico en partidos distintos que generan una suspensión de un partido (0 = no acumulan)'),
     ('MAX_CAMBIOS',            5,  'Máximo de cambios por selección en los 90 minutos'),
     ('MAX_VENTANAS',           3,  'Máximo de ventanas (instantes distintos) de cambios por selección en los 90 minutos'),
     ('CAMBIO_EXTRA_ALARGUE',   1,  'Cambios extra (y una ventana más) que se habilitan en el alargue'),
@@ -173,7 +175,7 @@ GO
    ============================================================================= */
 SELECT clave, valor, descripcion
 FROM Sistema.Parametro
-WHERE clave IN ('AMARILLAS_SUSPENSION', 'MAX_CAMBIOS', 'MAX_VENTANAS', 'CAMBIO_EXTRA_ALARGUE', 'MAX_SUPLENTES')
+WHERE clave IN ('AMARILLAS_SUSPENSION', 'AMARILLAS_SUSPENSION_STAFF', 'MAX_CAMBIOS', 'MAX_VENTANAS', 'CAMBIO_EXTRA_ALARGUE', 'MAX_SUPLENTES')
 ORDER BY clave;
 
 SELECT COUNT(*) AS arbitros,
