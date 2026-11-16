@@ -55,7 +55,7 @@ SELECT nuevo.clave, nuevo.valor, nuevo.descripcion
 FROM (VALUES
     ('AMARILLAS_SUSPENSION',   2,  'Amarillas en partidos distintos que generan una suspensión de un partido'),
     ('AMARILLAS_SUSPENSION_STAFF', 2, 'Amarillas del cuerpo técnico en partidos distintos que generan una suspensión de un partido (0 = no acumulan)'),
-    ('MAX_CAMBIOS',           5,  'Máximo de cambios por selección en los 90 minutos'),
+    ('MAX_CAMBIOS',            5,  'Máximo de cambios por selección en los 90 minutos'),
     ('MAX_VENTANAS',           3,  'Máximo de ventanas (instantes distintos) de cambios por selección en los 90 minutos'),
     ('CAMBIO_EXTRA_ALARGUE',   1,  'Cambios extra (y una ventana más) que se habilitan en el alargue'),
     ('MAX_SUPLENTES',          15, 'Máximo de suplentes por selección en la formación de un partido')

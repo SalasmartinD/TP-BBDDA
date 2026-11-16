@@ -40,8 +40,8 @@
    d) Cambios, tarjetas y goles (reanudable por fila: cada uno se carga solo
       si todavía no está), definidos como datos por abreviación de
       selección y dorsal (se resuelven a id con joins), en ese orden. Las
-      tarjetas al cuerpo técnico se definen por abreviación, rol y ordinal del
-      integrante dentro de su rol, y se cargan después de las de los jugadores
+      tarjetas al cuerpo técnico se definen por abreviación, rol y apellido del
+      integrante, y se cargan después de las de los jugadores
       del mismo partido.
 
  Casos de la consigna (todos se muestran con PRINT; un rechazo esperado se
@@ -247,18 +247,18 @@ INSERT INTO #tarjetas (nro, sel, dorsal, color, minuto, minutoAdicional, motivo)
     (103, 'FRA', 2, 'A', 50, NULL, 'Falta'), (103, 'ENG', 3, 'A', 66, NULL, 'Juego brusco'),
     (104, 'ESP', 5, 'A', 44, NULL, 'Falta'), (104, 'ARG', 7, 'A', 77, NULL, 'Protesta');
 
--- Tarjetas al cuerpo técnico: (partido, selección, rol, ordinal del integrante dentro de su rol en esa
--- selección (por Staff.id), color, minuto, adicional, motivo). Con AMARILLAS_SUSPENSION_STAFF = 2:
---   caso 3: roja directa al Director Principal de NOR en el 41 (su partido siguiente es el 61, NOR-FRA).
---   extra E5: amarilla al Ayudante nro 1 de ESP en el 14 y en el 38; la 2ª suspende 1 partido (siguiente: el 66).
+-- Tarjetas al cuerpo técnico: (partido, selección, rol, apellido del integrante, color, minuto, adicional,
+-- motivo). Con AMARILLAS_SUSPENSION_STAFF = 2:
+--   caso 3: roja directa al Director Principal de NOR (Solbakken) en el 41 (su partido siguiente es el 61, NOR-FRA).
+--   extra E5: amarilla al Ayudante González de ESP en el 14 y en el 38; la 2ª suspende 1 partido (siguiente: el 66).
 DROP TABLE IF EXISTS #tarjetasStaff;
 CREATE TABLE #tarjetasStaff (n int IDENTITY(1,1) PRIMARY KEY, nro int NOT NULL, sel char(3) NOT NULL, rol varchar(20) NOT NULL,
-                             ordinal int NOT NULL, color char(1) NOT NULL, minuto tinyint NOT NULL,
+                             apellido nvarchar(60) NOT NULL, color char(1) NOT NULL, minuto tinyint NOT NULL,
                              minutoAdicional tinyint NULL, motivo varchar(80) NOT NULL);
-INSERT INTO #tarjetasStaff (nro, sel, rol, ordinal, color, minuto, minutoAdicional, motivo) VALUES
-    (14, 'ESP', 'Ayudante', 1, 'A', 58, NULL, 'Protestas'),
-    (38, 'ESP', 'Ayudante', 1, 'A', 63, NULL, 'Falta de respeto al cuarto árbitro'),
-    (41, 'NOR', 'Director Principal', 1, 'R', 77, NULL, 'Protestas airadas al cuarto árbitro');
+INSERT INTO #tarjetasStaff (nro, sel, rol, apellido, color, minuto, minutoAdicional, motivo) VALUES
+    (14, 'ESP', 'Ayudante', N'González', 'A', 58, NULL, 'Protestas'),
+    (38, 'ESP', 'Ayudante', N'González', 'A', 63, NULL, 'Falta de respeto al cuarto árbitro'),
+    (41, 'NOR', 'Director Principal', N'Solbakken', 'R', 77, NULL, 'Protestas airadas al cuarto árbitro');
 
 -- Goles: (partido, selección del AUTOR, dorsal del autor, dorsal del asistente, minuto, adicional, tipo).
 -- Dan exactamente el marcador de #marcadores. Los 'En contra' (partidos 37 y 102) los hace un jugador del
@@ -368,25 +368,20 @@ JOIN Equipos.Seleccion s ON s.abreviacion = t.sel
 LEFT JOIN Equipos.ListadoJugadores lj ON lj.idSeleccion = s.id AND lj.dorsal = t.dorsal AND lj.fechaBaja IS NULL
 ORDER BY t.nro, t.minuto * 1000 + ISNULL(t.minutoAdicional, 0), t.n;
 
--- Cada integrante se identifica por selección + rol + ordinal dentro de su rol (ROW_NUMBER por Staff.id)
+-- Cada integrante se identifica por selección + rol + apellido (si no se encuentra, idStaff queda NULL y se corta abajo)
 DROP TABLE IF EXISTS #tarjetasStaffRes;
 CREATE TABLE #tarjetasStaffRes (ord int IDENTITY(1,1) PRIMARY KEY, nro int NOT NULL, idStaff int NULL,
                                 idPeriodo tinyint NOT NULL, color char(1) NOT NULL, minuto tinyint NOT NULL,
                                 minutoAdicional tinyint NULL, motivo varchar(80) NOT NULL);
 CREATE INDEX IX_tarjetasStaffRes_nro ON #tarjetasStaffRes (nro, ord);
 
-WITH staffOrd AS (
-    SELECT st.id AS idStaff, st.idSeleccion, st.rol,
-           ROW_NUMBER() OVER (PARTITION BY st.idSeleccion, st.rol ORDER BY st.id) AS ordinal
-    FROM Equipos.Staff st
-)
 INSERT INTO #tarjetasStaffRes (nro, idStaff, idPeriodo, color, minuto, minutoAdicional, motivo)
-SELECT t.nro, so.idStaff,
+SELECT t.nro, st.id,
        CASE WHEN t.minuto <= 45 THEN 1 WHEN t.minuto <= 90 THEN 2 WHEN t.minuto <= 105 THEN 3 ELSE 4 END,
        t.color, t.minuto, t.minutoAdicional, t.motivo
 FROM #tarjetasStaff t
 JOIN Equipos.Seleccion s ON s.abreviacion = t.sel
-LEFT JOIN staffOrd so ON so.idSeleccion = s.id AND so.rol = t.rol AND so.ordinal = t.ordinal
+LEFT JOIN Equipos.Staff st ON st.idSeleccion = s.id AND st.rol = t.rol AND st.apellido = t.apellido
 ORDER BY t.nro, t.minuto * 1000 + ISNULL(t.minutoAdicional, 0), t.n;
 
 DROP TABLE IF EXISTS #golesRes;
@@ -419,7 +414,7 @@ END;
 IF EXISTS (SELECT 1 FROM #tarjetasStaffRes WHERE idStaff IS NULL)
 BEGIN
     SELECT 'tarjeta al cuerpo técnico' AS evento, nro, ord FROM #tarjetasStaffRes WHERE idStaff IS NULL;
-    THROW 50001, N'Hay integrantes del cuerpo técnico de los datos de tarjetas que no se encontraron por abreviación de selección, rol y ordinal.', 1;
+    THROW 50001, N'Hay integrantes del cuerpo técnico de los datos de tarjetas que no se encontraron por abreviación de selección, rol y apellido.', 1;
 END;
 
 /* =============================================================================
