@@ -4,9 +4,9 @@
  Materia     : 3641 - Bases de Datos Aplicada
  Comisión    : 2900
  Integrantes : Pereira, Marcos Nahuel - 45066788
-               Salas, Martin Daniel - 45205702
+               Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 08/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Procedimientos almacenados para operaciones de Alta, Baja
                y Modificación (ABM) de las 5 tablas del esquema Eventos:
@@ -15,6 +15,20 @@
                - Eventos.Tarjeta
                - Eventos.Sustitucion
                - Eventos.Suspension
+
+               Cambio "cuerpo técnico por partido" (Fase 1):
+               - Tarjeta_Alta / Tarjeta_Modificacion: el integrante del cuerpo
+                 técnico sancionado debe figurar en Eventos.CuerpoTecnicoPartido
+                 (ABM en 11c_ABM_CuerpoTecnicoPartido.sql).
+               - Tarjeta_Baja / Tarjeta_Modificacion: una tarjeta que originó una
+                 suspensión no se elimina ni cambia de partido, persona o color.
+               - Suspension_Alta / Suspension_Modificacion: parámetro opcional
+                 @idTarjeta (tarjeta que originó la suspensión). En la
+                 Modificación, NULL conserva el vínculo actual y no existe
+                 forma de desvincularlo: es intencional, una suspensión que
+                 nació de una tarjeta queda atada a ella (la tarjeta tampoco
+                 puede eliminarse ni cambiar de partido, persona o color). Las
+                 suspensiones manuales (sin tarjeta) pueden vincularse luego.
 
  Estándares aplicados:
  - Acumulación exhaustiva de errores en @errores nvarchar(2000).
@@ -521,6 +535,9 @@ BEGIN
                  AND (st.idSeleccion = p.idSeleccionLocal OR st.idSeleccion = p.idSeleccionVisitante)
            )
             SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico no pertenece a ninguna de las selecciones que disputan el partido.';
+        ELSE IF @idPartido IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartido AND idStaff = @idStaff)
+            SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido.';
     END;
 
     -- Validación del color ('A' o 'R')
@@ -618,6 +635,9 @@ BEGIN
                  AND (st.idSeleccion = p.idSeleccionLocal OR st.idSeleccion = p.idSeleccionVisitante)
            )
             SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico no pertenece a ninguna de las selecciones que disputan el partido.';
+        ELSE IF @idPartido IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartido AND idStaff = @idStaff)
+            SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido.';
     END;
 
     -- Validación del color
@@ -639,6 +659,19 @@ BEGIN
 
     IF EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartido AND estado = 'Programado')
         SET @errores += CHAR(10) + N'- No se pueden registrar tarjetas en un partido que todavía se encuentra en estado programado.';
+
+    -- Una tarjeta que originó una suspensión no puede cambiar de partido, persona ni color
+    IF EXISTS (
+        SELECT 1
+        FROM Eventos.Tarjeta t
+        WHERE t.idTarjeta = @idTarjeta
+          AND EXISTS (SELECT 1 FROM Eventos.Suspension su WHERE su.idTarjeta = t.idTarjeta)
+          AND (   t.idPartido <> ISNULL(@idPartido, -1)
+               OR ISNULL(t.idJugador, -1) <> ISNULL(@idJugador, -1)
+               OR ISNULL(t.idStaff, -1)   <> ISNULL(@idStaff, -1)
+               OR t.color <> ISNULL(@color, ''))
+    )
+        SET @errores += CHAR(10) + N'- No se puede modificar el partido, la persona ni el color de una tarjeta que originó una suspensión.';
 
     -- THROW único
     IF @errores <> N''
@@ -671,6 +704,10 @@ BEGIN
 
     IF @idTarjeta IS NULL OR NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta)
         SET @errores += CHAR(10) + N'- El registro de la tarjeta a eliminar no existe.';
+
+    -- Integridad referencial: suspensión originada por la tarjeta
+    IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idTarjeta = @idTarjeta)
+        SET @errores += CHAR(10) + N'- No se puede eliminar la tarjeta porque originó una suspensión.';
 
     -- THROW único
     IF @errores <> N''
@@ -883,6 +920,7 @@ CREATE OR ALTER PROCEDURE Eventos.Suspension_Alta
     @idStaff           int     = NULL,
     @cantPartidos      tinyint,
     @partidosRestantes tinyint,
+    @idTarjeta         int     = NULL,
     @id                int     = NULL OUTPUT
 AS
 BEGIN
@@ -913,6 +951,34 @@ BEGIN
     IF @partidosRestantes IS NULL OR (@cantPartidos IS NOT NULL AND @partidosRestantes > @cantPartidos)
         SET @errores += CHAR(10) + N'- La cantidad de partidos restantes no puede superar el total de partidos de la sanción.';
 
+    -- Tarjeta que originó la suspensión (opcional)
+    IF @idTarjeta IS NOT NULL
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta)
+            SET @errores += CHAR(10) + N'- La tarjeta especificada no existe.';
+        ELSE
+        BEGIN
+            -- Debe ser del mismo partido y de la misma persona que la suspensión
+            -- (solo si el partido y la persona informada existen; si no, ya se informó arriba)
+            IF @idPartido IS NOT NULL AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartido)
+               AND (   (@idJugador IS NOT NULL AND @idStaff IS NULL AND EXISTS (SELECT 1 FROM Equipos.Jugador WHERE id = @idJugador))
+                    OR (@idStaff IS NOT NULL AND @idJugador IS NULL AND EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @idStaff)))
+               AND NOT EXISTS (
+                SELECT 1
+                FROM Eventos.Tarjeta t
+                WHERE t.idTarjeta = @idTarjeta
+                  AND t.idPartido = @idPartido
+                  AND ISNULL(t.idJugador, -1) = ISNULL(@idJugador, -1)
+                  AND ISNULL(t.idStaff, -1)   = ISNULL(@idStaff, -1)
+            )
+                SET @errores += CHAR(10) + N'- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión.';
+
+            -- Una tarjeta origina como máximo una suspensión (UX_Suspension_Tarjeta)
+            IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idTarjeta = @idTarjeta)
+                SET @errores += CHAR(10) + N'- La tarjeta ya originó otra suspensión.';
+        END;
+    END;
+
     -- THROW único
     IF @errores <> N''
     BEGIN
@@ -920,8 +986,8 @@ BEGIN
         THROW 50001, @errores, 1;
     END;
 
-    INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes)
-    VALUES (@idPartido, @idJugador, @idStaff, @cantPartidos, @partidosRestantes);
+    INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes, idTarjeta)
+    VALUES (@idPartido, @idJugador, @idStaff, @cantPartidos, @partidosRestantes, @idTarjeta);
 
     SET @id = SCOPE_IDENTITY();
 END
@@ -934,7 +1000,8 @@ CREATE OR ALTER PROCEDURE Eventos.Suspension_Modificacion
     @idJugador         int     = NULL,
     @idStaff           int     = NULL,
     @cantPartidos      tinyint,
-    @partidosRestantes tinyint
+    @partidosRestantes tinyint,
+    @idTarjeta         int     = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -964,6 +1031,37 @@ BEGIN
     IF @partidosRestantes IS NULL OR (@cantPartidos IS NOT NULL AND @partidosRestantes > @cantPartidos)
         SET @errores += CHAR(10) + N'- La cantidad de partidos restantes no puede superar el total de partidos de la sanción.';
 
+    -- Tarjeta que originó la suspensión (opcional). Si no se informa, se conserva
+    -- el vínculo actual y se valida que siga siendo coherente con los nuevos datos.
+    -- No hay forma de desvincular (NULL = "no informado"): es intencional, la
+    -- suspensión sigue atada a la tarjeta que la originó.
+    DECLARE @idTarjetaVigente int = ISNULL(@idTarjeta, (SELECT idTarjeta FROM Eventos.Suspension WHERE id = @id));
+
+    IF @idTarjeta IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta)
+        SET @errores += CHAR(10) + N'- La tarjeta especificada no existe.';
+    ELSE IF @idTarjetaVigente IS NOT NULL
+    BEGIN
+        -- Debe ser del mismo partido y de la misma persona que la suspensión
+        -- (solo si el partido y la persona informada existen; si no, ya se informó arriba)
+        IF @idPartido IS NOT NULL AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartido)
+           AND (   (@idJugador IS NOT NULL AND @idStaff IS NULL AND EXISTS (SELECT 1 FROM Equipos.Jugador WHERE id = @idJugador))
+                OR (@idStaff IS NOT NULL AND @idJugador IS NULL AND EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @idStaff)))
+           AND NOT EXISTS (
+            SELECT 1
+            FROM Eventos.Tarjeta t
+            WHERE t.idTarjeta = @idTarjetaVigente
+              AND t.idPartido = @idPartido
+              AND ISNULL(t.idJugador, -1) = ISNULL(@idJugador, -1)
+              AND ISNULL(t.idStaff, -1)   = ISNULL(@idStaff, -1)
+        )
+            SET @errores += CHAR(10) + N'- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión.';
+
+        -- Una tarjeta origina como máximo una suspensión (se excluye la propia)
+        IF @idTarjeta IS NOT NULL
+           AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idTarjeta = @idTarjeta AND id <> @id)
+            SET @errores += CHAR(10) + N'- La tarjeta ya originó otra suspensión.';
+    END;
+
     -- THROW único
     IF @errores <> N''
     BEGIN
@@ -976,7 +1074,8 @@ BEGIN
         idJugador         = @idJugador,
         idStaff           = @idStaff,
         cantPartidos      = @cantPartidos,
-        partidosRestantes = @partidosRestantes
+        partidosRestantes = @partidosRestantes,
+        idTarjeta         = @idTarjetaVigente
     WHERE id = @id;
 END
 GO

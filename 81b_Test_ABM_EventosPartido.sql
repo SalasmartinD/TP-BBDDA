@@ -4,9 +4,9 @@
  Materia     : 3641 - Bases de Datos Aplicada
  Comisión    : 2900
  Integrantes : Pereira, Marcos Nahuel - 45066788
-               Salas, Martin Daniel - 45205702
+               Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 08/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Suite de pruebas unitarias para 11b_ABM_EventosPartido.sql.
                Cubre el Alta, la Modificación y la Baja de las 5 tablas del
@@ -16,6 +16,11 @@
                - Eventos.Tarjeta
                - Eventos.Sustitucion
                - Eventos.Suspension
+               Incluye los cambios del cuerpo técnico por partido: la tarjeta de
+               un integrante del staff exige que figure en
+               Eventos.CuerpoTecnicoPartido, y la suspensión puede vincularse a la
+               tarjeta que la originó (idTarjeta, con las reglas de Tarjeta_Baja,
+               Tarjeta_Modificacion y Suspension_Alta/Modificacion).
 
  Estándares aplicados:
  - Relación 1:1 con 11b_ABM_EventosPartido.sql.
@@ -47,14 +52,16 @@ GO
 PRINT '--- Limpieza preventiva de pruebas anteriores ---';
 
 DELETE FROM Eventos.Gol WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
-DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Eventos.Sustitucion WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
+-- Suspension referencia a Tarjeta (FK_Suspension_Tarjeta): se borra antes que Tarjeta
 DELETE FROM Eventos.Suspension WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
+DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Eventos';
 DELETE FROM Torneo.Fase WHERE idFase = 998;
-DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno');
+DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante');
 DELETE FROM Equipos.Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('EVL', 'EVV', 'EVX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('L1', 'V1', 'X1');
@@ -79,7 +86,8 @@ DECLARE @idSelL int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVL
 DECLARE @idSelV int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVV');
 DECLARE @idSelX int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVX');
 
--- Jugadores (A, B, C locales; X, Y visitantes) y staff (local y de la selección ajena)
+-- Jugadores (A, B, C locales; X, Y visitantes) y staff (local, visitante que no figura en
+-- ningún cuerpo técnico, y de la selección ajena)
 INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Lionel', N'Jugador Local A', 'Delantero');
 INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Rodrigo', N'Jugador Local B', 'Mediocampista');
 INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Emiliano', N'Jugador Local C', 'Arquero');
@@ -87,6 +95,7 @@ INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Kylian', N'Ju
 INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Antoine', N'Jugador Visitante Y', 'Delantero');
 
 INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Lionel', N'Staff Test Local', 'Director Principal');
+INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelV, N'Didier', N'Staff Test Visitante', 'Ayudante');
 INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelX, N'Ajeno', N'Staff Test Ajeno', 'Ayudante');
 
 -- Fase y sede
@@ -143,6 +152,14 @@ INSERT INTO Eventos.FormacionPartido (idPartido, idSeleccion, idJugador, titular
 -- regla de incidencias de Modificación/Baja se evalúa sin que la tape la de estado.
 INSERT INTO Eventos.FormacionPartido (idPartido, idSeleccion, idJugador, titular, posicion) VALUES (@idPartSusp, @idSelL, @idJA, 1, 'Delantero');
 INSERT INTO Eventos.Gol (idPartido, idJugador, idAsistidor, minuto, minutoAdicional, tipo, idPeriodo) VALUES (@idPartSusp, @idJA, NULL, 30, NULL, 'Jugada', 1);
+
+-- Cuerpo técnico (INSERT directo, por la misma razón que las formaciones): el staff local
+-- figura en el partido en juego 99803 (las tarjetas de staff exigen figurar) y en el
+-- programado 99801 (así la prueba 3.15 falla por la regla de estado y no por otra).
+-- El staff visitante NO figura en ningún partido (pruebas 3.21 y 3.22).
+DECLARE @idStaffLoc int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
+INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff)
+SELECT idPartido, @idStaffLoc FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99803);
 
 PRINT 'Fixture de pruebas inicializado con éxito.';
 PRINT '';
@@ -720,7 +737,8 @@ DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador L
 DECLARE @idJY int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante Y');
 DECLARE @idStaffL int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
 DECLARE @idStaffX int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Ajeno');
-DECLARE @idTarjeta int, @idTarjetaRoja int;
+DECLARE @idStaffV int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Visitante');
+DECLARE @idTarjeta int, @idTarjetaRoja int, @idTarjetaSusp int, @idSuspTarj int;
 
 -- PRUEBA 3.1: Alta exitosa de una amarilla a un jugador
 -- Resultado esperado: Inserción correcta con ID generado.
@@ -971,6 +989,90 @@ BEGIN TRY
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 3.20: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.21: Alta a un integrante del cuerpo técnico que pertenece a una selección del partido pero no figura en su cuerpo técnico
+-- Resultado esperado: THROW 50001 "- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido."
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Alta @idPartido = @idPartJuego, @idStaff = @idStaffV, @idPeriodo = 1, @color = 'A', @minuto = 10;
+    PRINT '[FALLO] PRUEBA 3.21: Permitió amonestar a un staff que no figura en el cuerpo técnico del partido.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001
+       AND ERROR_MESSAGE() LIKE N'%- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido.%'
+        PRINT '[OK] PRUEBA 3.21: Staff que no figura en el cuerpo técnico rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.21: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.22: Modificación de la roja de 3.2 hacia un integrante que no figura en el cuerpo técnico (misma regla en Modificación)
+-- Resultado esperado: THROW 50001 "- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido."
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Modificacion @idTarjeta = @idTarjetaRoja, @idPartido = @idPartJuego, @idStaff = @idStaffV, @idPeriodo = 2,
+         @color = 'R', @minuto = 70, @motivo = 'Protestas', @tipoRoja = 'Directa';
+    PRINT '[FALLO] PRUEBA 3.22: Permitió trasladar la tarjeta a un staff que no figura en el cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idTarjetaRoja IS NOT NULL
+       AND ERROR_MESSAGE() NOT LIKE N'%tarjeta a modificar no existe%'
+       AND ERROR_MESSAGE() LIKE N'%- El integrante del cuerpo técnico amonestado/expulsado debe figurar en el cuerpo técnico del partido.%'
+        PRINT '[OK] PRUEBA 3.22: Modificación hacia staff que no figura rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.22: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- Preparación de 3.23 a 3.25: una roja directa al jugador A (minuto 85) y la suspensión de 1 partido que la originó.
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @idPeriodo = 2, @color = 'R', @minuto = 85,
+         @motivo = 'Agresion', @tipoRoja = 'Directa', @idTarjeta = @idTarjetaSusp OUTPUT;
+    EXEC Eventos.Suspension_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 1, @partidosRestantes = 1,
+         @idTarjeta = @idTarjetaSusp, @id = @idSuspTarj OUTPUT;
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PREPARACIÓN 3.23-3.25: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.23: Baja de una tarjeta que originó una suspensión
+-- Resultado esperado: THROW 50001 "- No se puede eliminar la tarjeta porque originó una suspensión."
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Baja @idTarjeta = @idTarjetaSusp;
+    PRINT '[FALLO] PRUEBA 3.23: Permitió eliminar una tarjeta que originó una suspensión.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idTarjetaSusp IS NOT NULL
+       AND ERROR_MESSAGE() NOT LIKE N'%tarjeta a eliminar no existe%'
+       AND ERROR_MESSAGE() LIKE N'%- No se puede eliminar la tarjeta porque originó una suspensión.%'
+        PRINT '[OK] PRUEBA 3.23: Baja de tarjeta con suspensión rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.23: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.24: Modificación del color de una tarjeta que originó una suspensión (roja a amarilla)
+-- Resultado esperado: THROW 50001 "- No se puede modificar el partido, la persona ni el color de una tarjeta que originó una suspensión."
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Modificacion @idTarjeta = @idTarjetaSusp, @idPartido = @idPartJuego, @idJugador = @idJA, @idPeriodo = 2,
+         @color = 'A', @minuto = 85, @motivo = 'Agresion';
+    PRINT '[FALLO] PRUEBA 3.24: Permitió cambiar el color de una tarjeta que originó una suspensión.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idTarjetaSusp IS NOT NULL
+       AND ERROR_MESSAGE() NOT LIKE N'%tarjeta a modificar no existe%'
+       AND ERROR_MESSAGE() LIKE N'%- No se puede modificar el partido, la persona ni el color de una tarjeta que originó una suspensión.%'
+        PRINT '[OK] PRUEBA 3.24: Cambio de color con suspensión rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.24: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.25: Modificación del minuto y del motivo de una tarjeta que originó una suspensión (sigue permitido)
+-- Resultado esperado: Registro actualizado y la suspensión conserva el vínculo; evidencia antes/después.
+BEGIN TRY
+    SELECT 'ANTES 3.25' AS momento, idTarjeta, idJugador, color, minuto, motivo FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjetaSusp;
+    EXEC Eventos.Tarjeta_Modificacion @idTarjeta = @idTarjetaSusp, @idPartido = @idPartJuego, @idJugador = @idJA, @idPeriodo = 2,
+         @color = 'R', @minuto = 88, @motivo = 'Agresion al arbitro', @tipoRoja = 'Directa';
+    SELECT 'DESPUES 3.25' AS momento, idTarjeta, idJugador, color, minuto, motivo FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjetaSusp;
+    IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjetaSusp AND color = 'R' AND minuto = 88 AND motivo = 'Agresion al arbitro')
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE id = @idSuspTarj AND idTarjeta = @idTarjetaSusp)
+        PRINT '[OK] PRUEBA 3.25: Minuto y motivo modificados con la suspensión vinculada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.25: El registro no quedó con los valores esperados.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.25: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
@@ -1223,9 +1325,11 @@ PRINT ' 5. PRUEBAS: Eventos.Suspension';
 PRINT '--------------------------------------------------------------------------------';
 
 DECLARE @idPartFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99802);
+DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
 DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
 DECLARE @idStaffL int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
-DECLARE @idSusp int;
+DECLARE @idSusp int, @idSuspT int, @idTarjA int, @idTarjB int;
 
 -- PRUEBA 5.1: Alta exitosa de una suspensión de 2 partidos a un jugador
 -- Resultado esperado: Inserción correcta con ID generado.
@@ -1378,6 +1482,112 @@ END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5.12: ' + ERROR_MESSAGE();
 END CATCH;
+
+-- Preparación de 5.13 a 5.18: una roja al jugador A (tarjeta A) y una amarilla al jugador B (tarjeta B), ambos del partido en juego 99803.
+BEGIN TRY
+    EXEC Eventos.Tarjeta_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @idPeriodo = 2, @color = 'R', @minuto = 60,
+         @motivo = 'Juego brusco', @tipoRoja = 'Directa', @idTarjeta = @idTarjA OUTPUT;
+    EXEC Eventos.Tarjeta_Alta @idPartido = @idPartJuego, @idJugador = @idJB, @idPeriodo = 1, @color = 'A', @minuto = 20,
+         @motivo = 'Protestas', @idTarjeta = @idTarjB OUTPUT;
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PREPARACIÓN 5.13-5.18: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.13: Alta exitosa de una suspensión vinculada a la tarjeta que la originó (roja de A)
+-- Resultado esperado: Inserción correcta con idTarjeta igual a la tarjeta indicada.
+BEGIN TRY
+    EXEC Eventos.Suspension_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 2, @partidosRestantes = 2,
+         @idTarjeta = @idTarjA, @id = @idSuspT OUTPUT;
+    SELECT 'ALTA 5.13' AS momento, id, idPartido, idJugador, cantPartidos, partidosRestantes, idTarjeta FROM Eventos.Suspension WHERE id = @idSuspT;
+    IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE id = @idSuspT AND idTarjeta = @idTarjA)
+        PRINT '[OK] PRUEBA 5.13: Suspensión vinculada a la tarjeta con ID = ' + CAST(@idSuspT AS varchar(10));
+    ELSE PRINT '[FALLO] PRUEBA 5.13: La suspensión no quedó vinculada a la tarjeta.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 5.13: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.14: Alta con una tarjeta inexistente
+-- Resultado esperado: THROW 50001 "- La tarjeta especificada no existe."
+BEGIN TRY
+    EXEC Eventos.Suspension_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 1, @partidosRestantes = 1, @idTarjeta = -999;
+    PRINT '[FALLO] PRUEBA 5.14: No detectó la tarjeta inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%- La tarjeta especificada no existe.%'
+        PRINT '[OK] PRUEBA 5.14: Tarjeta inexistente rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 5.14: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.15: Alta con una tarjeta de otra persona (la amarilla de B para una suspensión de A)
+-- Resultado esperado: THROW 50001 "- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión."
+BEGIN TRY
+    EXEC Eventos.Suspension_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 1, @partidosRestantes = 1, @idTarjeta = @idTarjB;
+    PRINT '[FALLO] PRUEBA 5.15: Permitió vincular una tarjeta de otra persona.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idTarjB IS NOT NULL
+       AND ERROR_MESSAGE() LIKE N'%- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión.%'
+        PRINT '[OK] PRUEBA 5.15: Tarjeta de otra persona rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 5.15: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.16: Alta con una tarjeta que ya originó otra suspensión (la roja de A, vinculada en 5.13)
+-- Resultado esperado: THROW 50001 "- La tarjeta ya originó otra suspensión."
+BEGIN TRY
+    EXEC Eventos.Suspension_Alta @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 1, @partidosRestantes = 1, @idTarjeta = @idTarjA;
+    PRINT '[FALLO] PRUEBA 5.16: Permitió una segunda suspensión para la misma tarjeta.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idSuspT IS NOT NULL
+       AND ERROR_MESSAGE() LIKE N'%- La tarjeta ya originó otra suspensión.%'
+        PRINT '[OK] PRUEBA 5.16: Tarjeta con suspensión previa rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 5.16: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.17: Modificación sin informar @idTarjeta sobre la suspensión de 5.13 (cambia cantidad y restantes)
+-- Resultado esperado: Registro actualizado y el vínculo con la tarjeta se conserva; evidencia antes/después.
+BEGIN TRY
+    SELECT 'ANTES 5.17' AS momento, id, idJugador, cantPartidos, partidosRestantes, idTarjeta FROM Eventos.Suspension WHERE id = @idSuspT;
+    EXEC Eventos.Suspension_Modificacion @id = @idSuspT, @idPartido = @idPartJuego, @idJugador = @idJA, @cantPartidos = 3, @partidosRestantes = 1;
+    SELECT 'DESPUES 5.17' AS momento, id, idJugador, cantPartidos, partidosRestantes, idTarjeta FROM Eventos.Suspension WHERE id = @idSuspT;
+    IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE id = @idSuspT AND idTarjeta = @idTarjA AND cantPartidos = 3 AND partidosRestantes = 1)
+        PRINT '[OK] PRUEBA 5.17: Suspensión modificada conservando el vínculo con la tarjeta.';
+    ELSE PRINT '[FALLO] PRUEBA 5.17: El registro no quedó con los valores esperados.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 5.17: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.18: Modificación que cambia la persona (A por B) de una suspensión ligada a la tarjeta de A
+-- Resultado esperado: THROW 50001 "- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión."
+BEGIN TRY
+    EXEC Eventos.Suspension_Modificacion @id = @idSuspT, @idPartido = @idPartJuego, @idJugador = @idJB, @cantPartidos = 3, @partidosRestantes = 1;
+    PRINT '[FALLO] PRUEBA 5.18: Permitió cambiar la persona de una suspensión ligada a una tarjeta.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idSuspT IS NOT NULL
+       AND ERROR_MESSAGE() NOT LIKE N'%suspensión a modificar no existe%'
+       AND ERROR_MESSAGE() LIKE N'%- La tarjeta no corresponde al mismo partido y a la misma persona que la suspensión.%'
+        PRINT '[OK] PRUEBA 5.18: Cambio de persona con tarjeta vinculada rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 5.18: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.19: Alta con partido inexistente y una tarjeta válida (la amarilla de B, sin suspensión vinculada)
+-- Resultado esperado: THROW 50001 "- El partido especificado no existe." y SIN el mensaje "no corresponde al mismo partido"
+--                     (esa regla solo se evalúa si el partido y la persona existen).
+BEGIN TRY
+    EXEC Eventos.Suspension_Alta @idPartido = -999, @idJugador = @idJB, @cantPartidos = 1, @partidosRestantes = 1, @idTarjeta = @idTarjB;
+    PRINT '[FALLO] PRUEBA 5.19: No detectó el partido inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND @idTarjB IS NOT NULL
+       AND ERROR_MESSAGE() LIKE N'%- El partido especificado no existe.%'
+       AND ERROR_MESSAGE() NOT LIKE N'%no corresponde al mismo partido%'
+        PRINT '[OK] PRUEBA 5.19: Partido inexistente informado sin el mensaje de tarjeta que no corresponde.';
+    ELSE PRINT '[FALLO] PRUEBA 5.19: ' + ERROR_MESSAGE();
+END CATCH;
 GO
 
 /* =============================================================================
@@ -1386,14 +1596,15 @@ GO
 PRINT '--- Limpiando fixture auxiliar de pruebas ---';
 
 DELETE FROM Eventos.Gol WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
-DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Eventos.Sustitucion WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Eventos.Suspension WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
+DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Eventos';
 DELETE FROM Torneo.Fase WHERE idFase = 998;
-DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno');
+DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante');
 DELETE FROM Equipos.Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('EVL', 'EVV', 'EVX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('L1', 'V1', 'X1');
@@ -1407,7 +1618,7 @@ END;
 
 PRINT 'Fixture de pruebas limpiado con éxito.';
 PRINT '================================================================================';
-PRINT ' BATERÍA DE PRUEBAS DE EVENTOS FINALIZADA: 91 pruebas';
-PRINT '   1. FormacionPartido: 19 | 2. Gol: 22 | 3. Tarjeta: 20 | 4. Sustitucion: 18 | 5. Suspension: 12';
+PRINT ' BATERÍA DE PRUEBAS DE EVENTOS FINALIZADA: 103 pruebas';
+PRINT '   1. FormacionPartido: 19 | 2. Gol: 22 | 3. Tarjeta: 25 | 4. Sustitucion: 18 | 5. Suspension: 19';
 PRINT '================================================================================';
 GO
