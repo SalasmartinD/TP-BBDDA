@@ -20,7 +20,9 @@
  - Modificación y Baja: integrante inexistente en el partido, un caso exitoso
    con SELECT antes/después y solo las reglas propias de cada operación
    (identidad, tarjetas registradas, reemplazo Director Principal por Director
-   Principal que SÍ se permite).
+   Principal que SÍ se permite, segundo Director Principal por reemplazo de un
+   ayudante y nuevo integrante inexistente, cuyo mensaje es propio de la
+   Modificación). Las demás reglas repiten las del Alta y no se vuelven a probar.
  - Idempotencia: limpieza preventiva al inicio y final en orden inverso de FK.
    Las tarjetas de staff del fixture se insertan en un partido programado con
    INSERT directo (el SP de tarjetas las rechazaría), igual que las
@@ -404,6 +406,33 @@ BEGIN CATCH
        AND ERROR_MESSAGE() LIKE N'%- No se puede modificar el cuerpo técnico de un partido ya finalizado o que se encuentra en juego.%'
         PRINT '[OK] PRUEBA 2.6: Modificación en partido en juego rechazada.';
     ELSE PRINT '[FALLO] PRUEBA 2.6: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 2.7: Reemplazo de un ayudante por un Director Principal cuando la selección ya tiene otro en el partido
+--             (tras 2.1 y 2.5 el 99955 tiene a AyuLocal2 y DirLocal2; DirLocal1 ya no figura)
+-- Resultado esperado: THROW 50001 "- La selección ya tiene otro director principal en el cuerpo técnico de este partido."
+BEGIN TRY
+    EXEC Eventos.CuerpoTecnicoPartido_Modificacion @idPartido = @idP5, @idStaffActual = @idAL2, @idStaffNuevo = @idDL1;
+    PRINT '[FALLO] PRUEBA 2.7: Permitió un segundo Director Principal de la misma selección.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001
+       AND ERROR_MESSAGE() LIKE N'%- La selección ya tiene otro director principal en el cuerpo técnico de este partido.%'
+        PRINT '[OK] PRUEBA 2.7: Segundo Director Principal por reemplazo rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 2.7: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 2.8: Reemplazo por un nuevo integrante inexistente
+-- Resultado esperado: THROW 50001 "- El nuevo integrante del cuerpo técnico especificado no existe."
+BEGIN TRY
+    EXEC Eventos.CuerpoTecnicoPartido_Modificacion @idPartido = @idP5, @idStaffActual = @idAL2, @idStaffNuevo = -999;
+    PRINT '[FALLO] PRUEBA 2.8: No detectó el nuevo integrante inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001
+       AND ERROR_MESSAGE() LIKE N'%- El nuevo integrante del cuerpo técnico especificado no existe.%'
+        PRINT '[OK] PRUEBA 2.8: Nuevo integrante inexistente rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 2.8: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 

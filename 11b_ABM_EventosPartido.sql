@@ -23,7 +23,12 @@
                - Tarjeta_Baja / Tarjeta_Modificacion: una tarjeta que originó una
                  suspensión no se elimina ni cambia de partido, persona o color.
                - Suspension_Alta / Suspension_Modificacion: parámetro opcional
-                 @idTarjeta (tarjeta que originó la suspensión).
+                 @idTarjeta (tarjeta que originó la suspensión). En la
+                 Modificación, NULL conserva el vínculo actual y no existe
+                 forma de desvincularlo: es intencional, una suspensión que
+                 nació de una tarjeta queda atada a ella (la tarjeta tampoco
+                 puede eliminarse ni cambiar de partido, persona o color). Las
+                 suspensiones manuales (sin tarjeta) pueden vincularse luego.
 
  Estándares aplicados:
  - Acumulación exhaustiva de errores en @errores nvarchar(2000).
@@ -1028,6 +1033,8 @@ BEGIN
 
     -- Tarjeta que originó la suspensión (opcional). Si no se informa, se conserva
     -- el vínculo actual y se valida que siga siendo coherente con los nuevos datos.
+    -- No hay forma de desvincular (NULL = "no informado"): es intencional, la
+    -- suspensión sigue atada a la tarjeta que la originó.
     DECLARE @idTarjetaVigente int = ISNULL(@idTarjeta, (SELECT idTarjeta FROM Eventos.Suspension WHERE id = @id));
 
     IF @idTarjeta IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta)
