@@ -649,8 +649,7 @@ BEGIN
                     -- Suspensión por acumulación de amarillas = caso 2; por expulsión = extra E4
                     SET @etiqueta = CASE WHEN EXISTS (SELECT 1
                                                       FROM Eventos.Suspension su
-                                                      JOIN Eventos.Tarjeta t ON t.idPartido = su.idPartido
-                                                                            AND t.idJugador = su.idJugador AND t.color = 'R'
+                                                      JOIN Eventos.Tarjeta t ON t.idTarjeta = su.idTarjeta AND t.color = 'R'
                                                       WHERE su.idJugador = @idSusp)
                                          THEN 'EXTRA E4' ELSE 'CASO OBLIGATORIO 2' END;
 
@@ -1037,7 +1036,7 @@ JOIN Torneo.Partido p        ON p.idPartido = t.idPartido
 JOIN Equipos.Jugador j       ON j.id = t.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL
 JOIN Equipos.Seleccion s     ON s.id = lj.idSeleccion
-LEFT JOIN Eventos.Suspension su ON su.idPartido = t.idPartido AND su.idJugador = t.idJugador
+LEFT JOIN Eventos.Suspension su ON su.idTarjeta = t.idTarjeta
 WHERE t.color = 'R' AND t.idJugador IS NOT NULL
 ORDER BY p.fechaHoraUTC, t.idTarjeta;
 
@@ -1055,9 +1054,11 @@ ORDER BY p.fechaHoraUTC, t.idTarjeta;
 -- Suspensiones (la de URU 6 viene de la acumulación de amarillas: CASO OBLIGATORIO 2)
 SELECT p.nroPartidoOficial AS nroPartidoOrigen, s.abreviacion AS seleccion, lj.dorsal, j.apellido,
        su.cantPartidos, su.partidosRestantes,
-       CASE WHEN EXISTS (SELECT 1 FROM Eventos.Tarjeta t WHERE t.idPartido = su.idPartido AND t.idJugador = su.idJugador AND t.color = 'R')
-            THEN 'Expulsion' ELSE 'Acumulacion de amarillas' END AS origen
+       CASE WHEN t.color = 'R' THEN 'Expulsion'
+            WHEN t.color = 'A' THEN 'Acumulacion de amarillas'
+            ELSE 'Manual' END AS origen
 FROM Eventos.Suspension su
+LEFT JOIN Eventos.Tarjeta t  ON t.idTarjeta = su.idTarjeta
 JOIN Torneo.Partido p        ON p.idPartido = su.idPartido
 JOIN Equipos.Jugador j       ON j.id = su.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL
