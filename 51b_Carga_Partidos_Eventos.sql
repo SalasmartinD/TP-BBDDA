@@ -6,7 +6,7 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 11/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Carga de datos de Persona 2 (parte 2 de 3): cuerpo arbitral,
                formaciones y eventos (cambios, tarjetas y goles) de los 31
@@ -57,6 +57,11 @@
    Además, los partidos eliminatorios muestran la advertencia de cruce.
 
  Uso         : Todas las altas pasan por los SP de 10a, 11 y 21.
+
+ Cambio cuerpo técnico (Fase 2): Eventos.RegistrarFormacion ahora exige el
+               cuerpo técnico, así que cada llamada (la del rechazo esperado del
+               suspendido y la válida) se arma con todo el Equipos.Staff de la
+               selección y lo pasa en @cuerpoTecnico.
 ================================================================================
 */
 
@@ -388,6 +393,7 @@ DECLARE @n int, @max int, @lado int,
         @idPeriodo tinyint, @minuto tinyint, @minutoAdic tinyint, @motivo varchar(80), @color char(1), @tipo varchar(20);
 DECLARE @jugadores    Eventos.FormacionJugadorLista;
 DECLARE @jugadoresMal Eventos.FormacionJugadorLista;
+DECLARE @cuerpoTecnico Eventos.CuerpoTecnicoLista;
 
 SELECT @n = 1, @max = (SELECT MAX(n) FROM #orden);
 WHILE @n <= @max
@@ -533,6 +539,13 @@ BEGIN
                 FROM #disponibles d
                 ORDER BY d.dorsal;
 
+                -- Cuerpo técnico: todo el Equipos.Staff de la selección
+                DELETE FROM @cuerpoTecnico;
+                INSERT INTO @cuerpoTecnico (idStaff)
+                SELECT st.id
+                FROM Equipos.Staff st
+                WHERE st.idSeleccion = @idSel;
+
                 -- Convocado con suspensión activa: se intenta incluirlo como titular y el SP debe rechazarlo
                 SELECT @idSusp = NULL;
                 SELECT TOP (1) @idSusp = lj.idJugador, @dorsalSusp = lj.dorsal, @posSusp = j.posicion
@@ -553,8 +566,7 @@ BEGIN
                     -- Suspensión por acumulación de amarillas = caso 2; por expulsión = extra E4
                     SET @etiqueta = CASE WHEN EXISTS (SELECT 1
                                                       FROM Eventos.Suspension su
-                                                      JOIN Eventos.Tarjeta t ON t.idPartido = su.idPartido
-                                                                            AND t.idJugador = su.idJugador AND t.color = 'R'
+                                                      JOIN Eventos.Tarjeta t ON t.idTarjeta = su.idTarjeta AND t.color = 'R'
                                                       WHERE su.idJugador = @idSusp)
                                          THEN 'EXTRA E4' ELSE 'CASO OBLIGATORIO 2' END;
 
@@ -575,7 +587,7 @@ BEGIN
                     SET @rechazado = 0;
                     BEGIN TRY
                         EXEC Eventos.RegistrarFormacion @idPartido = @idPartido, @idSeleccion = @idSel,
-                             @jugadores = @jugadoresMal, @esquema = @esquema;
+                             @jugadores = @jugadoresMal, @cuerpoTecnico = @cuerpoTecnico, @esquema = @esquema;
                     END TRY
                     BEGIN CATCH
                         SET @rechazado = 1;
@@ -595,7 +607,7 @@ BEGIN
 
                 -- Formación válida (sin los suspendidos)
                 EXEC Eventos.RegistrarFormacion @idPartido = @idPartido, @idSeleccion = @idSel,
-                     @jugadores = @jugadores, @esquema = @esquema;
+                     @jugadores = @jugadores, @cuerpoTecnico = @cuerpoTecnico, @esquema = @esquema;
 
                 SELECT @cantTit = SUM(CASE WHEN titular = 1 THEN 1 ELSE 0 END), @cantSup = SUM(CASE WHEN titular = 0 THEN 1 ELSE 0 END)
                 FROM @jugadores;
@@ -843,16 +855,18 @@ JOIN Torneo.Partido p        ON p.idPartido = t.idPartido
 JOIN Equipos.Jugador j       ON j.id = t.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL
 JOIN Equipos.Seleccion s     ON s.id = lj.idSeleccion
-LEFT JOIN Eventos.Suspension su ON su.idPartido = t.idPartido AND su.idJugador = t.idJugador
+LEFT JOIN Eventos.Suspension su ON su.idTarjeta = t.idTarjeta
 WHERE t.color = 'R'
 ORDER BY p.fechaHoraUTC, t.idTarjeta;
 
 -- Suspensiones (la de URU 6 viene de la acumulación de amarillas: CASO OBLIGATORIO 2)
 SELECT p.nroPartidoOficial AS nroPartidoOrigen, s.abreviacion AS seleccion, lj.dorsal, j.apellido,
        su.cantPartidos, su.partidosRestantes,
-       CASE WHEN EXISTS (SELECT 1 FROM Eventos.Tarjeta t WHERE t.idPartido = su.idPartido AND t.idJugador = su.idJugador AND t.color = 'R')
-            THEN 'Expulsion' ELSE 'Acumulacion de amarillas' END AS origen
+       CASE WHEN t.color = 'R' THEN 'Expulsion'
+            WHEN t.color = 'A' THEN 'Acumulacion de amarillas'
+            ELSE 'Manual' END AS origen
 FROM Eventos.Suspension su
+LEFT JOIN Eventos.Tarjeta t  ON t.idTarjeta = su.idTarjeta
 JOIN Torneo.Partido p        ON p.idPartido = su.idPartido
 JOIN Equipos.Jugador j       ON j.id = su.idJugador
 JOIN Equipos.ListadoJugadores lj ON lj.idJugador = j.id AND lj.fechaBaja IS NULL

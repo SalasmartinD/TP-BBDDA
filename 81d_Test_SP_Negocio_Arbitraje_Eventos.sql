@@ -6,32 +6,42 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 09/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Suite de pruebas unitarias para 21_SP_Negocio_Arbitraje_Eventos.sql.
                Cubre los 4 procedimientos de negocio:
-               - Eventos.RegistrarFormacion
+               - Eventos.RegistrarFormacion (jugadores y cuerpo técnico)
                - Eventos.RegistrarCambio
-               - Eventos.RegistrarTarjeta
+               - Eventos.RegistrarTarjeta (a jugadores y a integrantes del
+                                           cuerpo técnico)
                - Arbitraje.DesignarCuerpoArbitral
-               y el camino entre ellos: la suspensión generada por tarjetas se
-               cumple al registrar la formación del partido siguiente.
+               y el camino entre ellos: la suspensión generada por tarjetas
+               (de jugadores y de cuerpo técnico) se cumple al registrar la
+               formación del partido siguiente.
 
  Estándares aplicados:
  - Relación 1:1 con 21_SP_Negocio_Arbitraje_Eventos.sql.
  - Una prueba negativa por cada mensaje de validación, verificando el código
    50002 y el texto del error.
  - Un caso exitoso por SP con evidencia (SELECT) y una prueba de acumulación
-   de errores (2 o 3 fallos) por SP.
+   de errores (2 o 3 fallos) por SP (RegistrarFormacion y RegistrarTarjeta
+   suman una más, propia del cuerpo técnico y de la persona informada).
+ - Efecto de cada tarjeta sobre Eventos.Suspension verificado con SELECT:
+   siempre una suspensión por tarjeta, con su idTarjeta (roja directa, doble
+   amarilla, acumulación, amarilla de ciclo + doble amarilla, amarilla de
+   ciclo + roja directa) para jugadores y cuerpo técnico.
  - Valores límite solo donde el límite es la regla: suplentes (justo / uno
    más), cambios (5º / 6º), ventanas (3ª / 4ª y ventana ya usada) y cambio
    extra en el alargue (pasa / el siguiente se rechaza).
- - Casos obligatorios de la consigna rotulados como CASO OBLIGATORIO 1..4.
+ - Casos obligatorios de la consigna rotulados como CASO OBLIGATORIO 1..5
+   (el 5, roja a un integrante del cuerpo técnico que lo deja afuera del
+   partido siguiente, en la sección 5).
  - Idempotencia: limpieza preventiva al inicio y final en orden inverso de FK
    (incluye lo que generan los SP: suspensiones, rojas por doble amarilla,
-   cuerpo arbitral y esquemas). Los parámetros de Sistema.Parametro se guardan,
-   se fijan valores de prueba y se restauran al final; los períodos que crea
-   el fixture se registran y se borran al terminar.
+   cuerpo técnico del partido, cuerpo arbitral y esquemas). Los parámetros de
+   Sistema.Parametro se guardan, se fijan valores de prueba y se restauran al
+   final; los períodos que crea el fixture se registran y se borran al
+   terminar.
 ================================================================================
 */
 
@@ -49,8 +59,8 @@ GO
 /* =============================================================================
    PREPARACIÓN DEL ENTORNO DE PRUEBAS (FIXTURE AISLADO E IDEMPOTENTE)
    Códigos reservados: países Q1-Q4, selecciones QNA/QNB/QNC, partidos
-   99701-99705, fases 9901/9902, jugadores 'QNeg Jugador %', árbitros
-   'QNeg Arbitro %'.
+   99701-99705, fases 9901/9902, jugadores 'QNeg Jugador %', cuerpo técnico
+   'QNeg Staff %', árbitros 'QNeg Arbitro %'.
    ============================================================================= */
 PRINT '--- Limpieza preventiva de pruebas anteriores ---';
 
@@ -58,10 +68,15 @@ DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM 
 DELETE FROM Arbitraje.cuerpoArbitral  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
                                          OR idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
 DELETE FROM Eventos.Gol               WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
+-- Suspension referencia a Tarjeta (idTarjeta): se borra antes que Tarjeta
+DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
+                                         OR idTarjeta IN (SELECT idTarjeta FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705)))
+                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %')
+                                         OR idStaff   IN (SELECT id FROM Equipos.Staff   WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.Tarjeta           WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.Sustitucion       WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
-DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
+                                         OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Negocio';
@@ -69,6 +84,7 @@ DELETE FROM Torneo.Fase WHERE idFase IN (9901, 9902);
 DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %';
 DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
 DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %';
+DELETE FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %';
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QNA', 'QNB', 'QNC');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('Q1', 'Q2', 'Q3', 'Q4');
 GO
@@ -89,7 +105,8 @@ CREATE TABLE #parametrosOriginales (
 INSERT INTO #parametrosOriginales (clave, valorPrueba, existia, valorOriginal)
 SELECT k.clave, k.valorPrueba, CASE WHEN p.clave IS NULL THEN 0 ELSE 1 END, p.valor
 FROM (VALUES ('MAX_SUPLENTES', 15), ('MAX_CAMBIOS', 5), ('MAX_VENTANAS', 3),
-             ('CAMBIO_EXTRA_ALARGUE', 1), ('AMARILLAS_SUSPENSION', 2)) k (clave, valorPrueba)
+             ('CAMBIO_EXTRA_ALARGUE', 1), ('AMARILLAS_SUSPENSION', 2),
+             ('AMARILLAS_SUSPENSION_STAFF', 2)) k (clave, valorPrueba)
 LEFT JOIN Sistema.Parametro p ON p.clave = k.clave;
 
 UPDATE p SET valor = o.valorPrueba
@@ -163,6 +180,40 @@ SELECT s.id, j.id, '2026-05-01', j.nro
 FROM #jug j
 JOIN Equipos.Seleccion s ON s.abreviacion = 'QN' + j.sel;
 
+-- Cuerpo técnico: 'QNeg Staff <código>'. #staff guarda código, selección, rol e
+-- id para buscarlos una sola vez por sección. Un Director Principal por
+-- selección y algún Ayudante / Médico / Preparador Físico; ADP2 es un segundo
+-- Director Principal de A (solo para la validación de más de un Director).
+IF OBJECT_ID('tempdb..#staff') IS NOT NULL DROP TABLE #staff;
+CREATE TABLE #staff (
+    codigo  varchar(4)   PRIMARY KEY,   -- 'ADP', 'AAY', 'BDP'...
+    sel     char(1)      NOT NULL,
+    rol     varchar(20)  NOT NULL,
+    id      int          NULL
+);
+
+INSERT INTO #staff (codigo, sel, rol)
+VALUES ('ADP',  'A', 'Director Principal'),
+       ('ADP2', 'A', 'Director Principal'),
+       ('AAY',  'A', 'Ayudante'),
+       ('AMD',  'A', 'Medico'),
+       ('AFI',  'A', 'Preparador Fisico'),
+       ('AX1',  'A', 'Ayudante'),
+       ('BDP',  'B', 'Director Principal'),
+       ('BAY',  'B', 'Ayudante'),
+       ('BX1',  'B', 'Ayudante'),
+       ('CDP',  'C', 'Director Principal'),
+       ('CAY',  'C', 'Ayudante');
+
+INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol)
+SELECT s.id, N'Staff', N'QNeg Staff ' + t.codigo, t.rol
+FROM #staff t
+JOIN Equipos.Seleccion s ON s.abreviacion = 'QN' + t.sel;
+
+UPDATE t SET id = es.id
+FROM #staff t
+JOIN Equipos.Staff es ON es.apellido = N'QNeg Staff ' + t.codigo;
+
 -- Fases propias: 9901 grupos (orden 1) y 9902 dieciseisavos (orden 2)
 INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
 VALUES (9901, 'Fase Test Negocio Grupos', 0, 1),
@@ -222,14 +273,25 @@ FROM #jug j
 JOIN Torneo.Partido p ON p.nroPartidoOficial = 99702
 WHERE j.sel = 'A' AND j.nro <= 11;
 
+-- Cuerpo técnico de los partidos en juego (INSERT directo, igual que la
+-- formación): 99701 con el de A (menos ADP2) y el de B; 99702 con el de A.
+-- Las tarjetas a staff exigen figurar acá; C no figura en 99702 a propósito.
+INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff)
+SELECT p.idPartido, s.id
+FROM #staff s
+JOIN Torneo.Partido p ON p.nroPartidoOficial IN (99701, 99702)
+WHERE (s.sel = 'A' AND s.codigo <> 'ADP2')
+   OR (s.sel = 'B' AND p.nroPartidoOficial = 99701);
+
 PRINT 'Fixture de pruebas inicializado con éxito.';
 PRINT '';
 GO
 
 /* =============================================================================
    SECCIÓN 1: Eventos.RegistrarFormacion   (partido 99703 'Programado')
-   La validación de suspendidos (F12) se prueba en la sección 5 (CASO
-   OBLIGATORIO 2), cuando las tarjetas de la sección 3 ya generaron la sanción.
+   La validación de suspendidos (F12 jugadores y F19 cuerpo técnico) se prueba
+   en la sección 5 (CASOS OBLIGATORIOS 2 y 5), cuando las tarjetas de la
+   sección 3 ya generaron la sanción.
    ============================================================================= */
 PRINT '--------------------------------------------------------------------------------';
 PRINT ' 1. PRUEBAS: Eventos.RegistrarFormacion';
@@ -242,33 +304,54 @@ DECLARE @idSelB int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QNB
 DECLARE @idSelC int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QNC');
 DECLARE @idA01 int = (SELECT id FROM #jug WHERE codigo = 'A01');
 DECLARE @idB01 int = (SELECT id FROM #jug WHERE codigo = 'B01');
+DECLARE @idADP  int = (SELECT id FROM #staff WHERE codigo = 'ADP');
+DECLARE @idADP2 int = (SELECT id FROM #staff WHERE codigo = 'ADP2');
+DECLARE @idBAY  int = (SELECT id FROM #staff WHERE codigo = 'BAY');
 DECLARE @valorParam int, @descParam varchar(200), @esperado nvarchar(400);
 
 -- Listas reutilizadas: 11 titulares de A, 11 titulares de B, B completa
 -- (11 titulares + 15 suplentes) y 11 titulares de C. @lista se arma en cada prueba.
+-- Cuerpo técnico válido de cada selección (Director Principal + Ayudante);
+-- @ct se arma en cada prueba negativa del cuerpo técnico.
 DECLARE @listaA11 Eventos.FormacionJugadorLista;
 DECLARE @listaB11 Eventos.FormacionJugadorLista;
 DECLARE @listaB26 Eventos.FormacionJugadorLista;
 DECLARE @listaC11 Eventos.FormacionJugadorLista;
 DECLARE @lista    Eventos.FormacionJugadorLista;
+DECLARE @ctA Eventos.CuerpoTecnicoLista;
+DECLARE @ctB Eventos.CuerpoTecnicoLista;
+DECLARE @ctC Eventos.CuerpoTecnicoLista;
+DECLARE @ct  Eventos.CuerpoTecnicoLista;
 
 INSERT INTO @listaA11 SELECT id, 1, posicion FROM #jug WHERE sel = 'A' AND nro <= 11;
 INSERT INTO @listaB11 SELECT id, 1, posicion FROM #jug WHERE sel = 'B' AND nro <= 11;
 INSERT INTO @listaB26 SELECT id, CASE WHEN nro <= 11 THEN 1 ELSE 0 END, posicion FROM #jug WHERE sel = 'B';
 INSERT INTO @listaC11 SELECT id, 1, posicion FROM #jug WHERE sel = 'C';
+INSERT INTO @ctA SELECT id FROM #staff WHERE codigo IN ('ADP', 'AX1');
+INSERT INTO @ctB SELECT id FROM #staff WHERE codigo IN ('BDP', 'BAY');
+INSERT INTO @ctC SELECT id FROM #staff WHERE codigo IN ('CDP', 'CAY');
 
--- PRUEBA 1.1: Registro exitoso de la formación visitante (B) con esquema táctico.
+-- PRUEBA 1.1: Registro exitoso de la formación visitante (B) con cuerpo técnico y esquema táctico.
 --             Valor límite: 11 titulares + 15 suplentes (justo MAX_SUPLENTES = 15).
--- Resultado esperado: 26 filas en FormacionPartido y esquemaVisitante = '4-4-2' (esquemaLocal sin tocar).
+-- Resultado esperado: 26 filas en FormacionPartido, exactamente el cuerpo técnico informado
+--                     (BDP y BAY) en CuerpoTecnicoPartido y esquemaVisitante = '4-4-2' (esquemaLocal sin tocar).
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelB, @jugadores = @listaB26, @esquema = '4-4-2';
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelB, @jugadores = @listaB26,
+         @cuerpoTecnico = @ctB, @esquema = '4-4-2';
     SELECT 'FORMACION 1.1' AS momento, titular, COUNT(*) AS jugadores
     FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelB GROUP BY titular;
+    SELECT 'CUERPO TECNICO 1.1' AS momento, ct.idPartido, ct.idStaff, st.apellido, st.rol
+    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+    WHERE ct.idPartido = @idPartSig ORDER BY ct.idStaff;
     SELECT 'PARTIDO 1.1' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
     IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelB) = 26
+       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartSig) = 2
+       AND NOT EXISTS (SELECT 1 FROM @ctB b
+                       WHERE NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido c
+                                         WHERE c.idPartido = @idPartSig AND c.idStaff = b.idStaff))
        AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaVisitante = '4-4-2' AND esquemaLocal IS NULL)
-        PRINT '[OK] PRUEBA 1.1: Formación de 11 titulares y 15 suplentes registrada con esquema 4-4-2.';
-    ELSE PRINT '[FALLO] PRUEBA 1.1: La formación o el esquema no quedaron con los valores esperados.';
+        PRINT '[OK] PRUEBA 1.1: Formación de 11 titulares y 15 suplentes con su cuerpo técnico registrada con esquema 4-4-2.';
+    ELSE PRINT '[FALLO] PRUEBA 1.1: La formación, el cuerpo técnico o el esquema no quedaron con los valores esperados.';
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 1.1: ' + ERROR_MESSAGE();
@@ -277,7 +360,7 @@ END CATCH;
 -- PRUEBA 1.2: Partido inexistente
 -- Resultado esperado: THROW 50002 "- El partido especificado no existe."
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = -999, @idSeleccion = @idSelA, @jugadores = @listaA11;
+    EXEC Eventos.RegistrarFormacion @idPartido = -999, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.2: No detectó el partido inexistente.';
 END TRY
 BEGIN CATCH
@@ -289,7 +372,7 @@ END CATCH;
 -- PRUEBA 1.3: Selección inexistente
 -- Resultado esperado: THROW 50002 "- La selección especificada no existe."
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = -999, @jugadores = @listaA11;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = -999, @jugadores = @listaA11, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.3: No detectó la selección inexistente.';
 END TRY
 BEGIN CATCH
@@ -301,7 +384,7 @@ END CATCH;
 -- PRUEBA 1.4: Selección (C) que no disputa el partido (A-B), con sus propios convocados
 -- Resultado esperado: THROW 50002 "- La selección especificada no disputa el partido indicado."
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelC, @jugadores = @listaC11;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelC, @jugadores = @listaC11, @cuerpoTecnico = @ctC;
     PRINT '[FALLO] PRUEBA 1.4: Permitió la formación de una selección ajena al partido.';
 END TRY
 BEGIN CATCH
@@ -313,7 +396,7 @@ END CATCH;
 -- PRUEBA 1.5: Formación de C en un partido en juego (99702, A-C)
 -- Resultado esperado: THROW 50002 "- No se puede registrar la formación de un partido en juego o finalizado."
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSeg, @idSeleccion = @idSelC, @jugadores = @listaC11;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSeg, @idSeleccion = @idSelC, @jugadores = @listaC11, @cuerpoTecnico = @ctC;
     PRINT '[FALLO] PRUEBA 1.5: Permitió registrar la formación de un partido en juego.';
 END TRY
 BEGIN CATCH
@@ -324,8 +407,9 @@ END CATCH;
 
 -- PRUEBA 1.6: Segunda formación de B en el mismo partido (la de 1.1 ya existe)
 -- Resultado esperado: THROW 50002 "- La selección ya tiene una formación registrada para este partido."
+--                     (también informa que ya tiene cuerpo técnico; ese mensaje se prueba aislado en 1.19)
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelB, @jugadores = @listaB11;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelB, @jugadores = @listaB11, @cuerpoTecnico = @ctB;
     PRINT '[FALLO] PRUEBA 1.6: Permitió una segunda formación para la misma selección.';
 END TRY
 BEGIN CATCH
@@ -338,7 +422,7 @@ END CATCH;
 -- Resultado esperado: THROW 50002 "- La lista de jugadores está vacía."
 DELETE FROM @lista;
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.7: Permitió una lista vacía.';
 END TRY
 BEGIN CATCH
@@ -352,7 +436,7 @@ END CATCH;
 DELETE FROM @lista;
 INSERT INTO @lista SELECT id, 1, posicion FROM #jug WHERE sel = 'A' AND nro <= 10;
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.8: Permitió una formación con 10 titulares.';
 END TRY
 BEGIN CATCH
@@ -366,7 +450,7 @@ END CATCH;
 SELECT @valorParam = valor, @descParam = descripcion FROM Sistema.Parametro WHERE clave = 'MAX_SUPLENTES';
 DELETE FROM Sistema.Parametro WHERE clave = 'MAX_SUPLENTES';
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.9: No detectó la falta del parámetro MAX_SUPLENTES.';
 END TRY
 BEGIN CATCH
@@ -381,7 +465,7 @@ INSERT INTO Sistema.Parametro (clave, valor, descripcion) VALUES ('MAX_SUPLENTES
 DELETE FROM @lista;
 INSERT INTO @lista SELECT id, CASE WHEN nro <= 11 THEN 1 ELSE 0 END, posicion FROM #jug WHERE sel = 'A';
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.10: Permitió 16 suplentes.';
 END TRY
 BEGIN CATCH
@@ -397,7 +481,7 @@ INSERT INTO @lista SELECT idJugador, titular, posicion FROM @listaA11;
 INSERT INTO @lista VALUES (@idA01, 0, NULL);
 SET @esperado = N'%- Hay jugadores repetidos en la lista: ' + CAST(@idA01 AS nvarchar(12)) + N'.%';
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.11: Permitió un jugador repetido.';
 END TRY
 BEGIN CATCH
@@ -413,7 +497,7 @@ INSERT INTO @lista SELECT id, 1, posicion FROM #jug WHERE sel = 'A' AND nro <= 1
 INSERT INTO @lista VALUES (@idB01, 1, 'Arquero');
 SET @esperado = N'%- Los siguientes jugadores no son convocados activos de la selección: ' + CAST(@idB01 AS nvarchar(12)) + N'.%';
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.12: Permitió un jugador que no es convocado de la selección.';
 END TRY
 BEGIN CATCH
@@ -427,7 +511,7 @@ END CATCH;
 DELETE FROM @lista;
 INSERT INTO @lista SELECT idJugador, titular, CASE WHEN idJugador = @idA01 THEN 'Volante' ELSE posicion END FROM @listaA11;
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 1.13: Permitió una posición inválida.';
 END TRY
 BEGIN CATCH
@@ -439,7 +523,7 @@ END CATCH;
 -- PRUEBA 1.14: Esquema con formato válido que no suma 10 jugadores de campo ('4-4-3')
 -- Resultado esperado: THROW 50002 "- El esquema táctico debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3)."
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @esquema = '4-4-3';
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ctA, @esquema = '4-4-3';
     PRINT '[FALLO] PRUEBA 1.14: Permitió un esquema que suma 11.';
 END TRY
 BEGIN CATCH
@@ -448,21 +532,112 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 1.14: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 1.15: 3 errores simultáneos (partido inexistente, 10 titulares, esquema '433')
+-- PRUEBA 1.15: Lista del cuerpo técnico vacía
+-- Resultado esperado: THROW 50002 "- La lista del cuerpo técnico está vacía."
+DELETE FROM @ct;
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 1.15: Permitió un cuerpo técnico vacío.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- La lista del cuerpo técnico está vacía.%'
+        PRINT '[OK] PRUEBA 1.15: Cuerpo técnico vacío rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 1.15: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 1.16: Integrante del cuerpo técnico repetido en la lista (el Director Principal ADP dos veces)
+-- Resultado esperado: THROW 50002 "- Hay integrantes del cuerpo técnico repetidos en la lista: <id ADP>."
+DELETE FROM @ct;
+INSERT INTO @ct SELECT idStaff FROM @ctA;
+INSERT INTO @ct VALUES (@idADP);
+SET @esperado = N'%- Hay integrantes del cuerpo técnico repetidos en la lista: ' + CAST(@idADP AS nvarchar(12)) + N'.%';
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 1.16: Permitió un integrante del cuerpo técnico repetido.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE @esperado
+        PRINT '[OK] PRUEBA 1.16: Integrante del cuerpo técnico repetido rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 1.16: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 1.17: Integrante del cuerpo técnico de otra selección (BAY, ayudante de B, en la lista de A)
+-- Resultado esperado: THROW 50002 "- Los siguientes integrantes no pertenecen al cuerpo técnico de la selección: <id BAY>."
+DELETE FROM @ct;
+INSERT INTO @ct SELECT idStaff FROM @ctA;
+INSERT INTO @ct VALUES (@idBAY);
+SET @esperado = N'%- Los siguientes integrantes no pertenecen al cuerpo técnico de la selección: ' + CAST(@idBAY AS nvarchar(12)) + N'.%';
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 1.17: Permitió un integrante ajeno a la selección.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE @esperado
+        PRINT '[OK] PRUEBA 1.17: Integrante de otra selección rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 1.17: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 1.18: Dos Directores Principales (ADP y ADP2) en el cuerpo técnico de A
+-- Resultado esperado: THROW 50002 "- El cuerpo técnico no puede tener más de un Director Principal."
+DELETE FROM @ct;
+INSERT INTO @ct VALUES (@idADP), (@idADP2);
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 1.18: Permitió dos Directores Principales.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El cuerpo técnico no puede tener más de un Director Principal.%'
+        PRINT '[OK] PRUEBA 1.18: Más de un Director Principal rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 1.18: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 1.19: La selección A ya tiene cuerpo técnico en el partido (pero todavía no formación)
+--              Se simula con un INSERT directo de ADP en 99703 (se borra al terminar la prueba).
+-- Resultado esperado: THROW 50002 "- La selección ya tiene cuerpo técnico registrado para este partido."
+INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff) VALUES (@idPartSig, @idADP);
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ctA;
+    PRINT '[FALLO] PRUEBA 1.19: Permitió un segundo cuerpo técnico para la misma selección.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- La selección ya tiene cuerpo técnico registrado para este partido.%'
+        PRINT '[OK] PRUEBA 1.19: Cuerpo técnico duplicado rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 1.19: ' + ERROR_MESSAGE();
+END CATCH;
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartSig AND idStaff = @idADP;
+
+-- PRUEBA 1.20: 3 errores simultáneos (partido inexistente, 10 titulares, esquema '433')
 -- Resultado esperado: THROW 50002 con los 3 mensajes juntos.
 DELETE FROM @lista;
 INSERT INTO @lista SELECT id, 1, posicion FROM #jug WHERE sel = 'A' AND nro <= 10;
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = -999, @idSeleccion = @idSelA, @jugadores = @lista, @esquema = '433';
-    PRINT '[FALLO] PRUEBA 1.15: No detectó los errores acumulados.';
+    EXEC Eventos.RegistrarFormacion @idPartido = -999, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA, @esquema = '433';
+    PRINT '[FALLO] PRUEBA 1.20: No detectó los errores acumulados.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002
        AND ERROR_MESSAGE() LIKE N'%- El partido especificado no existe.%'
        AND ERROR_MESSAGE() LIKE N'%(se informaron 10)%'
        AND ERROR_MESSAGE() LIKE N'%- El esquema táctico debe tener números de 1 a 9%'
-        PRINT '[OK] PRUEBA 1.15: Acumulación de 3 errores verificada.';
-    ELSE PRINT '[FALLO] PRUEBA 1.15: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 1.20: Acumulación de 3 errores verificada.';
+    ELSE PRINT '[FALLO] PRUEBA 1.20: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 1.21: 3 errores simultáneos del cuerpo técnico (ADP repetido, id inexistente -999, dos Directores Principales)
+-- Resultado esperado: THROW 50002 con los 3 mensajes juntos.
+DELETE FROM @ct;
+INSERT INTO @ct VALUES (@idADP), (@idADP), (@idADP2), (-999);
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @listaA11, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 1.21: No detectó los errores acumulados del cuerpo técnico.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- Hay integrantes del cuerpo técnico repetidos en la lista:%'
+       AND ERROR_MESSAGE() LIKE N'%- Los siguientes integrantes no pertenecen al cuerpo técnico de la selección: -999.%'
+       AND ERROR_MESSAGE() LIKE N'%- El cuerpo técnico no puede tener más de un Director Principal.%'
+        PRINT '[OK] PRUEBA 1.21: Acumulación de 3 errores del cuerpo técnico verificada.';
+    ELSE PRINT '[FALLO] PRUEBA 1.21: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
@@ -757,7 +932,13 @@ GO
 
 /* =============================================================================
    SECCIÓN 3: Eventos.RegistrarTarjeta   (partidos 99701 y 99702 'En juego')
-   Parámetro de prueba: AMARILLAS_SUSPENSION = 2.
+   Parámetros de prueba: AMARILLAS_SUSPENSION = 2 y AMARILLAS_SUSPENSION_STAFF = 2.
+   Cada tarjeta que suspende deja UNA fila en Eventos.Suspension con su idTarjeta.
+   Personas: jugadores A02..A11 (A11 acumula; A09 doble amarilla; A10 roja
+   directa; A06 y A07 combinan amarilla de ciclo con doble amarilla / roja) y
+   cuerpo técnico AAY (roja), AMD (doble amarilla), AFI (acumulación) y AX1
+   (sin acumulación, AMARILLAS_SUSPENSION_STAFF = 0); BX1 (de B) recibe una
+   roja directa con el parámetro en 0: la roja suspende siempre.
    ============================================================================= */
 PRINT '--------------------------------------------------------------------------------';
 PRINT ' 3. PRUEBAS: Eventos.RegistrarTarjeta';
@@ -767,12 +948,23 @@ DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartid
 DECLARE @idPartSeg   int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99702);
 DECLARE @idPartSig   int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99703);
 DECLARE @idA02 int = (SELECT id FROM #jug WHERE codigo = 'A02');
+DECLARE @idA04 int = (SELECT id FROM #jug WHERE codigo = 'A04');
+DECLARE @idA06 int = (SELECT id FROM #jug WHERE codigo = 'A06');
+DECLARE @idA07 int = (SELECT id FROM #jug WHERE codigo = 'A07');
 DECLARE @idA09 int = (SELECT id FROM #jug WHERE codigo = 'A09');
 DECLARE @idA10 int = (SELECT id FROM #jug WHERE codigo = 'A10');
 DECLARE @idA11 int = (SELECT id FROM #jug WHERE codigo = 'A11');
 DECLARE @idA19 int = (SELECT id FROM #jug WHERE codigo = 'A19');
 DECLARE @idB01 int = (SELECT id FROM #jug WHERE codigo = 'B01');
-DECLARE @idTarjeta int;
+DECLARE @idADP int = (SELECT id FROM #staff WHERE codigo = 'ADP');
+DECLARE @idAAY int = (SELECT id FROM #staff WHERE codigo = 'AAY');
+DECLARE @idAMD int = (SELECT id FROM #staff WHERE codigo = 'AMD');
+DECLARE @idAFI int = (SELECT id FROM #staff WHERE codigo = 'AFI');
+DECLARE @idAX1 int = (SELECT id FROM #staff WHERE codigo = 'AX1');
+DECLARE @idBX1 int = (SELECT id FROM #staff WHERE codigo = 'BX1');
+DECLARE @idCDP int = (SELECT id FROM #staff WHERE codigo = 'CDP');
+DECLARE @idTarjeta int, @idAmarilla2 int, @cantCiclo int, @cantAntes int;
+DECLARE @valorParam int, @descParam varchar(200);
 
 -- PRUEBA 3.1: Amarilla simple (A11 en 99701, primera amarilla del torneo)
 -- Resultado esperado: Tarjeta registrada con tipoRoja NULL y sin suspensión (1 amarilla < 2).
@@ -790,7 +982,8 @@ BEGIN CATCH
 END CATCH;
 
 -- PRUEBA 3.2 (CASO OBLIGATORIO 1, parte a): Expulsión por doble amarilla (A09 en 99701, minutos 30 y 50)
--- Resultado esperado: 2 amarillas + roja 'Doble amarilla' generada al minuto 50 y Suspension de 1 partido.
+-- Resultado esperado: 2 amarillas + roja 'Doble amarilla' generada al minuto 50 y UNA Suspension
+--                     de 1 partido cuyo idTarjeta es la roja generada.
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA09, @idPeriodo = 1, @color = 'A', @minuto = 30, @motivo = 'Mano intencional';
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA09, @idPeriodo = 2, @color = 'A', @minuto = 50, @motivo = 'Demora en el juego';
@@ -799,9 +992,13 @@ BEGIN TRY
     IF (SELECT COUNT(*) FROM Eventos.Tarjeta WHERE idPartido = @idPartJuego AND idJugador = @idA09 AND color = 'A') = 2
        AND EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idPartido = @idPartJuego AND idJugador = @idA09
                    AND color = 'R' AND tipoRoja = 'Doble amarilla' AND minuto = 50)
-       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idPartido = @idPartJuego AND idJugador = @idA09
-                   AND cantPartidos = 1 AND partidosRestantes = 1)
-        PRINT '[OK] PRUEBA 3.2: Doble amarilla genera la roja y 1 partido de suspensión.';
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA09) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension su
+                   JOIN Eventos.Tarjeta t ON t.idTarjeta = su.idTarjeta
+                   WHERE su.idPartido = @idPartJuego AND su.idJugador = @idA09
+                     AND su.cantPartidos = 1 AND su.partidosRestantes = 1
+                     AND t.color = 'R' AND t.tipoRoja = 'Doble amarilla')
+        PRINT '[OK] PRUEBA 3.2: Doble amarilla genera la roja y 1 partido de suspensión con el idTarjeta de la roja.';
     ELSE PRINT '[FALLO] PRUEBA 3.2: La roja o la suspensión por doble amarilla no son las esperadas.';
 END TRY
 BEGIN CATCH
@@ -809,16 +1006,17 @@ BEGIN CATCH
 END CATCH;
 
 -- PRUEBA 3.3 (CASO OBLIGATORIO 1, parte b): Roja directa en otro partido (A10 en 99702)
--- Resultado esperado: Roja con tipoRoja 'Directa' y Suspension de 1 partido en 99702.
+-- Resultado esperado: Roja con tipoRoja 'Directa' y Suspension de 1 partido en 99702 con idTarjeta = la roja.
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA10, @idPeriodo = 2, @color = 'R',
          @minuto = 70, @motivo = 'Conducta violenta', @idTarjeta = @idTarjeta OUTPUT;
     SELECT 'TARJETA 3.3' AS momento, * FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta;
     SELECT 'SUSPENSION 3.3' AS momento, * FROM Eventos.Suspension WHERE idPartido = @idPartSeg AND idJugador = @idA10;
     IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta AND color = 'R' AND tipoRoja = 'Directa')
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA10) = 1
        AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idPartido = @idPartSeg AND idJugador = @idA10
-                   AND cantPartidos = 1 AND partidosRestantes = 1)
-        PRINT '[OK] PRUEBA 3.3: Roja directa registrada con 1 partido de suspensión.';
+                   AND cantPartidos = 1 AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
+        PRINT '[OK] PRUEBA 3.3: Roja directa registrada con 1 partido de suspensión con el idTarjeta de la roja.';
     ELSE PRINT '[FALLO] PRUEBA 3.3: La roja directa o su suspensión no son las esperadas.';
 END TRY
 BEGIN CATCH
@@ -826,156 +1024,382 @@ BEGIN CATCH
 END CATCH;
 
 -- PRUEBA 3.4: Acumulación de amarillas en partidos distintos (2ª amarilla de A11, ahora en 99702)
--- Resultado esperado: Suspension de 1 partido generada en 99702 (ninguna en 99701).
+-- Resultado esperado: Suspension de 1 partido generada en 99702 con idTarjeta = la 2ª amarilla (ninguna en 99701).
 BEGIN TRY
-    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA11, @idPeriodo = 1, @color = 'A', @minuto = 40, @motivo = 'Protestar';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA11, @idPeriodo = 1, @color = 'A', @minuto = 40, @motivo = 'Protestar',
+         @idTarjeta = @idTarjeta OUTPUT;
     SELECT 'SUSPENSION 3.4' AS momento, * FROM Eventos.Suspension WHERE idJugador = @idA11;
     IF EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idPartido = @idPartSeg AND idJugador = @idA11
-               AND cantPartidos = 1 AND partidosRestantes = 1)
+               AND cantPartidos = 1 AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
        AND NOT EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idPartido = @idPartJuego AND idJugador = @idA11)
-        PRINT '[OK] PRUEBA 3.4: Acumulación de 2 amarillas genera 1 partido de suspensión.';
+        PRINT '[OK] PRUEBA 3.4: Acumulación de 2 amarillas genera 1 partido de suspensión con el idTarjeta de la 2ª amarilla.';
     ELSE PRINT '[FALLO] PRUEBA 3.4: La suspensión por acumulación no es la esperada.';
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 3.4: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.5: Partido inexistente
+-- PRUEBA 3.5: Doble amarilla cuando la 1ª amarilla del partido ya había completado el ciclo
+--             (A06: amarilla en 99701; en 99702 amarilla = acumulación y 2ª amarilla = doble amarilla)
+-- Resultado esperado: tras la amarilla de ciclo hay 1 suspensión con su idTarjeta; tras la doble amarilla
+--                     sigue habiendo UNA sola fila (absorbida) de 1 partido con idTarjeta = la roja 'Doble amarilla'.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA06, @idPeriodo = 1, @color = 'A', @minuto = 15, @motivo = 'Juego brusco';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA06, @idPeriodo = 1, @color = 'A', @minuto = 25, @motivo = 'Protestar',
+         @idTarjeta = @idAmarilla2 OUTPUT;
+    SELECT @cantCiclo = COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA06 AND idPartido = @idPartSeg AND idTarjeta = @idAmarilla2;
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA06, @idPeriodo = 2, @color = 'A', @minuto = 60, @motivo = 'Demora en el juego';
+    SELECT 'TARJETAS 3.5' AS momento, idTarjeta, idPartido, color, minuto, tipoRoja FROM Eventos.Tarjeta WHERE idJugador = @idA06 ORDER BY idTarjeta;
+    SELECT 'SUSPENSION 3.5' AS momento, * FROM Eventos.Suspension WHERE idJugador = @idA06;
+    IF @cantCiclo = 1
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA06) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension su
+                   JOIN Eventos.Tarjeta t ON t.idTarjeta = su.idTarjeta
+                   WHERE su.idJugador = @idA06 AND su.idPartido = @idPartSeg
+                     AND su.cantPartidos = 1 AND su.partidosRestantes = 1
+                     AND t.color = 'R' AND t.tipoRoja = 'Doble amarilla')
+        PRINT '[OK] PRUEBA 3.5: La suspensión de la amarilla de ciclo queda absorbida por la doble amarilla (1 fila, idTarjeta de la roja).';
+    ELSE PRINT '[FALLO] PRUEBA 3.5: La suspensión no quedó absorbida por la doble amarilla.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.5: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.6: Roja directa después de una amarilla que completó el ciclo en el mismo partido
+--             (A07: amarilla en 99701; en 99702 amarilla = acumulación y luego roja directa)
+-- Resultado esperado: 2 filas de Suspension en 99702 (idTarjeta = la amarilla de ciclo y idTarjeta = la roja): total 2 partidos.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA07, @idPeriodo = 1, @color = 'A', @minuto = 16, @motivo = 'Juego brusco';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA07, @idPeriodo = 1, @color = 'A', @minuto = 26, @motivo = 'Protestar',
+         @idTarjeta = @idAmarilla2 OUTPUT;
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idJugador = @idA07, @idPeriodo = 2, @color = 'R', @minuto = 70, @motivo = 'Conducta violenta',
+         @idTarjeta = @idTarjeta OUTPUT;
+    SELECT 'SUSPENSION 3.6' AS momento, * FROM Eventos.Suspension WHERE idJugador = @idA07 ORDER BY id;
+    IF (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA07) = 2
+       AND (SELECT SUM(cantPartidos) FROM Eventos.Suspension WHERE idJugador = @idA07) = 2
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idJugador = @idA07 AND idPartido = @idPartSeg AND partidosRestantes = 1 AND idTarjeta = @idAmarilla2)
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idJugador = @idA07 AND idPartido = @idPartSeg AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
+        PRINT '[OK] PRUEBA 3.6: Roja directa tras la amarilla de ciclo deja 2 suspensiones (total 2 partidos), una por tarjeta.';
+    ELSE PRINT '[FALLO] PRUEBA 3.6: Las suspensiones no son las esperadas (2 filas, una por tarjeta).';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.6: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.7 (staff): Roja directa a un integrante del cuerpo técnico (AAY en 99702)
+-- Resultado esperado: Roja 'Directa' con idStaff y Suspension de 1 partido del integrante con idTarjeta = la roja.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idStaff = @idAAY, @idPeriodo = 2, @color = 'R',
+         @minuto = 55, @motivo = 'Protestas airadas', @idTarjeta = @idTarjeta OUTPUT;
+    SELECT 'TARJETA 3.7' AS momento, * FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta;
+    SELECT 'SUSPENSION 3.7' AS momento, * FROM Eventos.Suspension WHERE idStaff = @idAAY;
+    IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta AND idStaff = @idAAY AND idJugador IS NULL
+                                               AND color = 'R' AND tipoRoja = 'Directa')
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idStaff = @idAAY) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idAAY AND idJugador IS NULL AND idPartido = @idPartSeg
+                   AND cantPartidos = 1 AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
+        PRINT '[OK] PRUEBA 3.7: Roja directa al cuerpo técnico suspende 1 partido con el idTarjeta de la roja.';
+    ELSE PRINT '[FALLO] PRUEBA 3.7: La roja al cuerpo técnico o su suspensión no son las esperadas.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.7: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.8 (staff): Doble amarilla a un integrante del cuerpo técnico (AMD en 99701, minutos 30 y 50)
+-- Resultado esperado: 2 amarillas + roja 'Doble amarilla' y UNA sola Suspension de 1 partido con idTarjeta = la roja.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idAMD, @idPeriodo = 1, @color = 'A', @minuto = 30, @motivo = 'Protestas';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idAMD, @idPeriodo = 2, @color = 'A', @minuto = 50, @motivo = 'Demora en el juego';
+    SELECT 'TARJETAS 3.8' AS momento, idTarjeta, color, minuto, motivo, tipoRoja FROM Eventos.Tarjeta WHERE idStaff = @idAMD ORDER BY idTarjeta;
+    SELECT 'SUSPENSION 3.8' AS momento, * FROM Eventos.Suspension WHERE idStaff = @idAMD;
+    IF (SELECT COUNT(*) FROM Eventos.Tarjeta WHERE idStaff = @idAMD AND color = 'A') = 2
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idStaff = @idAMD) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension su
+                   JOIN Eventos.Tarjeta t ON t.idTarjeta = su.idTarjeta
+                   WHERE su.idStaff = @idAMD AND su.idPartido = @idPartJuego
+                     AND su.cantPartidos = 1 AND su.partidosRestantes = 1
+                     AND t.color = 'R' AND t.tipoRoja = 'Doble amarilla')
+        PRINT '[OK] PRUEBA 3.8: Doble amarilla al cuerpo técnico genera la roja y 1 sola suspensión con el idTarjeta de la roja.';
+    ELSE PRINT '[FALLO] PRUEBA 3.8: La roja o la suspensión por doble amarilla del cuerpo técnico no son las esperadas.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.8: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.9 (staff): Acumulación con AMARILLAS_SUSPENSION_STAFF = 2 (AFI: amarilla en 99701 y en 99702)
+-- Resultado esperado: sin suspensión tras la 1ª amarilla; tras la 2ª, 1 partido en 99702 con idTarjeta = la 2ª amarilla.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idAFI, @idPeriodo = 1, @color = 'A', @minuto = 22, @motivo = 'Protestas';
+    SELECT @cantAntes = COUNT(*) FROM Eventos.Suspension WHERE idStaff = @idAFI;
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idStaff = @idAFI, @idPeriodo = 1, @color = 'A', @minuto = 35, @motivo = 'Protestas',
+         @idTarjeta = @idTarjeta OUTPUT;
+    SELECT 'SUSPENSION 3.9' AS momento, * FROM Eventos.Suspension WHERE idStaff = @idAFI;
+    IF @cantAntes = 0
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idStaff = @idAFI) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idAFI AND idPartido = @idPartSeg
+                   AND cantPartidos = 1 AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
+        PRINT '[OK] PRUEBA 3.9: 2 amarillas del cuerpo técnico en partidos distintos suspenden 1 partido con el idTarjeta de la 2ª.';
+    ELSE PRINT '[FALLO] PRUEBA 3.9: La suspensión por acumulación del cuerpo técnico no es la esperada.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.9: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.10 (staff): Con AMARILLAS_SUSPENSION_STAFF = 0 las amarillas del cuerpo técnico no acumulan
+--              pero la roja sí suspende (se pone en 0 y se repone en la misma prueba;
+--              AX1: amarilla en 99701 y en 99702; BX1: roja directa en 99701)
+-- Resultado esperado: Las 2 amarillas se registran sin error y no se genera ninguna suspensión;
+--                     la roja directa deja 1 suspensión de 1 partido con idTarjeta = la roja.
+UPDATE Sistema.Parametro SET valor = 0 WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idAX1, @idPeriodo = 1, @color = 'A', @minuto = 12, @motivo = 'Protestas';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idStaff = @idAX1, @idPeriodo = 1, @color = 'A', @minuto = 18, @motivo = 'Protestas';
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idBX1, @idPeriodo = 2, @color = 'R', @minuto = 80,
+         @motivo = 'Protestas airadas', @idTarjeta = @idTarjeta OUTPUT;
+    SELECT 'TARJETAS 3.10' AS momento, idTarjeta, idPartido, color, minuto FROM Eventos.Tarjeta WHERE idStaff = @idAX1 ORDER BY idTarjeta;
+    SELECT 'SUSPENSION 3.10' AS momento, idStaff, idPartido, cantPartidos, partidosRestantes, idTarjeta
+    FROM Eventos.Suspension WHERE idStaff IN (@idAX1, @idBX1);
+    IF (SELECT COUNT(*) FROM Eventos.Tarjeta WHERE idStaff = @idAX1 AND color = 'A') = 2
+       AND NOT EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idAX1)
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idStaff = @idBX1) = 1
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idBX1 AND idPartido = @idPartJuego
+                   AND cantPartidos = 1 AND partidosRestantes = 1 AND idTarjeta = @idTarjeta)
+        PRINT '[OK] PRUEBA 3.10: Con AMARILLAS_SUSPENSION_STAFF = 0 las amarillas del cuerpo técnico no suspenden y la roja sí (1 partido, idTarjeta de la roja).';
+    ELSE PRINT '[FALLO] PRUEBA 3.10: Las tarjetas o las suspensiones no son las esperadas.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.10: ' + ERROR_MESSAGE();
+END CATCH;
+UPDATE Sistema.Parametro SET valor = 2 WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+
+-- PRUEBA 3.11: Una tarjeta a un JUGADOR no necesita AMARILLAS_SUSPENSION_STAFF
+--              (se borra y se repone en la misma prueba; amarilla simple a A04 en 99701)
+-- Resultado esperado: Tarjeta registrada sin error y sin suspensión.
+SELECT @valorParam = valor, @descParam = descripcion FROM Sistema.Parametro WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+DELETE FROM Sistema.Parametro WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA04, @idPeriodo = 1, @color = 'A',
+         @minuto = 10, @motivo = 'Juego brusco', @idTarjeta = @idTarjeta OUTPUT;
+    SELECT 'TARJETA 3.11' AS momento, * FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta;
+    IF EXISTS (SELECT 1 FROM Eventos.Tarjeta WHERE idTarjeta = @idTarjeta AND idJugador = @idA04 AND color = 'A')
+       AND NOT EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idJugador = @idA04)
+        PRINT '[OK] PRUEBA 3.11: Tarjeta a un jugador registrada con AMARILLAS_SUSPENSION_STAFF ausente.';
+    ELSE PRINT '[FALLO] PRUEBA 3.11: La tarjeta al jugador no quedó como se esperaba.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 3.11: ' + ERROR_MESSAGE();
+END CATCH;
+INSERT INTO Sistema.Parametro (clave, valor, descripcion) VALUES ('AMARILLAS_SUSPENSION_STAFF', @valorParam, @descParam);
+
+-- PRUEBA 3.12: Partido inexistente
 -- Resultado esperado: THROW 50002 "- El partido especificado no existe."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = -999, @idJugador = @idA02, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.5: No detectó el partido inexistente.';
+    PRINT '[FALLO] PRUEBA 3.12: No detectó el partido inexistente.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El partido especificado no existe.%'
-        PRINT '[OK] PRUEBA 3.5: Partido inexistente rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.5: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.12: Partido inexistente rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.12: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.6: Tarjeta en un partido programado (B01 en 99703, con formación registrada en 1.1)
+-- PRUEBA 3.13: Tarjeta en un partido programado (B01 en 99703, con formación registrada en 1.1)
 -- Resultado esperado: THROW 50002 "- No se pueden registrar tarjetas en un partido que todavía se encuentra en estado programado."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSig, @idJugador = @idB01, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.6: Permitió una tarjeta en un partido programado.';
+    PRINT '[FALLO] PRUEBA 3.13: Permitió una tarjeta en un partido programado.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- No se pueden registrar tarjetas en un partido que todavía se encuentra en estado programado.%'
-        PRINT '[OK] PRUEBA 3.6: Tarjeta en partido programado rechazada.';
-    ELSE PRINT '[FALLO] PRUEBA 3.6: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.13: Tarjeta en partido programado rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.13: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.7: Jugador que no está en la formación del partido (A19, convocado pero no incluido)
+-- PRUEBA 3.14: Jugador que no está en la formación del partido (A19, convocado pero no incluido)
 -- Resultado esperado: THROW 50002 "- El jugador no está registrado en la formación del partido."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA19, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.7: Permitió una tarjeta a un jugador fuera de la formación.';
+    PRINT '[FALLO] PRUEBA 3.14: Permitió una tarjeta a un jugador fuera de la formación.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El jugador no está registrado en la formación del partido.%'
-        PRINT '[OK] PRUEBA 3.7: Jugador fuera de la formación rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.7: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.14: Jugador fuera de la formación rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.14: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.8: Tarjeta a un jugador ya expulsado (A09, doble amarilla en 3.2)
+-- PRUEBA 3.15: Tarjeta a un jugador ya expulsado (A09, doble amarilla en 3.2)
 -- Resultado esperado: THROW 50002 "- El jugador ya fue expulsado en este partido."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA09, @idPeriodo = 2, @color = 'A', @minuto = 60, @motivo = 'Insultos';
-    PRINT '[FALLO] PRUEBA 3.8: Permitió una tarjeta a un jugador expulsado.';
+    PRINT '[FALLO] PRUEBA 3.15: Permitió una tarjeta a un jugador expulsado.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El jugador ya fue expulsado en este partido.%'
-        PRINT '[OK] PRUEBA 3.8: Tarjeta a jugador expulsado rechazada.';
-    ELSE PRINT '[FALLO] PRUEBA 3.8: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.15: Tarjeta a jugador expulsado rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.15: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.9: Período inexistente
+-- PRUEBA 3.16: Período inexistente
 -- Resultado esperado: THROW 50002 "- El período de juego especificado no existe."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 99, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.9: No detectó el período inexistente.';
+    PRINT '[FALLO] PRUEBA 3.16: No detectó el período inexistente.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El período de juego especificado no existe.%'
-        PRINT '[OK] PRUEBA 3.9: Período inexistente rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.9: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.16: Período inexistente rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.16: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.10: Color fuera del dominio ('X')
+-- PRUEBA 3.17: Color fuera del dominio ('X')
 -- Resultado esperado: THROW 50002 "- El color de la tarjeta debe ser A (amarilla) o R (roja)."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 1, @color = 'X', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.10: Permitió un color inválido.';
+    PRINT '[FALLO] PRUEBA 3.17: Permitió un color inválido.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El color de la tarjeta debe ser A (amarilla) o R (roja).%'
-        PRINT '[OK] PRUEBA 3.10: Color inválido rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.10: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.17: Color inválido rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.17: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.11: Minuto fuera de rango (121)
+-- PRUEBA 3.18: Minuto fuera de rango (121)
 -- Resultado esperado: THROW 50002 "- El minuto de la tarjeta es obligatorio y debe encontrarse entre 0 y 120."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 2, @color = 'A', @minuto = 121, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.11: Permitió el minuto 121.';
+    PRINT '[FALLO] PRUEBA 3.18: Permitió el minuto 121.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El minuto de la tarjeta es obligatorio y debe encontrarse entre 0 y 120.%'
-        PRINT '[OK] PRUEBA 3.11: Minuto 121 rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.11: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.18: Minuto 121 rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.18: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.12: Minuto adicional fuera de un minuto de cierre (30+2)
+-- PRUEBA 3.19: Minuto adicional fuera de un minuto de cierre (30+2)
 -- Resultado esperado: THROW 50002 "- El minuto adicional solo es válido en los minutos de cierre reglamentario (45, 90, 105 o 120)."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 1, @color = 'A',
          @minuto = 30, @minutoAdicional = 2, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.12: Permitió minuto adicional en el minuto 30.';
+    PRINT '[FALLO] PRUEBA 3.19: Permitió minuto adicional en el minuto 30.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El minuto adicional solo es válido en los minutos de cierre reglamentario (45, 90, 105 o 120).%'
-        PRINT '[OK] PRUEBA 3.12: Minuto adicional inválido rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.12: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.19: Minuto adicional inválido rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.19: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.13: Motivo vacío (solo espacios)
+-- PRUEBA 3.20: Motivo vacío (solo espacios)
 -- Resultado esperado: THROW 50002 "- El motivo de la tarjeta es obligatorio."
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = '   ';
-    PRINT '[FALLO] PRUEBA 3.13: Permitió un motivo vacío.';
+    PRINT '[FALLO] PRUEBA 3.20: Permitió un motivo vacío.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El motivo de la tarjeta es obligatorio.%'
-        PRINT '[OK] PRUEBA 3.13: Motivo vacío rechazado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.13: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.20: Motivo vacío rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.20: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 3.14: AMARILLAS_SUSPENSION en 0 (se pone en 0 y se repone en la misma prueba)
+-- PRUEBA 3.21: AMARILLAS_SUSPENSION en 0 (se pone en 0 y se repone en la misma prueba)
 -- Resultado esperado: THROW 50002 "- El parámetro AMARILLAS_SUSPENSION no está configurado en Sistema.Parametro (o vale 0)."
 UPDATE Sistema.Parametro SET valor = 0 WHERE clave = 'AMARILLAS_SUSPENSION';
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
-    PRINT '[FALLO] PRUEBA 3.14: No detectó AMARILLAS_SUSPENSION en 0.';
+    PRINT '[FALLO] PRUEBA 3.21: No detectó AMARILLAS_SUSPENSION en 0.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE N'%- El parámetro AMARILLAS[_]SUSPENSION no está configurado en Sistema.Parametro (o vale 0).%'
-        PRINT '[OK] PRUEBA 3.14: AMARILLAS_SUSPENSION en 0 informado.';
-    ELSE PRINT '[FALLO] PRUEBA 3.14: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.21: AMARILLAS_SUSPENSION en 0 informado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.21: ' + ERROR_MESSAGE();
 END CATCH;
 UPDATE Sistema.Parametro SET valor = 2 WHERE clave = 'AMARILLAS_SUSPENSION';
 
--- PRUEBA 3.15: 3 errores simultáneos (período inexistente, color inválido, motivo vacío)
+-- PRUEBA 3.22: Se informan jugador y cuerpo técnico a la vez (A02 y AAY)
+-- Resultado esperado: THROW 50002 "- Debe especificar exactamente a un jugador o a un integrante del cuerpo técnico, no ambos ni ninguno."
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idStaff = @idAAY, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Juego brusco';
+    PRINT '[FALLO] PRUEBA 3.22: Permitió informar a un jugador y a un integrante del cuerpo técnico a la vez.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- Debe especificar exactamente a un jugador o a un integrante del cuerpo técnico, no ambos ni ninguno.%'
+        PRINT '[OK] PRUEBA 3.22: Jugador y cuerpo técnico a la vez rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.22: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.23: Integrante del cuerpo técnico que no figura en el cuerpo técnico del partido
+--              (CDP es de C, que juega 99702, pero no está en CuerpoTecnicoPartido de ese partido)
+-- Resultado esperado: THROW 50002 "- El integrante del cuerpo técnico no está registrado en el cuerpo técnico del partido."
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idStaff = @idCDP, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Protestas';
+    PRINT '[FALLO] PRUEBA 3.23: Permitió una tarjeta a un integrante que no figura en el partido.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- El integrante del cuerpo técnico no está registrado en el cuerpo técnico del partido.%'
+        PRINT '[OK] PRUEBA 3.23: Integrante fuera del cuerpo técnico del partido rechazado.';
+    ELSE PRINT '[FALLO] PRUEBA 3.23: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.24: Tarjeta a un integrante del cuerpo técnico ya expulsado (AAY, roja directa en 3.7)
+-- Resultado esperado: THROW 50002 "- El integrante del cuerpo técnico ya fue expulsado en este partido."
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartSeg, @idStaff = @idAAY, @idPeriodo = 2, @color = 'A', @minuto = 60, @motivo = 'Protestas';
+    PRINT '[FALLO] PRUEBA 3.24: Permitió una tarjeta a un integrante expulsado.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- El integrante del cuerpo técnico ya fue expulsado en este partido.%'
+        PRINT '[OK] PRUEBA 3.24: Tarjeta a integrante expulsado rechazada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.24: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.25: Falta el parámetro AMARILLAS_SUSPENSION_STAFF en una tarjeta de cuerpo técnico
+--              (se borra y se repone en la misma prueba; ADP en 99701)
+-- Resultado esperado: THROW 50002 "- El parámetro AMARILLAS_SUSPENSION_STAFF no está configurado en Sistema.Parametro."
+SELECT @valorParam = valor, @descParam = descripcion FROM Sistema.Parametro WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+DELETE FROM Sistema.Parametro WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idStaff = @idADP, @idPeriodo = 1, @color = 'A', @minuto = 10, @motivo = 'Protestas';
+    PRINT '[FALLO] PRUEBA 3.25: No detectó la falta de AMARILLAS_SUSPENSION_STAFF.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- El parámetro AMARILLAS[_]SUSPENSION[_]STAFF no está configurado en Sistema.Parametro.%'
+        PRINT '[OK] PRUEBA 3.25: Falta de AMARILLAS_SUSPENSION_STAFF informada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.25: ' + ERROR_MESSAGE();
+END CATCH;
+INSERT INTO Sistema.Parametro (clave, valor, descripcion) VALUES ('AMARILLAS_SUSPENSION_STAFF', @valorParam, @descParam);
+
+-- PRUEBA 3.26: 3 errores simultáneos (período inexistente, color inválido, motivo vacío)
 -- Resultado esperado: THROW 50002 con los 3 mensajes juntos.
 BEGIN TRY
     EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idJugador = @idA02, @idPeriodo = 99, @color = 'X', @minuto = 10, @motivo = '';
-    PRINT '[FALLO] PRUEBA 3.15: No detectó los errores acumulados.';
+    PRINT '[FALLO] PRUEBA 3.26: No detectó los errores acumulados.';
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50002
        AND ERROR_MESSAGE() LIKE N'%- El período de juego especificado no existe.%'
        AND ERROR_MESSAGE() LIKE N'%- El color de la tarjeta debe ser%'
        AND ERROR_MESSAGE() LIKE N'%- El motivo de la tarjeta es obligatorio.%'
-        PRINT '[OK] PRUEBA 3.15: Acumulación de 3 errores verificada.';
-    ELSE PRINT '[FALLO] PRUEBA 3.15: ' + ERROR_MESSAGE();
+        PRINT '[OK] PRUEBA 3.26: Acumulación de 3 errores verificada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.26: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 3.27: 3 errores simultáneos sin informar jugador ni cuerpo técnico
+--              (ninguno de los dos, período inexistente, motivo vacío)
+-- Resultado esperado: THROW 50002 con los 3 mensajes juntos.
+BEGIN TRY
+    EXEC Eventos.RegistrarTarjeta @idPartido = @idPartJuego, @idPeriodo = 99, @color = 'A', @minuto = 10, @motivo = '';
+    PRINT '[FALLO] PRUEBA 3.27: No detectó los errores acumulados.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50002
+       AND ERROR_MESSAGE() LIKE N'%- Debe especificar exactamente a un jugador o a un integrante del cuerpo técnico, no ambos ni ninguno.%'
+       AND ERROR_MESSAGE() LIKE N'%- El período de juego especificado no existe.%'
+       AND ERROR_MESSAGE() LIKE N'%- El motivo de la tarjeta es obligatorio.%'
+        PRINT '[OK] PRUEBA 3.27: Acumulación de 3 errores (ninguna persona informada) verificada.';
+    ELSE PRINT '[FALLO] PRUEBA 3.27: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
@@ -1147,31 +1571,55 @@ GO
 
 /* =============================================================================
    SECCIÓN 5: Cumplimiento de la suspensión en el partido siguiente
-   Las tarjetas de la sección 3 dejaron suspendidos (1 partido) a A09 (doble
-   amarilla en 99701), A10 (roja directa en 99702) y A11 (acumulación en
-   99702). El partido siguiente de A es 99703.
+   Las tarjetas de la sección 3 dejaron suspendidos:
+   - jugadores: A06 (doble amarilla en 99702, 1 partido), A07 (2 partidos:
+     amarilla de ciclo y roja directa en 99702), A09 (doble amarilla en 99701),
+     A10 (roja directa en 99702) y A11 (acumulación en 99702);
+   - cuerpo técnico: AAY (roja directa en 99702), AMD (doble amarilla en 99701)
+     y AFI (acumulación en 99702).
+   El partido siguiente de A es 99703 (programado); B también juega 99704.
+   Cuerpo técnico sin sanciones de A: ADP y AX1.
    ============================================================================= */
 PRINT '--------------------------------------------------------------------------------';
 PRINT ' 5. PRUEBAS: Suspensión cumplida en el partido siguiente (RegistrarFormacion)';
 PRINT '--------------------------------------------------------------------------------';
 
 DECLARE @idPartSig int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99703);
+DECLARE @idPartKO  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99704);
 DECLARE @idSelA int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QNA');
+DECLARE @idSelB int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QNB');
+DECLARE @idA06 int = (SELECT id FROM #jug WHERE codigo = 'A06');
+DECLARE @idA07 int = (SELECT id FROM #jug WHERE codigo = 'A07');
 DECLARE @idA09 int = (SELECT id FROM #jug WHERE codigo = 'A09');
 DECLARE @idA10 int = (SELECT id FROM #jug WHERE codigo = 'A10');
 DECLARE @idA11 int = (SELECT id FROM #jug WHERE codigo = 'A11');
+DECLARE @idADP int = (SELECT id FROM #staff WHERE codigo = 'ADP');
+DECLARE @idAAY int = (SELECT id FROM #staff WHERE codigo = 'AAY');
+DECLARE @idAMD int = (SELECT id FROM #staff WHERE codigo = 'AMD');
+DECLARE @idAFI int = (SELECT id FROM #staff WHERE codigo = 'AFI');
+DECLARE @idAX1 int = (SELECT id FROM #staff WHERE codigo = 'AX1');
 DECLARE @lista Eventos.FormacionJugadorLista;
+DECLARE @listaB11 Eventos.FormacionJugadorLista;
+DECLARE @ct    Eventos.CuerpoTecnicoLista;
+DECLARE @ctA   Eventos.CuerpoTecnicoLista;
+DECLARE @ctB   Eventos.CuerpoTecnicoLista;
 DECLARE @esperado nvarchar(400);
 
+-- Cuerpo técnico válido de A (sin sancionados) y de B; 11 titulares de B
+INSERT INTO @ctA SELECT id FROM #staff WHERE codigo IN ('ADP', 'AX1');
+INSERT INTO @ctB SELECT id FROM #staff WHERE codigo IN ('BDP', 'BAY');
+INSERT INTO @listaB11 SELECT id, 1, posicion FROM #jug WHERE sel = 'B' AND nro <= 11;
+
 -- PRUEBA 5.1 (CASO OBLIGATORIO 2): Suspendido por acumulación (A11) rechazado como titular en el partido siguiente
---             Titulares A01-A08, A11, A12, A13; suplentes A14-A18.
+--             Titulares A01-A05, A08, A11, A12-A15; suplentes A16-A18 (A06, A07, A09 y A10, también
+--             suspendidos, no se incluyen para que el mensaje informe solo a A11).
 -- Resultado esperado: THROW 50002 "- Los siguientes jugadores están suspendidos y no pueden integrar la formación: <id A11>."
 INSERT INTO @lista
-SELECT id, CASE WHEN nro <= 8 OR nro IN (11, 12, 13) THEN 1 ELSE 0 END, posicion
-FROM #jug WHERE sel = 'A' AND (nro <= 8 OR nro BETWEEN 11 AND 18);
+SELECT id, CASE WHEN nro <= 5 OR nro IN (8, 11, 12, 13, 14, 15) THEN 1 ELSE 0 END, posicion
+FROM #jug WHERE sel = 'A' AND (nro <= 5 OR nro = 8 OR nro BETWEEN 11 AND 18);
 SET @esperado = N'%- Los siguientes jugadores están suspendidos y no pueden integrar la formación: ' + CAST(@idA11 AS nvarchar(12)) + N'.%';
 BEGIN TRY
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA;
     PRINT '[FALLO] PRUEBA 5.1: Permitió como titular a un jugador suspendido.';
 END TRY
 BEGIN CATCH
@@ -1180,30 +1628,89 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 5.1: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 5.2: Formación de A sin los suspendidos (A14 reemplaza a A11) y con esquema '3-4-1-1-1' (5 líneas: antes se rechazaba)
--- Resultado esperado: Formación registrada, esquemaLocal = '3-4-1-1-1' (y esquemaVisitante sigue
---                     en '4-4-2', el de la prueba 1.1: no se pisa el esquema del rival) y las
---                     suspensiones de A09, A10 y A11 pasan de 1 a 0 partidos restantes.
+-- PRUEBA 5.2 (CASO OBLIGATORIO 5, parte a): El ayudante AAY, con roja directa en 99702, figura en el cuerpo técnico del partido siguiente
+--             Jugadores válidos (A01-A05, A08, A12-A18: sin sancionados); cuerpo técnico ADP y AAY.
+-- Resultado esperado: THROW 50002 "- Los siguientes integrantes del cuerpo técnico están suspendidos y no pueden figurar en el partido: <id AAY>."
+--                     El rechazo no deja cambios: no se descuenta su suspensión (partidosRestantes sigue en 1), no se
+--                     inserta el cuerpo técnico ni la formación de A en 99703.
 DELETE FROM @lista;
 INSERT INTO @lista
-SELECT id, CASE WHEN nro <= 8 OR nro IN (12, 13, 14) THEN 1 ELSE 0 END, posicion
-FROM #jug WHERE sel = 'A' AND (nro <= 8 OR nro BETWEEN 12 AND 18);
+SELECT id, CASE WHEN nro <= 5 OR nro IN (8, 12, 13, 14, 15, 16) THEN 1 ELSE 0 END, posicion
+FROM #jug WHERE sel = 'A' AND (nro <= 5 OR nro = 8 OR nro BETWEEN 12 AND 18);
+INSERT INTO @ct VALUES (@idADP), (@idAAY);
+SET @esperado = N'%- Los siguientes integrantes del cuerpo técnico están suspendidos y no pueden figurar en el partido: ' + CAST(@idAAY AS nvarchar(12)) + N'.%';
 BEGIN TRY
-    SELECT 'ANTES 5.2' AS momento, idPartido, idJugador, cantPartidos, partidosRestantes
-    FROM Eventos.Suspension WHERE idJugador IN (@idA09, @idA10, @idA11) ORDER BY idJugador;
-    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @esquema = '3-4-1-1-1';
-    SELECT 'DESPUES 5.2' AS momento, idPartido, idJugador, cantPartidos, partidosRestantes
-    FROM Eventos.Suspension WHERE idJugador IN (@idA09, @idA10, @idA11) ORDER BY idJugador;
-    SELECT 'PARTIDO 5.2' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
-    IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA) = 15
-       AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaLocal = '3-4-1-1-1' AND esquemaVisitante = '4-4-2')
-       AND (SELECT COUNT(*) FROM Eventos.Suspension
-            WHERE idJugador IN (@idA09, @idA10, @idA11) AND cantPartidos = 1 AND partidosRestantes = 0) = 3
-        PRINT '[OK] PRUEBA 5.2: Formación registrada, ambos esquemas cargados y suspensiones de A09, A10 y A11 cumplidas.';
-    ELSE PRINT '[FALLO] PRUEBA 5.2: La formación, el esquema o las suspensiones no quedaron como se esperaba.';
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ct;
+    PRINT '[FALLO] PRUEBA 5.2: Permitió en el cuerpo técnico a un integrante suspendido.';
 END TRY
 BEGIN CATCH
-    PRINT '[FALLO] PRUEBA 5.2: ' + ERROR_MESSAGE();
+    SELECT 'SUSPENSION 5.2' AS momento, idPartido, idStaff, cantPartidos, partidosRestantes FROM Eventos.Suspension WHERE idStaff = @idAAY;
+    IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE @esperado
+       AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idAAY AND cantPartidos = 1 AND partidosRestantes = 1)
+       AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+                       WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA)
+       AND NOT EXISTS (SELECT 1 FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA)
+        PRINT '[OK] PRUEBA 5.2: Cuerpo técnico suspendido rechazado en el partido siguiente, sin descontar ni registrar nada.';
+    ELSE PRINT '[FALLO] PRUEBA 5.2: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.3 (CASO OBLIGATORIO 5, parte b): La formación de la otra selección (B en 99704) no cumple las suspensiones de A
+-- Resultado esperado: Formación y cuerpo técnico de B registrados; ninguna suspensión de A (jugadores y
+--                     cuerpo técnico) cambia: todas siguen con partidosRestantes = cantPartidos.
+BEGIN TRY
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartKO, @idSeleccion = @idSelB, @jugadores = @listaB11, @cuerpoTecnico = @ctB;
+    SELECT 'SUSPENSIONES DE A 5.3' AS momento, idJugador, idStaff, cantPartidos, partidosRestantes
+    FROM Eventos.Suspension
+    WHERE idJugador IN (@idA06, @idA07, @idA09, @idA10, @idA11) OR idStaff IN (@idAAY, @idAMD, @idAFI)
+    ORDER BY idJugador, idStaff;
+    IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartKO AND idSeleccion = @idSelB) = 11
+       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartKO) = 2
+       AND NOT EXISTS (SELECT 1 FROM Eventos.Suspension
+                       WHERE (idJugador IN (@idA06, @idA07, @idA09, @idA10, @idA11) OR idStaff IN (@idAAY, @idAMD, @idAFI))
+                         AND partidosRestantes <> cantPartidos)
+        PRINT '[OK] PRUEBA 5.3: La formación de B no descuenta las suspensiones de A.';
+    ELSE PRINT '[FALLO] PRUEBA 5.3: La formación de B no quedó registrada o alteró suspensiones de A.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 5.3: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- PRUEBA 5.4 (CASO OBLIGATORIO 5, parte c): Formación de A sin los sancionados (jugadores y cuerpo técnico: ADP y AX1)
+--             y con esquema '3-4-1-1-1' (5 líneas: antes se rechazaba)
+-- Resultado esperado: Formación (13 jugadores) y cuerpo técnico (ADP y AX1) registrados, esquemaLocal = '3-4-1-1-1'
+--                     (esquemaVisitante sigue en '4-4-2', el de la prueba 1.1: no se pisa el esquema del rival) y
+--                     las suspensiones de A06, A09, A10 y A11 y las del cuerpo técnico AAY, AMD y AFI pasan de 1 a 0
+--                     partidos restantes; A07, con 2 suspensiones, cumple solo una (queda 1).
+BEGIN TRY
+    SELECT 'ANTES 5.4' AS momento, idPartido, idJugador, idStaff, cantPartidos, partidosRestantes
+    FROM Eventos.Suspension
+    WHERE idJugador IN (@idA06, @idA07, @idA09, @idA10, @idA11) OR idStaff IN (@idAAY, @idAMD, @idAFI)
+    ORDER BY idJugador, idStaff;
+    EXEC Eventos.RegistrarFormacion @idPartido = @idPartSig, @idSeleccion = @idSelA, @jugadores = @lista, @cuerpoTecnico = @ctA, @esquema = '3-4-1-1-1';
+    SELECT 'DESPUES 5.4' AS momento, idPartido, idJugador, idStaff, cantPartidos, partidosRestantes
+    FROM Eventos.Suspension
+    WHERE idJugador IN (@idA06, @idA07, @idA09, @idA10, @idA11) OR idStaff IN (@idAAY, @idAMD, @idAFI)
+    ORDER BY idJugador, idStaff;
+    SELECT 'CUERPO TECNICO 5.4' AS momento, ct.idPartido, ct.idStaff, st.apellido, st.rol
+    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+    WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA ORDER BY ct.idStaff;
+    SELECT 'PARTIDO 5.4' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
+    IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA) = 13
+       AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaLocal = '3-4-1-1-1' AND esquemaVisitante = '4-4-2')
+       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+            WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA) = 2
+       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartSig AND idStaff IN (@idADP, @idAX1)) = 2
+       AND (SELECT COUNT(*) FROM Eventos.Suspension
+            WHERE idJugador IN (@idA06, @idA09, @idA10, @idA11) AND cantPartidos = 1 AND partidosRestantes = 0) = 4
+       AND (SELECT COUNT(*) FROM Eventos.Suspension
+            WHERE idStaff IN (@idAAY, @idAMD, @idAFI) AND cantPartidos = 1 AND partidosRestantes = 0) = 3
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA07 AND partidosRestantes = 0) = 1
+       AND (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @idA07 AND partidosRestantes = 1) = 1
+        PRINT '[OK] PRUEBA 5.4: Formación y cuerpo técnico de A registrados y suspensiones de jugadores y del cuerpo técnico cumplidas.';
+    ELSE PRINT '[FALLO] PRUEBA 5.4: La formación, el cuerpo técnico, el esquema o las suspensiones no quedaron como se esperaba.';
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 5.4: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
@@ -1216,10 +1723,15 @@ DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM 
 DELETE FROM Arbitraje.cuerpoArbitral  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
                                          OR idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
 DELETE FROM Eventos.Gol               WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
+-- Suspension referencia a Tarjeta (idTarjeta): se borra antes que Tarjeta
+DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
+                                         OR idTarjeta IN (SELECT idTarjeta FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705)))
+                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %')
+                                         OR idStaff   IN (SELECT id FROM Equipos.Staff   WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.Tarjeta           WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.Sustitucion       WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
-DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
+                                         OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Negocio';
@@ -1227,6 +1739,7 @@ DELETE FROM Torneo.Fase WHERE idFase IN (9901, 9902);
 DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %';
 DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
 DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %';
+DELETE FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %';
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QNA', 'QNB', 'QNC');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('Q1', 'Q2', 'Q3', 'Q4');
 
@@ -1254,11 +1767,12 @@ BEGIN
 END;
 
 IF OBJECT_ID('tempdb..#jug') IS NOT NULL DROP TABLE #jug;
+IF OBJECT_ID('tempdb..#staff') IS NOT NULL DROP TABLE #staff;
 
 PRINT 'Fixture de pruebas limpiado con éxito.';
 PRINT '================================================================================';
-PRINT ' BATERÍA DE PRUEBAS DE NEGOCIO FINALIZADA: 62 pruebas';
-PRINT '   1. RegistrarFormacion: 15 | 2. RegistrarCambio: 20 | 3. RegistrarTarjeta: 15';
-PRINT '   4. DesignarCuerpoArbitral: 10 | 5. Suspensión en el partido siguiente: 2';
+PRINT ' BATERÍA DE PRUEBAS DE NEGOCIO FINALIZADA: 82 pruebas';
+PRINT '   1. RegistrarFormacion: 21 | 2. RegistrarCambio: 20 | 3. RegistrarTarjeta: 27';
+PRINT '   4. DesignarCuerpoArbitral: 10 | 5. Suspensión en el partido siguiente: 4';
 PRINT '================================================================================';
 GO

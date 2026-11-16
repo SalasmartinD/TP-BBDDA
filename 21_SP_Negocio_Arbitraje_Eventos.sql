@@ -6,19 +6,44 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 09/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Procedimientos almacenados de negocio de Partidos en juego y
                Arbitraje:
-               - Eventos.RegistrarFormacion      (titulares, suplentes, esquema
-                                                  y cumplimiento de suspensiones)
+               - Eventos.RegistrarFormacion      (titulares, suplentes, cuerpo
+                                                  técnico, esquema y cumplimiento
+                                                  de suspensiones)
                - Eventos.RegistrarCambio         (cambios, ventanas y alargue)
-               - Eventos.RegistrarTarjeta        (doble amarilla, expulsión y
-                                                  suspensión por acumulación)
+               - Eventos.RegistrarTarjeta        (tarjeta a jugador o a integrante
+                                                  del cuerpo técnico, doble
+                                                  amarilla, expulsión y suspensión)
                - Arbitraje.DesignarCuerpoArbitral (5 roles, nacionalidad y
                                                   advertencia de cruce)
-               Crea además el tipo tabla Eventos.FormacionJugadorLista, que
-               recibe la lista de jugadores de una formación.
+               Crea además los tipos tabla Eventos.FormacionJugadorLista, que
+               recibe la lista de jugadores de una formación, y
+               Eventos.CuerpoTecnicoLista, que recibe la del cuerpo técnico.
+
+               Cambio cuerpo técnico por partido (Fase 2)
+               - Tipo tabla nuevo Eventos.CuerpoTecnicoLista (idStaff).
+               - RegistrarFormacion recibe además @cuerpoTecnico (obligatorio, no
+                 vacío) y lo guarda en Eventos.CuerpoTecnicoPartido. Valida lista
+                 vacía, repetidos, integrantes ajenos a la selección, más de un
+                 Director Principal, integrantes suspendidos (antes de descontar
+                 las suspensiones cumplidas) y cuerpo técnico ya registrado.
+                 Es intencional: el cuerpo técnico de cada selección en el partido
+                 se registra junto con la formación, en la misma transacción. Si
+                 ya fue cargado antes con Eventos.CuerpoTecnicoPartido_Alta (11c),
+                 RegistrarFormacion lo rechaza (F20) para no duplicar ni mezclar
+                 integrantes. El ABM del 11c queda para armar o corregir el cuerpo
+                 técnico de partidos cuya formación no se registra con este SP o
+                 para ajustarlo después.
+               - RegistrarTarjeta recibe @idJugador o @idStaff (exactamente uno).
+                 Un integrante del cuerpo técnico solo recibe tarjeta si figura en
+                 CuerpoTecnicoPartido del partido. Su roja suspende siempre 1
+                 partido y sus amarillas acumulan según el parámetro
+                 AMARILLAS_SUSPENSION_STAFF (0 = no acumulan).
+               - Cada suspensión que genera RegistrarTarjeta lleva el idTarjeta
+                 de la tarjeta que la originó (una suspensión por tarjeta).
 
  Estándares aplicados:
  - Acumulación exhaustiva de errores en @errores nvarchar(2000).
@@ -34,7 +59,7 @@
    10a antes que este script.
  - Nombres en formato Esquema.VerboSustantivo.
  - Parámetros y variables locales estrictamente en @camelCase.
- - Todo set-based: cero cursores, cero SQL dinámico, cero CLR.
+ - Todo set-based (sin recorridos fila por fila), cero SQL dinámico, cero CLR.
 
  Instante de un evento
  ---------------------
@@ -68,13 +93,37 @@ IF TYPE_ID(N'Eventos.FormacionJugadorLista') IS NULL
     );
 GO
 
+-- Cuerpo técnico de una formación. Sin PK por el mismo motivo: los repetidos se
+-- informan con el patrón de errores (F16).
+IF TYPE_ID(N'Eventos.CuerpoTecnicoLista') IS NULL
+    CREATE TYPE Eventos.CuerpoTecnicoLista AS TABLE (
+        idStaff  int  NOT NULL
+    );
+GO
+
 /* =============================================================================
    1. Eventos.RegistrarFormacion
-   Registra la formación completa (titulares y suplentes) de una selección en
-   un partido, guarda el esquema táctico y descuenta un partido a las
-   suspensiones que se cumplen en este partido.
+   Registra la formación completa (titulares y suplentes) y el cuerpo técnico de
+   una selección en un partido, guarda el esquema táctico y descuenta un
+   partido a las suspensiones (de jugadores y de cuerpo técnico) que se
+   cumplen en este partido.
 
    Decisiones de diseño:
+   - Cuerpo técnico obligatorio: la lista no puede estar vacía, no puede tener
+     repetidos, tiene que ser del Equipos.Staff de la selección y a lo sumo un
+     integrante con rol 'Director Principal'. Se guarda en
+     Eventos.CuerpoTecnicoPartido (igual que los jugadores en FormacionPartido).
+   - Cuerpo técnico ya cargado (F20), decisión intencional: el cuerpo técnico de
+     cada selección en el partido se registra junto con la formación, en la
+     misma transacción. Si ya fue cargado antes con
+     Eventos.CuerpoTecnicoPartido_Alta (11c), RegistrarFormacion lo rechaza para
+     no duplicar ni mezclar integrantes. El ABM del 11c queda para armar o
+     corregir el cuerpo técnico de partidos cuya formación no se registra con
+     este SP o para ajustarlo después.
+   - Un integrante del cuerpo técnico suspendido tampoco puede figurar en el
+     partido (F19). Esa validación ocurre antes del descuento: como todo es una
+     sola transacción y el THROW sale antes de escribir, un rechazo no descuenta
+     ninguna suspensión.
    - Un suspendido no puede estar ni de titular ni de suplente (regla FIFA):
      así no puede entrar por un cambio y la suspensión se cumple al registrar
      la formación.
@@ -91,6 +140,7 @@ CREATE OR ALTER PROCEDURE Eventos.RegistrarFormacion
     @idPartido   int,
     @idSeleccion int,
     @jugadores   Eventos.FormacionJugadorLista READONLY,
+    @cuerpoTecnico Eventos.CuerpoTecnicoLista READONLY,   -- obligatorio (no vacío)
     @esquema     varchar(10) = NULL      -- '4-3-3', '4-2-3-1', '3-4-1-1-1'; opcional
 AS
 BEGIN
@@ -106,6 +156,7 @@ BEGIN
             @cantTitulares    int,
             @cantSuplentes    int,
             @maxSuplentes     int,
+            @cantCuerpo       int,
             @lista            nvarchar(1000);
 
     SET @esquema = NULLIF(LTRIM(RTRIM(@esquema)), '');
@@ -128,6 +179,8 @@ BEGIN
                @cantTitulares = ISNULL(SUM(CASE WHEN titular = 1 THEN 1 ELSE 0 END), 0),
                @cantSuplentes = ISNULL(SUM(CASE WHEN titular = 0 THEN 1 ELSE 0 END), 0)
         FROM @jugadores;
+
+        SELECT @cantCuerpo = COUNT(*) FROM @cuerpoTecnico;
 
         SELECT @maxSuplentes = valor
         FROM Sistema.Parametro
@@ -228,6 +281,71 @@ BEGIN
         IF @esquema IS NOT NULL AND Torneo.fn_EsquemaTacticoValido(@esquema) = 0
             SET @errores += CHAR(10) + N'- El esquema táctico debe tener números de 1 a 9 separados por guiones que sumen 10 (ej. 4-3-3).';
 
+        -- F15. Cuerpo técnico obligatorio: lista vacía
+        IF @cantCuerpo = 0
+            SET @errores += CHAR(10) + N'- La lista del cuerpo técnico está vacía.';
+
+        -- F16. Integrantes del cuerpo técnico repetidos en la lista
+        SET @lista = NULL;
+        SELECT @lista = STRING_AGG(CAST(r.idStaff AS nvarchar(12)), N', ') WITHIN GROUP (ORDER BY r.idStaff)
+        FROM (SELECT idStaff
+              FROM @cuerpoTecnico
+              GROUP BY idStaff
+              HAVING COUNT(*) > 1) r;
+
+        IF @lista IS NOT NULL
+            SET @errores += CHAR(10) + N'- Hay integrantes del cuerpo técnico repetidos en la lista: ' + @lista + N'.';
+
+        -- F17. Todos deben ser del cuerpo técnico (Equipos.Staff) de la selección
+        --      (cubre también integrantes inexistentes). Solo si la selección existe.
+        IF @existeSeleccion = 1
+        BEGIN
+            SET @lista = NULL;
+            SELECT @lista = STRING_AGG(CAST(d.idStaff AS nvarchar(12)), N', ') WITHIN GROUP (ORDER BY d.idStaff)
+            FROM (SELECT DISTINCT idStaff FROM @cuerpoTecnico) d
+            WHERE NOT EXISTS (SELECT 1
+                              FROM Equipos.Staff st
+                              WHERE st.id          = d.idStaff
+                                AND st.idSeleccion = @idSeleccion);
+
+            IF @lista IS NOT NULL
+                SET @errores += CHAR(10) + N'- Los siguientes integrantes no pertenecen al cuerpo técnico de la selección: ' + @lista + N'.';
+        END;
+
+        -- F18. A lo sumo un Director Principal (integrantes distintos de la lista)
+        IF (SELECT COUNT(*)
+            FROM Equipos.Staff st
+            WHERE st.rol = 'Director Principal'
+              AND st.id IN (SELECT idStaff FROM @cuerpoTecnico)) > 1
+            SET @errores += CHAR(10) + N'- El cuerpo técnico no puede tener más de un Director Principal.';
+
+        -- F19. Integrantes con suspensión activa para este partido (misma regla que F12)
+        IF @fechaPartido IS NOT NULL
+        BEGIN
+            SET @lista = NULL;
+            SELECT @lista = STRING_AGG(CAST(d.idStaff AS nvarchar(12)), N', ') WITHIN GROUP (ORDER BY d.idStaff)
+            FROM (SELECT DISTINCT idStaff FROM @cuerpoTecnico) d
+            WHERE EXISTS (SELECT 1
+                          FROM Eventos.Suspension su
+                          JOIN Torneo.Partido ps ON ps.idPartido = su.idPartido
+                          WHERE su.idStaff = d.idStaff
+                            AND su.partidosRestantes > 0
+                            AND ps.fechaHoraUTC < @fechaPartido);
+
+            IF @lista IS NOT NULL
+                SET @errores += CHAR(10) + N'- Los siguientes integrantes del cuerpo técnico están suspendidos y no pueden figurar en el partido: ' + @lista + N'.';
+        END;
+
+        -- F20. La selección no puede tener ya cuerpo técnico en el partido
+        --      (solo si el partido y la selección existen)
+        IF @estado IS NOT NULL AND @existeSeleccion = 1
+           AND EXISTS (SELECT 1
+                       FROM Eventos.CuerpoTecnicoPartido ct WITH (UPDLOCK, HOLDLOCK)
+                       JOIN Equipos.Staff st ON st.id = ct.idStaff
+                       WHERE ct.idPartido   = @idPartido
+                         AND st.idSeleccion = @idSeleccion)
+            SET @errores += CHAR(10) + N'- La selección ya tiene cuerpo técnico registrado para este partido.';
+
         -- THROW único
         IF @errores <> N''
         BEGIN
@@ -240,6 +358,11 @@ BEGIN
         SELECT @idPartido, @idSeleccion, j.idJugador, j.titular, NULLIF(LTRIM(RTRIM(j.posicion)), '')
         FROM @jugadores j;
 
+        -- 1b. Cuerpo técnico del partido (integrantes distintos de la lista)
+        INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff)
+        SELECT DISTINCT @idPartido, ct.idStaff
+        FROM @cuerpoTecnico ct;
+
         -- 2. Esquema táctico del lado que corresponde
         IF @esquema IS NOT NULL
             UPDATE Torneo.Partido
@@ -248,10 +371,12 @@ BEGIN
             WHERE idPartido = @idPartido;
 
         -- 3. Cumplimiento de suspensiones: los convocados activos y el staff de
-        --    la selección con suspensión activa no juegan este partido, así que
-        --    se les descuenta un partido. Si una persona tiene más de una
-        --    suspensión activa, se cumplen de a una: solo se descuenta la más
-        --    antigua (la del partido más viejo).
+        --    la selección con suspensión activa no juegan este partido (F12 y F19
+        --    ya garantizaron que no figuran en la formación ni en el cuerpo
+        --    técnico), así que se les descuenta un partido. Si una persona tiene
+        --    más de una suspensión activa (una por tarjeta), se cumplen de a una:
+        --    solo se descuenta la más antigua (partido más viejo y, dentro del
+        --    mismo partido, la de menor id).
         WITH SuspensionActiva AS (
             SELECT su.id,
                    ROW_NUMBER() OVER (PARTITION BY su.idJugador, su.idStaff
@@ -509,28 +634,42 @@ GO
 
 /* =============================================================================
    3. Eventos.RegistrarTarjeta
-   Registra una tarjeta a un jugador, genera la roja por doble amarilla y la
-   suspensión que corresponda (expulsión y/o acumulación de amarillas).
+   Registra una tarjeta a un jugador o a un integrante del cuerpo técnico (se
+   informa exactamente uno de @idJugador / @idStaff), genera la roja por doble
+   amarilla y la suspensión que corresponda (expulsión y/o acumulación).
 
-   Sanción del partido para el jugador:
-   - expulsado   = 1 si tiene alguna roja en el partido.
-   - Un partido cuenta para la acumulación si el jugador tiene al menos una
-     amarilla en él y no tiene roja 'Doble amarilla' (las amarillas de una
-     doble amarilla se anulan: esa expulsión ya se paga con 1 partido).
-   - k           = partidos que cuentan para la acumulación hasta este
-                   (fechaHoraUTC, desempate por idPartido).
-   - acumulacion = 1 si este partido cuenta y k es múltiplo de
-                   AMARILLAS_SUSPENSION.
-   - sancion     = expulsado + acumulacion. Por eso una doble amarilla da
-                   1 partido, y una roja directa después de una amarilla que
-                   completó el ciclo da 2 partidos.
-   La suspensión del partido se crea o se amplía; nunca se reduce (por si el
-   comité la amplió con el ABM).
+   Reglas de diseño (todo para la persona informada, jugador o staff):
+   - Una suspensión por tarjeta: cada fila de Eventos.Suspension se crea con
+     cantPartidos = partidosRestantes = 1 y el idTarjeta de la tarjeta que la
+     originó (UX_Suspension_Tarjeta garantiza una sola por tarjeta).
+   - Roja directa (color 'R'): una suspensión de 1 partido con idTarjeta = esa
+     roja. Una roja directa no pisa ni modifica suspensiones existentes: si
+     viene después de una amarilla que completó el ciclo en el mismo partido
+     quedan dos filas (total 2 partidos).
+   - Doble amarilla (2ª amarilla de la persona en el partido): se genera la
+     roja 'Doble amarilla' y una suspensión de 1 partido con idTarjeta = esa
+     roja. Si la 1ª amarilla del mismo partido ya había creado una suspensión
+     por acumulación, esa fila se absorbe (se le cambia el idTarjeta a la roja):
+     la doble amarilla anula la acumulación de ese partido y el total sigue
+     siendo 1 partido.
+   - Acumulación (amarilla simple): un partido cuenta si la persona tiene al
+     menos una amarilla en él y no tiene roja 'Doble amarilla' (las amarillas
+     de una doble amarilla se anulan: esa expulsión ya se paga con 1 partido).
+     k = partidos que cuentan hasta este (fechaHoraUTC, desempate idPartido).
+     Si k es múltiplo de N se crea una suspensión de 1 partido con idTarjeta =
+     la amarilla informada. N = AMARILLAS_SUSPENSION para el jugador;
+     N = AMARILLAS_SUSPENSION_STAFF para el cuerpo técnico (0 = las amarillas
+     del cuerpo técnico no acumulan; no es un error).
+   - Cuerpo técnico: solo recibe tarjeta quien figura en
+     Eventos.CuerpoTecnicoPartido del partido. Su roja (directa o doble
+     amarilla) siempre suspende 1 partido. Para el staff no se exige
+     AMARILLAS_SUSPENSION y para el jugador no se lee AMARILLAS_SUSPENSION_STAFF.
    ============================================================================= */
 
 CREATE OR ALTER PROCEDURE Eventos.RegistrarTarjeta
     @idPartido       int,
-    @idJugador       int,
+    @idJugador       int         = NULL,
+    @idStaff         int         = NULL,
     @idPeriodo       tinyint,
     @color           char(1),            -- 'A' amarilla, 'R' roja directa
     @minuto          tinyint,
@@ -545,11 +684,12 @@ BEGIN
     DECLARE @errores              nvarchar(2000) = N'';
     DECLARE @estado               varchar(15),
             @fechaPartido         datetime2(0),
-            @amarillasSuspension  int,
-            @expulsado            int,
-            @cuenta               int,
+            @personaValida        bit,
+            @amarillasSuspension  int,             -- N del jugador
+            @amarillasStaff       int,             -- N del cuerpo técnico (0 = no acumula)
+            @n                    int,
             @k                    int,
-            @sancion              int;
+            @idRojaDoble          int;
 
     SET @motivo    = NULLIF(LTRIM(RTRIM(@motivo)), '');
     SET @color     = UPPER(@color);
@@ -564,9 +704,26 @@ BEGIN
         FROM Torneo.Partido p WITH (UPDLOCK, HOLDLOCK)
         WHERE p.idPartido = @idPartido;
 
-        SELECT @amarillasSuspension = valor
-        FROM Sistema.Parametro
-        WHERE clave = 'AMARILLAS_SUSPENSION';
+        -- Exactamente uno de los dos (si no, no se evalúan los chequeos de la persona)
+        SET @personaValida = CASE WHEN (@idJugador IS NULL AND @idStaff IS NOT NULL)
+                                    OR (@idJugador IS NOT NULL AND @idStaff IS NULL)
+                                  THEN 1 ELSE 0 END;
+
+        -- Cada persona se rige por su propio parámetro: el del jugador no se lee
+        -- para una tarjeta de staff y viceversa.
+        IF @idJugador IS NOT NULL
+            SELECT @amarillasSuspension = valor
+            FROM Sistema.Parametro
+            WHERE clave = 'AMARILLAS_SUSPENSION';
+
+        IF @idStaff IS NOT NULL
+            SELECT @amarillasStaff = valor
+            FROM Sistema.Parametro
+            WHERE clave = 'AMARILLAS_SUSPENSION_STAFF';
+
+        -- T0. Exactamente un jugador o un integrante del cuerpo técnico
+        IF @personaValida = 0
+            SET @errores += CHAR(10) + N'- Debe especificar exactamente a un jugador o a un integrante del cuerpo técnico, no ambos ni ninguno.';
 
         -- T1. Existencia del partido
         IF @estado IS NULL
@@ -576,19 +733,35 @@ BEGIN
         IF @estado = 'Programado'
             SET @errores += CHAR(10) + N'- No se pueden registrar tarjetas en un partido que todavía se encuentra en estado programado.';
 
-        -- T3. El jugador debe estar en la formación (solo si el partido existe)
-        IF @estado IS NOT NULL
+        -- T3 (jugador). Debe estar en la formación (solo si el partido existe)
+        IF @personaValida = 1 AND @idJugador IS NOT NULL AND @estado IS NOT NULL
            AND NOT EXISTS (SELECT 1 FROM Eventos.FormacionPartido
                            WHERE idPartido = @idPartido AND idJugador = @idJugador)
             SET @errores += CHAR(10) + N'- El jugador no está registrado en la formación del partido.';
 
-        -- T4. No puede estar ya expulsado
-        IF EXISTS (SELECT 1
-                   FROM Eventos.Tarjeta WITH (UPDLOCK, HOLDLOCK)
-                   WHERE idPartido = @idPartido
-                     AND idJugador = @idJugador
-                     AND color     = 'R')
+        -- T3 (staff). Debe figurar en el cuerpo técnico del partido (solo si el partido existe)
+        IF @personaValida = 1 AND @idStaff IS NOT NULL AND @estado IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido
+                           WHERE idPartido = @idPartido AND idStaff = @idStaff)
+            SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico no está registrado en el cuerpo técnico del partido.';
+
+        -- T4 (jugador). No puede estar ya expulsado
+        IF @personaValida = 1 AND @idJugador IS NOT NULL
+           AND EXISTS (SELECT 1
+                       FROM Eventos.Tarjeta WITH (UPDLOCK, HOLDLOCK)
+                       WHERE idPartido = @idPartido
+                         AND idJugador = @idJugador
+                         AND color     = 'R')
             SET @errores += CHAR(10) + N'- El jugador ya fue expulsado en este partido.';
+
+        -- T4 (staff). No puede estar ya expulsado
+        IF @personaValida = 1 AND @idStaff IS NOT NULL
+           AND EXISTS (SELECT 1
+                       FROM Eventos.Tarjeta WITH (UPDLOCK, HOLDLOCK)
+                       WHERE idPartido = @idPartido
+                         AND idStaff   = @idStaff
+                         AND color     = 'R')
+            SET @errores += CHAR(10) + N'- El integrante del cuerpo técnico ya fue expulsado en este partido.';
 
         -- T5. Período de juego
         IF @idPeriodo IS NULL OR NOT EXISTS (SELECT 1 FROM Torneo.Periodo WHERE idPeriodo = @idPeriodo)
@@ -610,9 +783,15 @@ BEGIN
         IF @motivo IS NULL
             SET @errores += CHAR(10) + N'- El motivo de la tarjeta es obligatorio.';
 
-        -- T10. Parámetro de acumulación
-        IF ISNULL(@amarillasSuspension, 0) = 0
+        -- T10. Parámetro de acumulación de la persona.
+        --       Jugador: AMARILLAS_SUSPENSION es obligatorio y mayor que 0.
+        --       Staff: AMARILLAS_SUSPENSION_STAFF debe existir; 0 es válido y
+        --       significa que sus amarillas no acumulan.
+        IF @personaValida = 1 AND @idJugador IS NOT NULL AND ISNULL(@amarillasSuspension, 0) = 0
             SET @errores += CHAR(10) + N'- El parámetro AMARILLAS_SUSPENSION no está configurado en Sistema.Parametro (o vale 0).';
+
+        IF @personaValida = 1 AND @idStaff IS NOT NULL AND @amarillasStaff IS NULL
+            SET @errores += CHAR(10) + N'- El parámetro AMARILLAS_SUSPENSION_STAFF no está configurado en Sistema.Parametro.';
 
         -- THROW único
         IF @errores <> N''
@@ -623,58 +802,81 @@ BEGIN
 
         -- 1. Tarjeta informada
         INSERT INTO Eventos.Tarjeta (idPartido, idJugador, idStaff, idPeriodo, color, minuto, minutoAdicional, motivo, tipoRoja)
-        VALUES (@idPartido, @idJugador, NULL, @idPeriodo, @color, @minuto, @minutoAdicional, @motivo,
+        VALUES (@idPartido, @idJugador, @idStaff, @idPeriodo, @color, @minuto, @minutoAdicional, @motivo,
                 CASE WHEN @color = 'R' THEN 'Directa' END);
 
         SET @idTarjeta = SCOPE_IDENTITY();
 
         -- 2. Doble amarilla: segunda amarilla del partido => roja 'Doble amarilla'
+        --    (la persona informada es @idJugador o @idStaff; el otro es NULL y su
+        --    comparación nunca es verdadera)
         IF @color = 'A'
            AND (SELECT COUNT(*) FROM Eventos.Tarjeta
-                WHERE idPartido = @idPartido AND idJugador = @idJugador AND color = 'A') >= 2
-            INSERT INTO Eventos.Tarjeta (idPartido, idJugador, idStaff, idPeriodo, color, minuto, minutoAdicional, motivo, tipoRoja)
-            VALUES (@idPartido, @idJugador, NULL, @idPeriodo, 'R', @minuto, @minutoAdicional, 'Doble amarilla', 'Doble amarilla');
-
-        -- 3. Sanción del partido (ver definición en el encabezado del SP)
-        SET @expulsado = CASE WHEN EXISTS (SELECT 1 FROM Eventos.Tarjeta
-                                           WHERE idPartido = @idPartido AND idJugador = @idJugador AND color = 'R')
-                              THEN 1 ELSE 0 END;
-
-        SET @cuenta = CASE WHEN EXISTS (SELECT 1 FROM Eventos.Tarjeta
-                                        WHERE idPartido = @idPartido AND idJugador = @idJugador AND color = 'A')
-                            AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta
-                                            WHERE idPartido = @idPartido AND idJugador = @idJugador
-                                              AND color = 'R' AND tipoRoja = 'Doble amarilla')
-                           THEN 1 ELSE 0 END;
-
-        SELECT @k = COUNT(*)
-        FROM Torneo.Partido px
-        WHERE (   px.fechaHoraUTC < @fechaPartido
-               OR (px.fechaHoraUTC = @fechaPartido AND px.idPartido <= @idPartido))
-          AND EXISTS (SELECT 1 FROM Eventos.Tarjeta t
-                      WHERE t.idPartido = px.idPartido AND t.idJugador = @idJugador AND t.color = 'A')
-          AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta t
-                          WHERE t.idPartido = px.idPartido AND t.idJugador = @idJugador
-                            AND t.color = 'R' AND t.tipoRoja = 'Doble amarilla');
-
-        SET @sancion = @expulsado
-                     + CASE WHEN @cuenta = 1 AND @k % @amarillasSuspension = 0 THEN 1 ELSE 0 END;
-
-        IF @sancion > 0
-        BEGIN
-            IF NOT EXISTS (SELECT 1
-                           FROM Eventos.Suspension WITH (UPDLOCK, HOLDLOCK)
-                           WHERE idPartido = @idPartido AND idJugador = @idJugador)
-                INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes)
-                VALUES (@idPartido, @idJugador, NULL, @sancion, @sancion);
-            ELSE
-                -- Se amplía solo si la nueva sanción es mayor (nunca se reduce)
-                UPDATE Eventos.Suspension
-                SET partidosRestantes = partidosRestantes + (@sancion - cantPartidos),
-                    cantPartidos      = @sancion
                 WHERE idPartido = @idPartido
-                  AND idJugador = @idJugador
-                  AND cantPartidos < @sancion;
+                  AND (idJugador = @idJugador OR idStaff = @idStaff)
+                  AND color = 'A') >= 2
+        BEGIN
+            INSERT INTO Eventos.Tarjeta (idPartido, idJugador, idStaff, idPeriodo, color, minuto, minutoAdicional, motivo, tipoRoja)
+            VALUES (@idPartido, @idJugador, @idStaff, @idPeriodo, 'R', @minuto, @minutoAdicional, 'Doble amarilla', 'Doble amarilla');
+
+            SET @idRojaDoble = SCOPE_IDENTITY();
+        END;
+
+        -- 3. Suspensión: una por tarjeta, de 1 partido y con su idTarjeta
+        --    (ver las reglas en el encabezado del SP). Nunca se modifica una
+        --    suspensión existente salvo la absorción de la doble amarilla (3b).
+        IF @color = 'R'
+        BEGIN
+            -- 3a. Roja directa
+            INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes, idTarjeta)
+            VALUES (@idPartido, @idJugador, @idStaff, 1, 1, @idTarjeta);
+        END
+        ELSE IF @idRojaDoble IS NOT NULL
+        BEGIN
+            -- 3b. Doble amarilla: si la 1ª amarilla de este partido ya había creado
+            --     una suspensión por acumulación, se absorbe (pasa a depender de la
+            --     roja generada); si no, se inserta la suspensión de la roja.
+            UPDATE su
+            SET idTarjeta = @idRojaDoble
+            FROM Eventos.Suspension su
+            WHERE su.idPartido = @idPartido
+              AND (su.idJugador = @idJugador OR su.idStaff = @idStaff)
+              AND su.idTarjeta IN (SELECT t.idTarjeta
+                                   FROM Eventos.Tarjeta t
+                                   WHERE t.idPartido = @idPartido
+                                     AND (t.idJugador = @idJugador OR t.idStaff = @idStaff)
+                                     AND t.color = 'A');
+
+            IF @@ROWCOUNT = 0
+                INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes, idTarjeta)
+                VALUES (@idPartido, @idJugador, @idStaff, 1, 1, @idRojaDoble);
+        END
+        ELSE
+        BEGIN
+            -- 3c. Acumulación (amarilla simple). Este partido cuenta (tiene una
+            --     amarilla y ninguna doble amarilla). k = partidos que cuentan
+            --     hasta este; si k es múltiplo de N se suspende 1 partido.
+            SET @n = CASE WHEN @idJugador IS NOT NULL THEN @amarillasSuspension ELSE @amarillasStaff END;
+
+            IF @n > 0
+            BEGIN
+                SELECT @k = COUNT(*)
+                FROM Torneo.Partido px
+                WHERE (   px.fechaHoraUTC < @fechaPartido
+                       OR (px.fechaHoraUTC = @fechaPartido AND px.idPartido <= @idPartido))
+                  AND EXISTS (SELECT 1 FROM Eventos.Tarjeta t
+                              WHERE t.idPartido = px.idPartido
+                                AND (t.idJugador = @idJugador OR t.idStaff = @idStaff)
+                                AND t.color = 'A')
+                  AND NOT EXISTS (SELECT 1 FROM Eventos.Tarjeta t
+                                  WHERE t.idPartido = px.idPartido
+                                    AND (t.idJugador = @idJugador OR t.idStaff = @idStaff)
+                                    AND t.color = 'R' AND t.tipoRoja = 'Doble amarilla');
+
+                IF @k % @n = 0
+                    INSERT INTO Eventos.Suspension (idPartido, idJugador, idStaff, cantPartidos, partidosRestantes, idTarjeta)
+                    VALUES (@idPartido, @idJugador, @idStaff, 1, 1, @idTarjeta);
+            END;
         END;
 
         COMMIT TRANSACTION;
