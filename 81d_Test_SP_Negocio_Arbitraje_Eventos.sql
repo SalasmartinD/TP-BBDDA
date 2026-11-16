@@ -34,7 +34,7 @@
    más), cambios (5º / 6º), ventanas (3ª / 4ª y ventana ya usada) y cambio
    extra en el alargue (pasa / el siguiente se rechaza).
  - Casos obligatorios de la consigna rotulados como CASO OBLIGATORIO 1..5
-   (el 5, roja a un integrante del cuerpo técnico que lo deja afuera del
+   (el 3, roja a un integrante del cuerpo técnico que lo deja afuera del
    partido siguiente, en la sección 5).
  - Idempotencia: limpieza preventiva al inicio y final en orden inverso de FK
    (incluye lo que generan los SP: suspensiones, rojas por doble amarilla,
@@ -290,7 +290,7 @@ GO
 /* =============================================================================
    SECCIÓN 1: Eventos.RegistrarFormacion   (partido 99703 'Programado')
    La validación de suspendidos (F12 jugadores y F19 cuerpo técnico) se prueba
-   en la sección 5 (CASOS OBLIGATORIOS 2 y 5), cuando las tarjetas de la
+   en la sección 5 (CASOS OBLIGATORIOS 2 y 3), cuando las tarjetas de la
    sección 3 ya generaron la sanción.
    ============================================================================= */
 PRINT '--------------------------------------------------------------------------------';
@@ -669,7 +669,7 @@ DECLARE @idB02 int = (SELECT id FROM #jug WHERE codigo = 'B02');
 DECLARE @idB12 int = (SELECT id FROM #jug WHERE codigo = 'B12');
 DECLARE @idCambio int, @valorParam int, @descParam varchar(200);
 
--- PRUEBA 2.1 (CASO OBLIGATORIO 3): Cambio por lesión antes del minuto 20 (sale A01, entra A12 al minuto 15)
+-- PRUEBA 2.1 (CASO OBLIGATORIO 4): Cambio por lesión antes del minuto 20 (sale A01, entra A12 al minuto 15)
 -- Resultado esperado: Sustitución registrada con motivo 'Lesion' e ID devuelto.
 BEGIN TRY
     EXEC Eventos.RegistrarCambio @idPartido = @idPartJuego, @idSale = @idA01, @idIngresa = @idA12, @idPeriodo = 1,
@@ -1518,7 +1518,7 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 4.7: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 4.8 (CASO OBLIGATORIO 4): Designación rechazada por conflicto de nacionalidad
+-- PRUEBA 4.8 (CASO OBLIGATORIO 5): Designación rechazada por conflicto de nacionalidad
 --             (Principal del país A en el partido A-B)
 -- Resultado esperado: THROW 50002 "- El árbitro QNeg Arbitro A, Local (Principal) es de Pais Negocio A, que disputa el partido."
 BEGIN TRY
@@ -1628,7 +1628,7 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 5.1: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 5.2 (CASO OBLIGATORIO 5, parte a): El ayudante AAY, con roja directa en 99702, figura en el cuerpo técnico del partido siguiente
+-- PRUEBA 5.2 (CASO OBLIGATORIO 3, parte a): El ayudante AAY, con roja directa en 99702, figura en el cuerpo técnico del partido siguiente
 --             Jugadores válidos (A01-A05, A08, A12-A18: sin sancionados); cuerpo técnico ADP y AAY.
 -- Resultado esperado: THROW 50002 "- Los siguientes integrantes del cuerpo técnico están suspendidos y no pueden figurar en el partido: <id AAY>."
 --                     El rechazo no deja cambios: no se descuenta su suspensión (partidosRestantes sigue en 1), no se
@@ -1654,7 +1654,7 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 5.2: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 5.3 (CASO OBLIGATORIO 5, parte b): La formación de la otra selección (B en 99704) no cumple las suspensiones de A
+-- PRUEBA 5.3 (CASO OBLIGATORIO 3, parte b): La formación de la otra selección (B en 99704) no cumple las suspensiones de A
 -- Resultado esperado: Formación y cuerpo técnico de B registrados; ninguna suspensión de A (jugadores y
 --                     cuerpo técnico) cambia: todas siguen con partidosRestantes = cantPartidos.
 BEGIN TRY
@@ -1675,7 +1675,7 @@ BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5.3: ' + ERROR_MESSAGE();
 END CATCH;
 
--- PRUEBA 5.4 (CASO OBLIGATORIO 5, parte c): Formación de A sin los sancionados (jugadores y cuerpo técnico: ADP y AX1)
+-- PRUEBA 5.4 (CASO OBLIGATORIO 3, parte c): Formación de A sin los sancionados (jugadores y cuerpo técnico: ADP y AX1)
 --             y con esquema '3-4-1-1-1' (5 líneas: antes se rechazaba)
 -- Resultado esperado: Formación (13 jugadores) y cuerpo técnico (ADP y AX1) registrados, esquemaLocal = '3-4-1-1-1'
 --                     (esquemaVisitante sigue en '4-4-2', el de la prueba 1.1: no se pisa el esquema del rival) y
