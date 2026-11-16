@@ -6,7 +6,7 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 11/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Suite de pruebas unitarias para 41_Importar_Arbitros_XML.sql.
                Cubre Arbitraje.Importar_ArbitrosXML:
@@ -30,7 +30,7 @@
  - Una prueba negativa por cada mensaje de validación del 41 (mapa mensaje ->
    prueba en el resumen final).
  - Los XML literales usan el país Argentina (ISO3 ARG) y nombres claramente de
-   prueba ('Test81e'): lo que insertan lo borra la limpieza final.
+   prueba ('Test81f'): lo que insertan lo borra la limpieza final.
  - Supuesto: se corre sobre la base recién cargada (00, 11a, 41, 50a y 51a),
    sin que el dataset se haya importado antes. Si ya estaba importado, la
    PRUEBA 2 lo informa como [FALLO] (no se borra nada previo: recrear la base).
@@ -41,8 +41,22 @@
    previo) y verifica que la base quedó igual que al inicio, lista para que la
    importación real vuelva a insertar los mismos árbitros.
  - Sin SQL dinámico.
+
+ Requisitos  : - Ejecutar en modo SQLCMD (en SSMS: Consulta > Modo SQLCMD),
+                 porque usa la variable RUTA_REPO.
+               - Cambiar RUTA_REPO (la línea :setvar de más abajo, por defecto
+                 C:\TP-BBDDA\) por la raíz de la repo en esta máquina, terminada
+                 en \ y legible por la cuenta que ejecuta SQL Server: de ahí se
+                 leen datasets\arbitros_fifa_reducido.xml y
+                 docs\scrap_fifa_arbitros.py. Si la ruta no coincide, las
+                 pruebas de importación fallan. Se cambia editando esa línea,
+                 tanto en SSMS como con sqlcmd: el :setvar del archivo pisa a la
+                 opción -v de sqlcmd (igual que RUTA_DATASETS en 80g).
+               - 00_InitialSchema.sql, 11a, 41, 50a y 51a.
 ================================================================================
 */
+
+:setvar RUTA_REPO "C:\TP-BBDDA\"
 
 USE MundialFutbol;
 GO
@@ -61,15 +75,12 @@ GO
    ============================================================================= */
 PRINT '--- Foto inicial ---';
 
--- Ruta absoluta de la raíz del repositorio (con barra final). SQL Server lee los
--- archivos desde su propio equipo: cada integrante la ajusta si corre este
--- test desde SSMS.
-DECLARE @dirRepo nvarchar(260) = N'C:\TP-BBDDA\';
-
+-- Rutas de los archivos: salen de RUTA_REPO (:setvar del inicio del archivo).
+-- SQL Server lee los archivos desde su propio equipo.
 IF OBJECT_ID('tempdb..#cfg') IS NOT NULL DROP TABLE #cfg;
 CREATE TABLE #cfg (rutaXml nvarchar(260) NOT NULL, rutaPy nvarchar(260) NOT NULL);
 INSERT INTO #cfg (rutaXml, rutaPy)
-VALUES (@dirRepo + N'datasets\arbitros_fifa_reducido.xml', @dirRepo + N'docs\scrap_fifa_arbitros.py');
+VALUES (N'$(RUTA_REPO)datasets\arbitros_fifa_reducido.xml', N'$(RUTA_REPO)docs\scrap_fifa_arbitros.py');
 
 -- FOTO INICIAL: lo preexistente (países de 50a, árbitros de 51a) que el test
 -- no debe modificar.
@@ -350,7 +361,7 @@ GO
 /* =============================================================================
    SECCIÓN 3: Arbitraje.Importar_ArbitrosXMLDatos con un XML literal (sin archivo)
    Un único XML con 3 filas de Argentina (ISO3 ARG):
-     1. válida (Test81e VALIDO81E, con 2 idiomas);
+     1. válida (Test81f VALIDO81F, con 2 idiomas);
      2. con errores propios del archivo acumulados: fecha inválida, nombre y
         apellido de más de 60 caracteres, género de más de 20 y categoría de más
         de 15;
@@ -362,19 +373,19 @@ PRINT '-------------------------------------------------------------------------
 PRINT ' 3. PRUEBAS: Arbitraje.Importar_ArbitrosXMLDatos (XML literal)';
 PRINT '--------------------------------------------------------------------------------';
 
-DECLARE @origen nvarchar(260) = N'81e_xml_literal';
+DECLARE @origen nvarchar(260) = N'81f_xml_literal';
 DECLARE @maxIdAntes int = (SELECT maxIdError FROM #foto);
 DECLARE @xmlTexto nvarchar(max), @xmlLit xml, @xmlSinNodos xml = N'<Otro/>';
 DECLARE @cantFilas int, @cantInsertados int, @cantActualizados int, @cantErrores int;
 
 SET @xmlTexto = N'<Arbitros>'
-  + N'<Arbitro><Nombre>Test81e</Nombre><Apellido>VALIDO81E</Apellido><Pais codigoISO3="ARG">Argentina</Pais>'
+  + N'<Arbitro><Nombre>Test81f</Nombre><Apellido>VALIDO81F</Apellido><Pais codigoISO3="ARG">Argentina</Pais>'
   +   N'<Categoria>FIFA</Categoria><Genero>Masculino</Genero><FechaInternacional>2020-01-01</FechaInternacional>'
   +   N'<Idiomas><Idioma>es</Idioma><Idioma>en</Idioma></Idiomas></Arbitro>'
   + N'<Arbitro><Nombre>' + REPLICATE(N'N', 61) + N'</Nombre><Apellido>' + REPLICATE(N'A', 61) + N'</Apellido>'
   +   N'<Pais codigoISO3="ARG">Argentina</Pais><Categoria>CategoriaMuyLarga</Categoria>'
   +   N'<Genero>' + REPLICATE(N'G', 21) + N'</Genero><FechaInternacional>2025-13-45</FechaInternacional></Arbitro>'
-  + N'<Arbitro><Nombre>Test81e</Nombre><Apellido>CATEGORIAXXX</Apellido><Pais codigoISO3="ARG">Argentina</Pais>'
+  + N'<Arbitro><Nombre>Test81f</Nombre><Apellido>CATEGORIAXXX</Apellido><Pais codigoISO3="ARG">Argentina</Pais>'
   +   N'<Categoria>XXX</Categoria><Genero>Masculino</Genero><FechaInternacional>2020-01-01</FechaInternacional></Arbitro>'
   + N'</Arbitros>';
 SET @xmlLit = CAST(@xmlTexto AS xml);
@@ -425,7 +436,7 @@ SELECT 'ERRORES XML LITERAL' AS momento, nroFila, archivo, tablaDestino, REPLACE
 FROM Sistema.ErrorImportacion WHERE id > @maxIdAntes AND archivo = @origen ORDER BY nroFila;
 SELECT 'ARBITRO VALIDO' AS momento, a.idArbitro, a.nombre, a.apellido,
        (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma i WHERE i.idArbitro = a.idArbitro) AS idiomas
-FROM Arbitraje.Arbitro AS a WHERE a.nombre = N'Test81e' AND a.apellido = N'VALIDO81E';
+FROM Arbitraje.Arbitro AS a WHERE a.nombre = N'Test81f' AND a.apellido = N'VALIDO81F';
 
 -- PRUEBA 14: Importación parcial con una fila de errores propios acumulados
 -- Resultado esperado: cantFilas = 3, cantInsertados = 1 (la fila válida entró con sus
@@ -434,7 +445,7 @@ FROM Arbitraje.Arbitro AS a WHERE a.nombre = N'Test81e' AND a.apellido = N'VALID
 --   inválida, nombre y apellido > 60, género > 20 y categoría > 15.
 IF @cantFilas = 3 AND @cantInsertados = 1 AND @cantActualizados = 0 AND @cantErrores = 2
    AND (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma AS i JOIN Arbitraje.Arbitro AS a ON a.idArbitro = i.idArbitro
-        WHERE a.nombre = N'Test81e' AND a.apellido = N'VALIDO81E') = 2
+        WHERE a.nombre = N'Test81f' AND a.apellido = N'VALIDO81F') = 2
    AND EXISTS (SELECT 1 FROM Sistema.ErrorImportacion
                WHERE id > @maxIdAntes AND archivo = @origen AND nroFila = 2 AND datoOriginal IS NOT NULL
                  AND tablaDestino = 'Arbitraje.Arbitro'

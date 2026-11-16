@@ -6,7 +6,7 @@
  Integrantes : Pereira, Marcos Nahuel - 45066788
                Salas, Martín Daniel - 45205702
                Zito Padró, Ezequiel Nehuén - 46097917
- Fecha       : 11/11/2026
+ Fecha       : 15/11/2026
 
  Objetivo    : Importación del listado de árbitros FIFA desde un archivo XML
                (datasets/arbitros_fifa_reducido.xml) hacia Arbitraje.Arbitro y
@@ -96,9 +96,20 @@ BEGIN
         idioma  nvarchar(50)      NULL
     );
 
+    -- nroFila = posición del nodo dentro del documento. nodes() no garantiza el
+    -- orden en que devuelve los nodos, y SQL Server no soporta el eje
+    -- preceding-sibling en XQuery; por eso se genera la serie 1..N y se toma el
+    -- nodo de esa posición, lo que hace el número de fila determinístico.
+    DECLARE @totalNodos int = @xml.value('count(/Arbitros/Arbitro)', 'int');
+
+    WITH numeros AS (
+        SELECT TOP (@totalNodos) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS pos
+        FROM sys.all_objects AS a
+        CROSS JOIN sys.all_objects AS b
+    )
     INSERT INTO #FilaImp (n, nodo)
-    SELECT ROW_NUMBER() OVER (ORDER BY (SELECT NULL)), x.a.query('.')
-    FROM @xml.nodes('/Arbitros/Arbitro') AS x(a);
+    SELECT pos, @xml.query('(/Arbitros/Arbitro)[sql:column("pos")][1]')
+    FROM numeros;
 
     UPDATE #FilaImp
     SET nombre       = LTRIM(RTRIM(nodo.value('(/Arbitro/Nombre)[1]',                    'nvarchar(200)'))),
