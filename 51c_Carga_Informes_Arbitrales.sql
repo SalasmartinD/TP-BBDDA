@@ -3,9 +3,9 @@
  Universidad : Universidad Nacional de La Matanza
  Materia     : 3641 - Bases de Datos Aplicada
  Comisión    : 2900
- Integrantes : Pereira, Marcos Nahuel - 45066788
-               Salas, Martín Daniel - 45205702
-               Zito Padró, Ezequiel Nehuén - 46097917
+ Integrantes : Pereira, Marcos Nahuel
+               Salas, Martín Daniel
+               Zito Padró, Ezequiel Nehuén
  Fecha       : 15/11/2026
 
  Objetivo    : Carga de datos de Persona 2 (parte 3 de 3): informes arbitrales
