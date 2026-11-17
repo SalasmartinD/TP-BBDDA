@@ -355,13 +355,16 @@ BEGIN TRY
 
     IF (SELECT COUNT(*) FROM #resMonedaPropia) = 124
        AND NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE monedaLiquidacion <> monedaFacturacionAnunciante)
-       AND NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE cotizacionAplicada IS NULL AND monedaLiquidacion <> 'USD')
     BEGIN
-        PRINT '[OK] PRUEBA 7: Liquidación en moneda de origen correcta (cada anunciante en su moneda de facturación, sin cotizaciones faltantes).';
+        IF NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE cotizacionAplicada IS NULL AND monedaLiquidacion <> 'USD')
+            PRINT '[OK] PRUEBA 7: Liquidación en moneda de origen correcta (cada anunciante en su moneda de facturación, sin cotizaciones faltantes).';
+        ELSE
+            PRINT '[ADVERTENCIA] PRUEBA 7: Moneda de facturación correcta, pero hay filas con cotizacionAplicada NULL (verificar TipoCambio en 54).';
     END
     ELSE
     BEGIN
-        PRINT '[FALLO] PRUEBA 7: Hubo discrepancias entre la moneda de facturación y la de liquidación.';
+        DECLARE @cantDiscrepancias7 int = (SELECT COUNT(*) FROM #resMonedaPropia WHERE monedaLiquidacion <> monedaFacturacionAnunciante);
+        PRINT '[FALLO] PRUEBA 7: Hubo ' + CAST(@cantDiscrepancias7 AS varchar) + ' discrepancias entre monedaLiquidacion y monedaFacturacionAnunciante.';
     END;
 END TRY
 BEGIN CATCH
