@@ -171,7 +171,7 @@ DECLARE @selY int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'XYA')
 DECLARE @selZ int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'XZA');
 
 -- PRUEBA 1.1: sin filtros (los tres partidos finalizados de la sede de prueba, en orden de hora)
--- Resultado esperado: sin filtros devuelve todos los partidos Finalizados de la base; el de la sede de
+-- Resultado esperado: sin filtros devuelve todos los partidos Finalizados de vw_Fixture; el de la sede de
 -- prueba son 98071, 98072 y 98073 (no el 98074, que está Programado), ordenados por hora.
 BEGIN TRY
     DELETE FROM #r;
@@ -180,7 +180,7 @@ BEGIN TRY
     FROM #r WHERE nroPartido BETWEEN 98071 AND 98074 ORDER BY fechaLocal, horaLocal;
     IF (SELECT STRING_AGG(CAST(nroPartido AS varchar(10)), ',') WITHIN GROUP (ORDER BY fechaLocal, horaLocal)
         FROM #r WHERE nroPartido BETWEEN 98071 AND 98074) = '98071,98072,98073'
-       AND (SELECT COUNT(*) FROM #r) = (SELECT COUNT(*) FROM Torneo.Partido WHERE estado = 'Finalizado')
+       AND (SELECT COUNT(*) FROM #r) = (SELECT COUNT(*) FROM Torneo.vw_Fixture WHERE estado = 'Finalizado')
         PRINT '[OK] PRUEBA 1.1: la consulta sin filtros devuelve los partidos finalizados.';
     ELSE PRINT '[FALLO] PRUEBA 1.1: el resultado no es el esperado.';
 END TRY
@@ -211,6 +211,8 @@ END CATCH;
 -- PRUEBA 1.3: empate en fase de grupos (98072, 0-0)
 -- Resultado esperado: marcador "XXA 0 - 0 XZA" y ganador "Empate".
 BEGIN TRY
+    DELETE FROM #r;
+    INSERT INTO #r EXEC Torneo.Reporte_Resultados @idSede = @sede;
     SELECT 'EVIDENCIA 1.3' AS momento, nroPartido, marcador, ganador FROM #r WHERE nroPartido = 98072;
     IF EXISTS (SELECT 1 FROM #r WHERE nroPartido = 98072 AND marcador = N'XXA 0 - 0 XZA'
                AND ganador = N'Empate' AND penalesLocal IS NULL)
@@ -348,10 +350,11 @@ BEGIN TRY
 END TRY
 BEGIN CATCH
     IF ERROR_NUMBER() = 50001
-       AND ERROR_MESSAGE() LIKE N'%sede no existe%'
-       AND ERROR_MESSAGE() LIKE N'%fase no existe%'
-       AND ERROR_MESSAGE() LIKE N'%selección no existe%'
-       AND ERROR_MESSAGE() LIKE N'%fecha desde no puede ser posterior%'
+       AND ERROR_MESSAGE() = N'No se pudo generar el reporte de resultados:'
+           + CHAR(10) + N'- La sede no existe.'
+           + CHAR(10) + N'- La fase no existe.'
+           + CHAR(10) + N'- La selección no existe.'
+           + CHAR(10) + N'- La fecha desde no puede ser posterior a la fecha hasta.'
         PRINT '[OK] PRUEBA 1.12: los 4 errores se informaron juntos.';
     ELSE PRINT '[FALLO] PRUEBA 1.12: ' + ERROR_MESSAGE();
 END CATCH;
