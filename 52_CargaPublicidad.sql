@@ -1055,11 +1055,13 @@ CREATE TABLE #partidosParaAsignar (
     idPartido  int NOT NULL
 );
 
+DECLARE @maxEspacios int = ISNULL((SELECT valor FROM Sistema.Parametro WHERE clave = 'MAX_ESPACIOS_PARTIDO'), 4);
+
 INSERT INTO #partidosParaAsignar (idPartido)
 SELECT p.idPartido
 FROM Torneo.Partido p
 WHERE p.estado IN ('Programado', 'En juego')
-  AND (SELECT COUNT(*) FROM Publicidad.ExhibicionPublicitaria ep WHERE ep.idPartido = p.idPartido) < 4
+  AND (SELECT COUNT(*) FROM Publicidad.ExhibicionPublicitaria ep WHERE ep.idPartido = p.idPartido) < @maxEspacios
 ORDER BY p.fechaHoraUTC, p.idPartido;
 
 DECLARE @idPartidoAsig int;
@@ -1077,6 +1079,17 @@ BEGIN
     END CATCH;
 
     SET @nAsig += 1;
+END;
+
+-- Verificación de integridad: asegurar que todos los partidos tengan sus exhibiciones completas
+IF EXISTS (
+    SELECT 1 
+    FROM Torneo.Partido p 
+    WHERE p.estado IN ('Programado', 'En juego') 
+      AND (SELECT COUNT(*) FROM Publicidad.ExhibicionPublicitaria ep WHERE ep.idPartido = p.idPartido) < @maxEspacios
+)
+BEGIN
+    ;THROW 50002, N'Error en la carga: no se pudieron asignar todas las piezas publicitarias a los partidos del torneo.', 1;
 END;
 
 GO
@@ -1138,8 +1151,8 @@ ORDER BY esPrimeTime DESC, pa.nombre;
 SELECT
     p.nroPartidoOficial,
     f.nombre AS fase,
-    sL.nombre AS seleccionLocal,
-    sV.nombre AS seleccionVisitante,
+    paL.nombre AS seleccionLocal,
+    paV.nombre AS seleccionVisitante,
     ep.idUbicacion,
     u.nombre AS ubicacion,
     a.nombre AS anunciante,
@@ -1156,7 +1169,9 @@ FROM Publicidad.ExhibicionPublicitaria ep
 JOIN Torneo.Partido p ON p.idPartido = ep.idPartido
 JOIN Torneo.Fase f ON f.idFase = p.fase
 JOIN Equipos.Seleccion sL ON sL.id = p.idSeleccionLocal
+JOIN Torneo.Pais paL ON paL.id = sL.idPais
 JOIN Equipos.Seleccion sV ON sV.id = p.idSeleccionVisitante
+JOIN Torneo.Pais paV ON paV.id = sV.idPais
 JOIN Publicidad.UbicacionPublicitaria u ON u.idUbicacion = ep.idUbicacion
 JOIN Publicidad.PiezaContenido pc ON pc.id = ep.idPieza
 JOIN Publicidad.Campania c ON c.idCampania = pc.idCampania
