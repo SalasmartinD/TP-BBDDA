@@ -251,6 +251,7 @@ GO
 -- -----------------------------------------------------------------------------
 BEGIN TRY
     -- Capturamos el rowcount del SP completo usando tabla auxiliar
+    DROP TABLE IF EXISTS #matrizRowCount;
     CREATE TABLE #matrizRowCount (n int);
     INSERT INTO #matrizRowCount (n) VALUES (0);
 
