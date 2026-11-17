@@ -85,7 +85,7 @@ BEGIN
 
     -- Goles de la definición por penales (minuto NULL) por partido y selección.
     -- Se pre-agregan acá porque una agregación no puede mezclar columnas internas y externas.
-    ;WITH pen AS (
+    ;WITH penales AS (
         SELECT g.idPartido, fp.idSeleccion, COUNT(*) AS cantidad
         FROM Eventos.Gol g
         JOIN Eventos.FormacionPartido fp ON fp.idPartido = g.idPartido AND fp.idJugador = g.idJugador
@@ -108,28 +108,28 @@ BEGIN
                 ELSE COALESCE(v.abreviacionLocal, v.seleccionLocal) + N' '
                      + CAST(v.golLocal AS nvarchar(3)) + N' - ' + CAST(v.golVisitante AS nvarchar(3)) + N' '
                      + COALESCE(v.abreviacionVisitante, v.seleccionVisitante)
-                     + CASE WHEN pen.penalesLocal IS NULL THEN N''
-                            ELSE N' (' + CAST(pen.penalesLocal AS nvarchar(3)) + N'-'
-                                 + CAST(pen.penalesVisitante AS nvarchar(3)) + N' pen.)' END
+                     + CASE WHEN pn.penalesLocal IS NULL THEN N''
+                            ELSE N' (' + CAST(pn.penalesLocal AS nvarchar(3)) + N'-'
+                                 + CAST(pn.penalesVisitante AS nvarchar(3)) + N' pen.)' END
            END                                AS marcador,
-           pen.penalesLocal,
-           pen.penalesVisitante,
+           pn.penalesLocal,
+           pn.penalesVisitante,
            CASE WHEN v.golLocal IS NULL OR v.golVisitante IS NULL THEN NULL
                 WHEN v.golLocal > v.golVisitante THEN v.seleccionLocal
                 WHEN v.golLocal < v.golVisitante THEN v.seleccionVisitante
-                WHEN pen.penalesLocal > pen.penalesVisitante THEN v.seleccionLocal
-                WHEN pen.penalesLocal < pen.penalesVisitante THEN v.seleccionVisitante
+                WHEN pn.penalesLocal > pn.penalesVisitante THEN v.seleccionLocal
+                WHEN pn.penalesLocal < pn.penalesVisitante THEN v.seleccionVisitante
                 ELSE N'Empate'
            END                                AS ganador,
            v.cantPublico
     FROM Torneo.vw_Fixture v
     JOIN Torneo.Fase f        ON f.idFase = v.idFase
     JOIN Equipos.Seleccion sl ON sl.id = v.idSeleccionLocal
-    LEFT JOIN pen pl ON pl.idPartido = v.idPartido AND pl.idSeleccion = v.idSeleccionLocal
-    LEFT JOIN pen pv ON pv.idPartido = v.idPartido AND pv.idSeleccion = v.idSeleccionVisitante
+    LEFT JOIN penales pl ON pl.idPartido = v.idPartido AND pl.idSeleccion = v.idSeleccionLocal
+    LEFT JOIN penales pv ON pv.idPartido = v.idPartido AND pv.idSeleccion = v.idSeleccionVisitante
     -- Penales: NULL si el partido no tuvo definición por penales; si la tuvo, el que no convirtió ninguno tiene 0
     CROSS APPLY (SELECT CASE WHEN pl.cantidad IS NULL AND pv.cantidad IS NULL THEN NULL ELSE ISNULL(pl.cantidad, 0) END AS penalesLocal,
-                        CASE WHEN pl.cantidad IS NULL AND pv.cantidad IS NULL THEN NULL ELSE ISNULL(pv.cantidad, 0) END AS penalesVisitante) pen
+                        CASE WHEN pl.cantidad IS NULL AND pv.cantidad IS NULL THEN NULL ELSE ISNULL(pv.cantidad, 0) END AS penalesVisitante) pn
     WHERE (@idSede IS NULL OR v.idSede = @idSede)
       AND (@idFase IS NULL OR v.idFase = @idFase)
       AND (@idSeleccion IS NULL OR @idSeleccion IN (v.idSeleccionLocal, v.idSeleccionVisitante))
