@@ -234,7 +234,7 @@ BEGIN
 
     IF @columnasPivot IS NULL
     BEGIN
-        THROW 50001, N'No se registran mercados publicitarios con huso horario válido para generar la matriz.', 1;
+        ;THROW 50001, N'No se registran mercados publicitarios con huso horario válido para generar la matriz.', 1;
     END;
 
     /* -------------------------------------------------------------------------
