@@ -23,9 +23,10 @@
  prime time) y 50a, 50b y 50c. Todas las altas pasan por los SP: no hay INSERT
  directo en ninguna tabla. Cada alta verifica antes si el registro ya existe,
  así que el script se puede ejecutar varias veces sin duplicar datos.
- AsignarPiezasPartido solo acepta partidos Programado o En juego, y 53 deja los
- 31 partidos Finalizado: para asignar piezas a partidos reales (por ejemplo la
- Final) hay que ejecutar la asignación antes de 53.
+ AsignarPiezasPartido solo acepta partidos Programado o En juego, por lo que este
+ script asigna automáticamente las 4 piezas publicitarias a los 31 partidos creados
+ por 50c antes de que 53_Cierre_Partidos.sql los finalice. La asignación es
+ idempotente y se saltea si el partido ya cuenta con sus 4 exhibiciones asignadas.
 ================================================================================
 */
 
@@ -1033,7 +1034,54 @@ IF NOT EXISTS (SELECT 1 FROM Publicidad.PiezaMercado WHERE idPieza = @idPiezaHei
 
 GO
 
-/* ======= SECCION 9: Resumen de carga — verificacion de totales ======= */
+/* ======= SECCION 9: Publicidad.AsignarPiezasPartido — Asignación masiva a partidos ======= */
+/*
+   Se asignan automáticamente las 4 piezas de contenido publicitario a cada uno de los
+   31 partidos creados por 50c_Carga_Partidos.sql que se encuentren en estado 'Programado'
+   o 'En juego'.
+   El SP Publicidad.AsignarPiezasPartido aplica los criterios de priorización:
+     1) Piezas dirigidas a los países que disputan el encuentro.
+     2) Mercados con mayor PBI per cápita.
+     3) Horario del partido que cae en Prime Time (19 a 23 hs locales) del mercado objetivo.
+
+   Uso de tabla temporal y bucle WHILE (sin cursores, siguiendo el estándar del proyecto).
+   Se verifica previamente si el partido ya cuenta con 4 exhibiciones registradas para
+   permitir múltiples ejecuciones idempotentes.
+*/
+
+DROP TABLE IF EXISTS #partidosParaAsignar;
+CREATE TABLE #partidosParaAsignar (
+    n          int IDENTITY(1,1) PRIMARY KEY,
+    idPartido  int NOT NULL
+);
+
+INSERT INTO #partidosParaAsignar (idPartido)
+SELECT p.idPartido
+FROM Torneo.Partido p
+WHERE p.estado IN ('Programado', 'En juego')
+  AND (SELECT COUNT(*) FROM Publicidad.ExhibicionPublicitaria ep WHERE ep.idPartido = p.idPartido) < 4
+ORDER BY p.fechaHoraUTC, p.idPartido;
+
+DECLARE @idPartidoAsig int;
+DECLARE @nAsig int = 1, @maxAsig int = (SELECT MAX(n) FROM #partidosParaAsignar);
+
+WHILE @nAsig <= @maxAsig
+BEGIN
+    SELECT @idPartidoAsig = idPartido FROM #partidosParaAsignar WHERE n = @nAsig;
+
+    BEGIN TRY
+        EXEC Publicidad.AsignarPiezasPartido @idPartido = @idPartidoAsig;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Aviso: No se pudieron asignar piezas al partido ' + CAST(@idPartidoAsig AS varchar(10)) + ': ' + ERROR_MESSAGE();
+    END CATCH;
+
+    SET @nAsig += 1;
+END;
+
+GO
+
+/* ======= SECCION 10: Resumen de carga — verificación de totales ======= */
 
 SELECT 'Sistema.Parametro'               AS tabla, COUNT(*) AS registros FROM Sistema.Parametro        WHERE clave IN ('PRIME_TIME_INICIO','PRIME_TIME_FIN','MAX_ESPACIOS_PARTIDO')
 UNION ALL
@@ -1063,16 +1111,15 @@ SELECT 'Publicidad.ExhibicionPublicitaria',        COUNT(*)               FROM P
 ORDER BY tabla;
 
 /*
-   ── Verificacion del caso obligatorio ────────────────────────────────────────
-   El siguiente SELECT muestra, para la Final real (partido 104, España–Argentina,
-   2026-07-19 19:00 UTC), la hora local de cada mercado de las piezas y si cae en
-   prime time, confirmando que 7 mercados (más de 4) están en prime time.
-   Si se ejecuta EXEC Publicidad.AsignarPiezasPartido con el idPartido de la Final
-   (antes de 53_Cierre_Partidos.sql), el sistema selecciona solo 4 de las piezas
-   aplicando los criterios de priorización del SP.
+   ── Verificación del caso obligatorio ────────────────────────────────────────
+   La Final real (partido 104, España–Argentina, 2026-07-19 19:00 UTC) tiene
+   7 mercados candidatos en prime time (más de 4).
+   Al ejecutarse Publicidad.AsignarPiezasPartido, el sistema priorizó y seleccionó
+   exactamente 4 piezas aplicando los criterios de negocio.
 */
 DECLARE @fechaFinal datetime2(0) = (SELECT fechaHoraUTC FROM Torneo.Partido WHERE nroPartidoOficial = 104);
 
+-- 1. Mercados candidatos que caen en Prime Time para este partido (7 mercados > 4)
 SELECT
     pa.nombre                                                AS pais,
     pa.husoHorario,
@@ -1086,5 +1133,35 @@ FROM Torneo.Pais pa
 WHERE pa.husoHorario IS NOT NULL
   AND pa.id IN (SELECT idPais FROM Publicidad.PiezaMercado)
 ORDER BY esPrimeTime DESC, pa.nombre;
+
+-- 2. Las 4 piezas efectivamente asignadas a la Final tras aplicar los criterios de prioridad
+SELECT
+    p.nroPartidoOficial,
+    f.nombre AS fase,
+    sL.nombre AS seleccionLocal,
+    sV.nombre AS seleccionVisitante,
+    ep.idUbicacion,
+    u.nombre AS ubicacion,
+    a.nombre AS anunciante,
+    c.nombre AS campania,
+    pc.descripcion AS pieza,
+    CASE ep.criterioAplicado
+        WHEN 1 THEN '1: País que juega'
+        WHEN 2 THEN '2: Mayor PBI'
+        WHEN 3 THEN '3: Prime time'
+    END AS criterioAplicado,
+    ep.estado,
+    ep.montoUSD
+FROM Publicidad.ExhibicionPublicitaria ep
+JOIN Torneo.Partido p ON p.idPartido = ep.idPartido
+JOIN Torneo.Fase f ON f.idFase = p.fase
+JOIN Equipos.Seleccion sL ON sL.id = p.idSeleccionLocal
+JOIN Equipos.Seleccion sV ON sV.id = p.idSeleccionVisitante
+JOIN Publicidad.UbicacionPublicitaria u ON u.idUbicacion = ep.idUbicacion
+JOIN Publicidad.PiezaContenido pc ON pc.id = ep.idPieza
+JOIN Publicidad.Campania c ON c.idCampania = pc.idCampania
+JOIN Publicidad.Anunciante a ON a.id = c.idAnunciante
+WHERE p.nroPartidoOficial = 104
+ORDER BY ep.idUbicacion;
 
 GO
