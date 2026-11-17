@@ -3,9 +3,9 @@
  Universidad : Universidad Nacional de La Matanza
  Materia     : 3641 - Bases de Datos Aplicada
  Comisión    : 2900
- Integrantes : Pereira, Marcos Nahuel - 45066788
-               Salas, Martin Daniel - 45205702
-               Zito Padró, Ezequiel Nehuén - 46097917
+ Integrantes : Pereira, Marcos Nahuel
+               Salas, Martín Daniel
+               Zito Padró, Ezequiel Nehuén
  Fecha       : 09/11/2026
 
  Objetivo    : Suite de pruebas unitarias exhaustivas para 12_ABM_Publicidad.sql.
