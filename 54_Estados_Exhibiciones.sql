@@ -128,7 +128,12 @@ BEGIN
         ('JPY', '2026-06-01', 155.200000),
         ('JPY', '2026-06-15', 156.400000),
         ('JPY', '2026-07-01', 157.100000),
-        ('JPY', '2026-07-19', 156.800000);
+        ('JPY', '2026-07-19', 156.800000),
+        -- ARS (Peso argentino - anunciante YPF)
+        ('ARS', '2026-06-01', 1100.000000),
+        ('ARS', '2026-06-15', 1120.000000),
+        ('ARS', '2026-07-01', 1150.000000),
+        ('ARS', '2026-07-19', 1180.000000);
 
     DECLARE @monedaTC       char(3);
     DECLARE @fechaTC        date;
@@ -146,7 +151,6 @@ BEGIN
 
         IF NOT EXISTS (SELECT 1 FROM Publicidad.TipoCambio WHERE moneda = @monedaTC AND fecha = @fechaTC)
         BEGIN
-            TRY_CALL:
             BEGIN TRY
                 EXEC Publicidad.TipoCambio_Alta
                     @moneda        = @monedaTC,
