@@ -60,9 +60,15 @@ GO
    - @idFase      : solo goles de partidos de esa fase.
    Devuelve 3 result sets:
    (a) Goleadores por selección y fase (jugador, goles), sin 'En contra'.
-   (b) Tabla de goleadores del torneo: acumulado por jugador con RANK.
+   (b) Tabla de goleadores del torneo: acumulado por jugador con RANK. El puesto
+       se calcula sobre todas las selecciones (y las fases consideradas por
+       @idFase), antes de aplicar @idSeleccion: con ese filtro se ve el puesto
+       real del jugador, no el puesto dentro de su selección.
    (c) Totales por selección y fase con ROLLUP: subtotal por selección y fila
-       final 'TOTAL DEL TORNEO'. goles = convertidos por sus jugadores;
+       final. Sin filtros la fila final es 'TOTAL DEL TORNEO' / 'Todas las
+       fases'; con @idSeleccion o @idFase suma solo lo filtrado y se rotula
+       'TOTAL (filtrado)' (con @idFase, la fase muestra su nombre).
+       goles = convertidos por sus jugadores;
        golesEnContraAFavor = 'En contra' que le suma el rival; golesTotales = suma.
    ============================================================================= */
 
@@ -89,6 +95,11 @@ BEGIN
         SET @errores = N'No se pudo generar el reporte de goleadores:' + @errores;
         THROW 50001, @errores, 1;
     END;
+
+    -- Rótulo de la fase en la fila final de (c): el nombre de la fase filtrada o
+    -- 'Todas las fases' si no se filtra por fase.
+    DECLARE @nombreFase nvarchar(60) = ISNULL((SELECT nombre FROM Torneo.Fase WHERE idFase = @idFase),
+                                              N'Todas las fases');
 
     -- 3. Goles del reporte (sin la definición por penales), una sola vez para
     --    los tres resultados. Variable de tabla: no deja objetos persistentes.
@@ -138,29 +149,39 @@ BEGIN
     GROUP BY s.id, ps.nombre, f.idFase, f.nombre, f.orden, j.id, j.apellido, j.nombre
     ORDER BY ps.nombre, f.orden, COUNT(*) DESC, j.apellido, j.nombre, j.id;
 
-    -- (b) Tabla de goleadores del torneo (acumulado de las fases consideradas)
-    SELECT RANK() OVER (ORDER BY COUNT(*) DESC)  AS ranking,
-           s.id                                  AS idSeleccion,
-           ps.nombre                             AS seleccion,
-           j.id                                  AS idJugador,
-           j.apellido + N', ' + j.nombre         AS jugador,
-           COUNT(*)                              AS goles
-    FROM @goles gl
-    JOIN Equipos.Seleccion s ON s.id  = gl.idSeleccionAutor
-    JOIN Torneo.Pais ps      ON ps.id = s.idPais
-    JOIN Equipos.Jugador j   ON j.id  = gl.idJugador
-    WHERE gl.esEnContra = 0
-      AND (@idSeleccion IS NULL OR gl.idSeleccionAutor = @idSeleccion)
-    GROUP BY s.id, ps.nombre, j.id, j.apellido, j.nombre
-    ORDER BY ranking, ps.nombre, j.apellido, j.nombre, j.id;
+    -- (b) Tabla de goleadores del torneo (acumulado de las fases consideradas).
+    --     El RANK se calcula sobre todas las selecciones y recién después se filtra
+    --     por @idSeleccion, así el puesto es el del torneo y no el de la selección.
+    WITH acumulado AS (
+        SELECT RANK() OVER (ORDER BY COUNT(*) DESC)  AS ranking,
+               s.id                                  AS idSeleccion,
+               ps.nombre                             AS seleccion,
+               j.id                                  AS idJugador,
+               j.apellido + N', ' + j.nombre         AS jugador,
+               COUNT(*)                              AS goles
+        FROM @goles gl
+        JOIN Equipos.Seleccion s ON s.id  = gl.idSeleccionAutor
+        JOIN Torneo.Pais ps      ON ps.id = s.idPais
+        JOIN Equipos.Jugador j   ON j.id  = gl.idJugador
+        WHERE gl.esEnContra = 0
+        GROUP BY s.id, ps.nombre, j.id, j.apellido, j.nombre
+    )
+    SELECT ranking, idSeleccion, seleccion, idJugador, jugador, goles
+    FROM acumulado
+    WHERE @idSeleccion IS NULL OR idSeleccion = @idSeleccion
+    ORDER BY ranking, seleccion, jugador, idJugador;
 
-    -- (c) Totales por selección y fase, con subtotal por selección y total del torneo
+    -- (c) Totales por selección y fase, con subtotal por selección y total final.
+    --     La fila final se rotula 'TOTAL DEL TORNEO' solo si no hay filtros: con
+    --     @idSeleccion o @idFase suma únicamente lo filtrado ('TOTAL (filtrado)').
     SELECT CASE WHEN GROUPING(s.id) = 1 THEN NULL ELSE s.id END AS idSeleccion,
-           CASE WHEN GROUPING(s.id) = 1 THEN N'TOTAL DEL TORNEO'
+           CASE WHEN GROUPING(s.id) = 1
+                THEN CASE WHEN @idSeleccion IS NULL AND @idFase IS NULL
+                          THEN N'TOTAL DEL TORNEO' ELSE N'TOTAL (filtrado)' END
                 ELSE ps.nombre END                            AS seleccion,
            CASE WHEN GROUPING(f.idFase) = 1 THEN NULL ELSE f.idFase END AS idFase,
            CASE WHEN GROUPING(f.idFase) = 0 THEN f.nombre
-                WHEN GROUPING(s.id) = 1     THEN N'Todas las fases'
+                WHEN GROUPING(s.id) = 1     THEN @nombreFase
                 ELSE N'Total de la selección' END             AS fase,
            SUM(CASE WHEN gl.esEnContra = 0 THEN 1 ELSE 0 END) AS goles,
            SUM(CASE WHEN gl.esEnContra = 1 THEN 1 ELSE 0 END) AS golesEnContraAFavor,

@@ -16,8 +16,9 @@
 
  PRECONDICIÓN: la base debe tener la carga de datos de los scripts 50*, 51* y
  53* (partidos finalizados con goles, tarjetas, suspensiones y árbitros
- designados). Se ejecuta con:
-     run_tp.sh "00_* 1* 2* 3* 4* 5* 61* 81g*" 2
+ designados). Se ejecuta recreando la base y corriendo en orden numérico los
+ scripts 00_* a 61_* (incluido el 53, que cierra los partidos) y luego este
+ script.
  Los valores esperados NO están fijos en el test: se calculan en el momento con
  consultas independientes sobre las tablas (marcador de Torneo.Partido,
  Eventos.Gol, Eventos.Tarjeta, Eventos.Suspension, Arbitraje.cuerpoArbitral);
@@ -273,7 +274,7 @@ DECLARE @ok bit = CASE WHEN
     THEN 1 ELSE 0 END;
 EXEC #Resultado 'PRECONDICION', @ok,
      N'Base cargada (partidos finalizados con goles, tarjetas, suspensiones y árbitros designados) y fixture disponible.',
-     N'La base no tiene la carga de datos esperada. Ejecutar antes los scripts 50*, 51* y 53* (run_tp.sh "00_* 1* 2* 3* 4* 5* 61* 81g*" 2).';
+     N'La base no tiene la carga de datos esperada. Ejecutar en orden numérico los scripts 00_* a 61_* y luego este script.';
 
 SELECT 'FIXTURE GOLEADORES' AS momento, f.idPartido, pa.nroPartidoOficial AS nroPartido,
        fa.nombre AS fase, ps.nombre AS seleccionS_sin_goles, pr.nombre AS rival
