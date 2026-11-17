@@ -229,7 +229,9 @@ BEGIN TRY
 
     SELECT 'EVIDENCIA 4 - Mercados Prime Time Final' AS prueba, @cantMercadosEnPT AS mercadosEnPrimeTime;
 
-    IF @cantMercadosEnPT = 7 AND (SELECT COUNT(*) FROM #resOcupacionFinal) = 4
+    IF @cantMercadosEnPT = 7
+       AND (SELECT COUNT(anunciante) FROM #resOcupacionFinal) = 4
+       AND (SELECT MIN(espaciosOcupados) FROM #resOcupacionFinal) = 4
     BEGIN
         PRINT '[OK] PRUEBA 4: Caso obligatorio verificado: exactamente 7 mercados en Prime Time para la Final y exactamente 4 piezas asignadas por priorización.';
     END
@@ -246,39 +248,59 @@ GO
 -- -----------------------------------------------------------------------------
 -- PRUEBA 5: Matriz de Prime Time completa sin parámetros
 -- Resultado esperado: Devuelve exactamente 31 filas (un partido por fila),
--- con columnas dinámicas por mercado con 'SÍ' o 'NO'.
--- Se verifica el rowcount capturando output vía tabla auxiliar.
+-- con una columna por mercado con 'SÍ' o 'NO'. Con @idPartido de la Final devuelve
+-- 1 fila y exactamente 7 mercados en 'SÍ' (los mismos de la prueba 4).
+-- La tabla temporal se arma con las columnas de los mercados, que son dinámicas.
 -- -----------------------------------------------------------------------------
 BEGIN TRY
-    -- Capturamos el rowcount del SP completo usando tabla auxiliar
-    DROP TABLE IF EXISTS #matrizRowCount;
-    CREATE TABLE #matrizRowCount (n int);
-    INSERT INTO #matrizRowCount (n) VALUES (0);
+    DECLARE @columnasMatriz nvarchar(max);   -- definición de las columnas de mercado
+    DECLARE @sumaSi nvarchar(max);           -- cuenta de los 'SÍ' de una fila
 
-    DECLARE @sqlCnt nvarchar(max) = N'
-        EXEC Publicidad.Reporte_MatrizPrimeTime;
-        UPDATE #matrizRowCount SET n = @@ROWCOUNT;
-    ';
-    EXEC sp_executesql @sqlCnt;
+    SELECT @columnasMatriz = STRING_AGG(CAST(CONCAT(QUOTENAME(x.nombrePais), N' nvarchar(2)') AS nvarchar(max)), N', ')
+                             WITHIN GROUP (ORDER BY x.nombrePais),
+           @sumaSi = STRING_AGG(CAST(CONCAT(N'CASE WHEN ', QUOTENAME(x.nombrePais), N' = N''SÍ'' THEN 1 ELSE 0 END') AS nvarchar(max)), N' + ')
+                     WITHIN GROUP (ORDER BY x.nombrePais)
+    FROM (SELECT DISTINCT pa.nombre AS nombrePais
+          FROM Publicidad.PiezaMercado pm
+          INNER JOIN Torneo.Pais pa ON pa.id = pm.idPais
+          WHERE pa.husoHorario IS NOT NULL) x;
 
-    DECLARE @filasTotalesMatriz int = (SELECT n FROM #matrizRowCount);
-    DROP TABLE #matrizRowCount;
+    -- Tabla global temporal: una local creada dentro de EXEC() no es visible para este batch
+    DROP TABLE IF EXISTS ##matrizPT;
+    EXEC (N'CREATE TABLE ##matrizPT (nroPartidoOficial int, fase varchar(60), partido varchar(150), fechaHoraUTC datetime2(0), '
+          + @columnasMatriz + N');');
 
-    SELECT 'EVIDENCIA 5 - Fila count Matriz PT' AS prueba, @filasTotalesMatriz AS filasRetornadas;
+    DECLARE @sqlSi nvarchar(max) = N'SELECT @n = ' + @sumaSi + N' FROM ##matrizPT WHERE nroPartidoOficial = 104;';
 
-    -- Verificamos además que para la Final (partido 104) se retorna 1 fila sin errores
+    -- 5a. Matriz completa
+    INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime;
+    DECLARE @filasMatriz int = (SELECT COUNT(*) FROM ##matrizPT);
+    DECLARE @siFinalCompleta int;
+    EXEC sp_executesql @sqlSi, N'@n int OUTPUT', @n = @siFinalCompleta OUTPUT;
+
+    -- 5b. Matriz filtrada por la Final
+    DELETE FROM ##matrizPT;
     DECLARE @idPartidoFinal5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 104);
-    PRINT 'Ejecutando Matriz de Prime Time filtrada por partido Final (104):';
-    EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = @idPartidoFinal5;
+    INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = @idPartidoFinal5;
+    DECLARE @filasFinal int = (SELECT COUNT(*) FROM ##matrizPT);
+    DECLARE @siFinalFiltrada int;
+    EXEC sp_executesql @sqlSi, N'@n int OUTPUT', @n = @siFinalFiltrada OUTPUT;
 
-    IF @filasTotalesMatriz = 31
+    SELECT 'EVIDENCIA 5 - Matriz PT' AS prueba, @filasMatriz AS filasCompleta, @siFinalCompleta AS siFinalCompleta,
+           @filasFinal AS filasFinal, @siFinalFiltrada AS siFinalFiltrada;
+
+    IF @filasMatriz = 31 AND @siFinalCompleta = 7 AND @filasFinal = 1 AND @siFinalFiltrada = 7
     BEGIN
-        PRINT '[OK] PRUEBA 5: Matriz de Prime Time retornó exactamente 31 filas (un partido por fila) y la Final se consultó sin errores.';
+        PRINT '[OK] PRUEBA 5: Matriz de Prime Time con 31 filas, 7 mercados en SÍ para la Final y 1 sola fila al filtrar por partido.';
     END
     ELSE
     BEGIN
-        PRINT '[FALLO] PRUEBA 5: Se esperaban 31 filas pero se obtuvieron ' + CAST(@filasTotalesMatriz AS varchar(10)) + '.';
+        PRINT '[FALLO] PRUEBA 5: Se esperaban 31 filas, 7 SÍ en la Final y 1 fila filtrada; se obtuvo ' + CAST(@filasMatriz AS varchar(10))
+              + ' filas, ' + ISNULL(CAST(@siFinalCompleta AS varchar(10)), 'NULL') + ' SÍ en la Final y '
+              + CAST(@filasFinal AS varchar(10)) + ' fila(s) filtrada(s).';
     END;
+
+    DROP TABLE IF EXISTS ##matrizPT;
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5: ' + ERROR_MESSAGE();
@@ -356,10 +378,10 @@ BEGIN TRY
     IF (SELECT COUNT(*) FROM #resMonedaPropia) = 124
        AND NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE monedaLiquidacion <> monedaFacturacionAnunciante)
     BEGIN
-        IF NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE cotizacionAplicada IS NULL AND monedaLiquidacion <> 'USD')
+        IF NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE cotizacionAplicada IS NULL OR montoLiquidado IS NULL)
             PRINT '[OK] PRUEBA 7: Liquidación en moneda de origen correcta (cada anunciante en su moneda de facturación, sin cotizaciones faltantes).';
         ELSE
-            PRINT '[ADVERTENCIA] PRUEBA 7: Moneda de facturación correcta, pero hay filas con cotizacionAplicada NULL (verificar TipoCambio en 54).';
+            PRINT '[FALLO] PRUEBA 7: Moneda de facturación correcta, pero hay filas con cotizacionAplicada o montoLiquidado NULL (verificar TipoCambio en 54).';
     END
     ELSE
     BEGIN
