@@ -70,7 +70,7 @@ BEGIN
     ------------------------------------------------------------------------- */
     DECLARE @errores nvarchar(2000) = N'';
 
-    IF @idSede IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Torneo.Sede WHERE id = @idSede)
+    IF @idSede IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Torneo.Sede WHERE idSede = @idSede)
         SET @errores = CONCAT(@errores, CHAR(10), N'- La sede indicada no existe (idSede: ', CAST(@idSede AS nvarchar(10)), N').');
 
     IF @idFase IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Torneo.Fase WHERE idFase = @idFase)
@@ -85,6 +85,10 @@ BEGIN
         THROW 50001, @errores, 1;
     END;
 
+    -- Parámetro configurable del reglamento
+    DECLARE @maxEspacios int = ISNULL(
+        (SELECT valor FROM Sistema.Parametro WHERE clave = 'MAX_ESPACIOS_PARTIDO'), 4);
+
     /* -------------------------------------------------------------------------
        2. Consulta del reporte (tabla limpia con totales analíticos)
     ------------------------------------------------------------------------- */
@@ -93,12 +97,12 @@ BEGIN
         p.idPartido,
         p.nroPartidoOficial,
         f.nombre                                            AS fase,
-        s.nombre                                            AS sede,
+        s.nombreEstadio                                     AS sede,
         s.ciudad                                            AS ciudadSede,
         ps.nombre                                           AS paisSede,
-        sL.nombre                                           AS seleccionLocal,
-        sV.nombre                                           AS seleccionVisitante,
-        CONCAT(sL.nombre, N' vs. ', sV.nombre)              AS partido,
+        paL.nombre                                          AS seleccionLocal,
+        paV.nombre                                          AS seleccionVisitante,
+        CONCAT(paL.nombre, N' vs. ', paV.nombre)            AS partido,
         p.fechaHoraUTC,
         Publicidad.fn_HoraLocal(p.fechaHoraUTC, s.husoHorario) AS horaLocalSede,
         p.estado                                            AS estadoPartido,
@@ -123,8 +127,8 @@ BEGIN
 
         -- Indicadores de ocupación por partido
         COUNT(ep.idPieza) OVER (PARTITION BY p.idPartido)   AS espaciosOcupados,
-        4                                                   AS espaciosTotales,
-        CAST(COUNT(ep.idPieza) OVER (PARTITION BY p.idPartido) * 100.0 / 4.0 AS decimal(5,2)) AS porcentajeOcupacion,
+        @maxEspacios                                        AS espaciosTotales,
+        CAST(COUNT(ep.idPieza) OVER (PARTITION BY p.idPartido) * 100.0 / @maxEspacios AS decimal(5,2)) AS porcentajeOcupacion,
 
         -- Ingresos por estado (facturable vs. proyectado)
         SUM(CASE WHEN ep.estado = 'Exhibida'   THEN ep.montoUSD ELSE 0.00 END) OVER (PARTITION BY p.idPartido) AS ingresosExhibidosPartidoUSD,
@@ -140,10 +144,12 @@ BEGIN
 
     FROM Torneo.Partido                     p
     INNER JOIN Torneo.Fase                  f      ON f.idFase = p.fase
-    INNER JOIN Torneo.Sede                  s      ON s.id = p.idSede
+    INNER JOIN Torneo.Sede                  s      ON s.idSede = p.idSede
     INNER JOIN Torneo.Pais                  ps     ON ps.id = s.idPais
     INNER JOIN Equipos.Seleccion            sL     ON sL.id = p.idSeleccionLocal
+    INNER JOIN Torneo.Pais                  paL    ON paL.id = sL.idPais
     INNER JOIN Equipos.Seleccion            sV     ON sV.id = p.idSeleccionVisitante
+    INNER JOIN Torneo.Pais                  paV    ON paV.id = sV.idPais
     CROSS JOIN Publicidad.UbicacionPublicitaria u
     LEFT JOIN  Publicidad.ExhibicionPublicitaria ep ON ep.idPartido = p.idPartido 
                                                    AND ep.idUbicacion = u.idUbicacion
@@ -241,7 +247,7 @@ BEGIN
         SELECT
             p.nroPartidoOficial,
             f.nombre                                            AS fase,
-            CONCAT(sL.nombre, '' vs. '', sV.nombre)             AS partido,
+            CONCAT(paLS.nombre, '' vs. '', paVS.nombre)         AS partido,
             p.fechaHoraUTC,
             pa.nombre                                           AS mercado,
             CASE 
@@ -250,9 +256,11 @@ BEGIN
                 ELSE ''NO'' 
             END                                                 AS enPrimeTime
         FROM Torneo.Partido          p
-        INNER JOIN Torneo.Fase       f  ON f.idFase = p.fase
-        INNER JOIN Equipos.Seleccion sL ON sL.id = p.idSeleccionLocal
-        INNER JOIN Equipos.Seleccion sV ON sV.id = p.idSeleccionVisitante
+        INNER JOIN Torneo.Fase       f   ON f.idFase = p.fase
+        INNER JOIN Equipos.Seleccion sLS ON sLS.id = p.idSeleccionLocal
+        INNER JOIN Torneo.Pais       paLS ON paLS.id = sLS.idPais
+        INNER JOIN Equipos.Seleccion sVS ON sVS.id = p.idSeleccionVisitante
+        INNER JOIN Torneo.Pais       paVS ON paVS.id = sVS.idPais
         CROSS JOIN (
             SELECT DISTINCT paSub.id, paSub.nombre, paSub.husoHorario
             FROM Publicidad.PiezaMercado pmSub
@@ -335,7 +343,7 @@ BEGIN
         SELECT
             p.nroPartidoOficial,
             f.nombre                                            AS fase,
-            CONCAT(sL.nombre, N' vs. ', sV.nombre)              AS partido,
+            CONCAT(paL3.nombre, N' vs. ', paV3.nombre)          AS partido,
             p.fechaHoraUTC,
             a.id                                                AS idAnunciante,
             a.nombre                                            AS anunciante,
@@ -354,10 +362,12 @@ BEGIN
             END                                                 AS monedaLiquidacion,
             CAST(p.fechaHoraUTC AS date)                        AS fechaPartido
         FROM Publicidad.ExhibicionPublicitaria ep
-        INNER JOIN Torneo.Partido              p  ON p.idPartido = ep.idPartido
-        INNER JOIN Torneo.Fase                 f  ON f.idFase = p.fase
-        INNER JOIN Equipos.Seleccion           sL ON sL.id = p.idSeleccionLocal
-        INNER JOIN Equipos.Seleccion           sV ON sV.id = p.idSeleccionVisitante
+        INNER JOIN Torneo.Partido              p    ON p.idPartido = ep.idPartido
+        INNER JOIN Torneo.Fase                 f    ON f.idFase = p.fase
+        INNER JOIN Equipos.Seleccion           sL3  ON sL3.id = p.idSeleccionLocal
+        INNER JOIN Torneo.Pais                 paL3 ON paL3.id = sL3.idPais
+        INNER JOIN Equipos.Seleccion           sV3  ON sV3.id = p.idSeleccionVisitante
+        INNER JOIN Torneo.Pais                 paV3 ON paV3.id = sV3.idPais
         INNER JOIN Publicidad.UbicacionPublicitaria u ON u.idUbicacion = ep.idUbicacion
         INNER JOIN Publicidad.PiezaContenido   pc ON pc.id = ep.idPieza
         INNER JOIN Publicidad.Campania         c  ON c.idCampania = pc.idCampania
@@ -389,16 +399,28 @@ BEGIN
         END                                                     AS fechaCotizacionUsada,
 
         -- Importe convertido
-        ROUND(
-            d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE ISNULL(cot.cotizacionUSD, 0.0) END,
-            2
-        )                                                       AS montoLiquidado,
+        CASE
+            WHEN d.monedaLiquidacion = 'USD' OR cot.cotizacionUSD IS NOT NULL
+            THEN ROUND(
+                    d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE cot.cotizacionUSD END,
+                    2
+                 )
+            ELSE NULL
+        END                                                     AS montoLiquidado,
 
         -- Totales analíticos para BI
-        SUM(ROUND(d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE ISNULL(cot.cotizacionUSD, 0.0) END, 2))
+        SUM(CASE
+                WHEN d.monedaLiquidacion = 'USD' OR cot.cotizacionUSD IS NOT NULL
+                THEN ROUND(d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE cot.cotizacionUSD END, 2)
+                ELSE NULL
+            END)
             OVER (PARTITION BY d.monedaLiquidacion, d.idAnunciante) AS totalLiquidadoPorAnunciante,
 
-        SUM(ROUND(d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE ISNULL(cot.cotizacionUSD, 0.0) END, 2))
+        SUM(CASE
+                WHEN d.monedaLiquidacion = 'USD' OR cot.cotizacionUSD IS NOT NULL
+                THEN ROUND(d.montoUSD * CASE WHEN d.monedaLiquidacion = 'USD' THEN 1.000000 ELSE cot.cotizacionUSD END, 2)
+                ELSE NULL
+            END)
             OVER (PARTITION BY d.monedaLiquidacion)             AS totalGeneralLiquidadoMoneda
 
     FROM DetalleLiquidacion d
