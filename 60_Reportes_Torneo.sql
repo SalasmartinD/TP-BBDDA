@@ -83,6 +83,15 @@ BEGIN
         THROW 50001, @errores, 1;
     END;
 
+    -- Goles de la definición por penales (minuto NULL) por partido y selección.
+    -- Se pre-agregan acá porque una agregación no puede mezclar columnas internas y externas.
+    ;WITH pen AS (
+        SELECT g.idPartido, fp.idSeleccion, COUNT(*) AS cantidad
+        FROM Eventos.Gol g
+        JOIN Eventos.FormacionPartido fp ON fp.idPartido = g.idPartido AND fp.idJugador = g.idJugador
+        WHERE g.minuto IS NULL
+        GROUP BY g.idPartido, fp.idSeleccion
+    )
     SELECT v.nroPartidoOficial                AS nroPartido,
            v.fase,
            CASE WHEN f.esEliminatoria = 0 THEN sl.grupo END AS grupo,
@@ -116,12 +125,11 @@ BEGIN
     FROM Torneo.vw_Fixture v
     JOIN Torneo.Fase f        ON f.idFase = v.idFase
     JOIN Equipos.Seleccion sl ON sl.id = v.idSeleccionLocal
-    -- Penales: NULL si el partido no tuvo definición por penales
-    OUTER APPLY (SELECT SUM(CASE WHEN fp.idSeleccion = v.idSeleccionLocal THEN 1 ELSE 0 END)      AS penalesLocal,
-                        SUM(CASE WHEN fp.idSeleccion = v.idSeleccionVisitante THEN 1 ELSE 0 END)  AS penalesVisitante
-                 FROM Eventos.Gol g
-                 JOIN Eventos.FormacionPartido fp ON fp.idPartido = g.idPartido AND fp.idJugador = g.idJugador
-                 WHERE g.idPartido = v.idPartido AND g.minuto IS NULL) pen
+    LEFT JOIN pen pl ON pl.idPartido = v.idPartido AND pl.idSeleccion = v.idSeleccionLocal
+    LEFT JOIN pen pv ON pv.idPartido = v.idPartido AND pv.idSeleccion = v.idSeleccionVisitante
+    -- Penales: NULL si el partido no tuvo definición por penales; si la tuvo, el que no convirtió ninguno tiene 0
+    CROSS APPLY (SELECT CASE WHEN pl.cantidad IS NULL AND pv.cantidad IS NULL THEN NULL ELSE ISNULL(pl.cantidad, 0) END AS penalesLocal,
+                        CASE WHEN pl.cantidad IS NULL AND pv.cantidad IS NULL THEN NULL ELSE ISNULL(pv.cantidad, 0) END AS penalesVisitante) pen
     WHERE (@idSede IS NULL OR v.idSede = @idSede)
       AND (@idFase IS NULL OR v.idFase = @idFase)
       AND (@idSeleccion IS NULL OR @idSeleccion IN (v.idSeleccionLocal, v.idSeleccionVisitante))
