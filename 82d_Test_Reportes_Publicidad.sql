@@ -14,13 +14,14 @@
                - Publicidad.Reporte_MatrizPrimeTime
                - Publicidad.Reporte_IngresosPorMoneda
 
- Cobertura   : 12 casos de prueba divididos en:
+ Cobertura   : 14 casos de prueba divididos en:
                - Casos de éxito (1 al 7): ejecuciones completas, filtradas por
                  sede, fase y partido, caso obligatorio de la Final (104), matriz
-                 pivotada y liquidación multimoneda con conversión por cotización.
-               - Casos de error (8 al 12): parámetros inexistentes individuales y
-                 múltiples simultáneos, verificando el patrón de validación
-                 acumulativa con error 50001.
+                 pivotada con verificación de 31 filas y liquidación multimoneda.
+               - Casos de error (8 al 14): parámetros inexistentes individuales y
+                 múltiples simultáneos en Reporte_OcupacionPublicitaria e
+                 IngresosPorMoneda, más errores de @idFase y @idPartido inexistentes
+                 en Reporte_MatrizPrimeTime. Patrón acumulativo con error 50001.
 
  Requisitos  : Requiere haber ejecutado los scripts base hasta 54_Estados_Exhibiciones.sql
                y 62_Reportes_Publicidad.sql. No hardcodea identificadores internos.
@@ -96,7 +97,7 @@ GO
 -- La columna acumuladoSedeUSD es coherente y creciente cronológicamente.
 -- -----------------------------------------------------------------------------
 BEGIN TRY
-    DECLARE @idSedePrueba int = (SELECT TOP 1 id FROM Torneo.Sede WHERE nombre = N'MetLife Stadium');
+    DECLARE @idSedePrueba int = (SELECT TOP 1 idSede FROM Torneo.Sede WHERE nombreEstadio = N'MetLife Stadium');
 
     DROP TABLE IF EXISTS #resOcupacionSede;
     CREATE TABLE #resOcupacionSede (
@@ -166,8 +167,9 @@ BEGIN TRY
 
     IF (SELECT COUNT(*) FROM #resOcupacionFase) = 4 
        AND NOT EXISTS (SELECT 1 FROM #resOcupacionFase WHERE fase <> N'Final')
+       AND (SELECT COUNT(anunciante) FROM #resOcupacionFase WHERE anunciante IS NOT NULL) = 4
     BEGIN
-        PRINT '[OK] PRUEBA 3: Reporte filtrado por fase Final retornó exactamente las 4 exhibiciones correspondientes.';
+        PRINT '[OK] PRUEBA 3: Reporte filtrado por fase Final retornó exactamente las 4 exhibiciones con anunciantes asignados.';
     END
     ELSE
     BEGIN
@@ -227,9 +229,9 @@ BEGIN TRY
 
     SELECT 'EVIDENCIA 4 - Mercados Prime Time Final' AS prueba, @cantMercadosEnPT AS mercadosEnPrimeTime;
 
-    IF @cantMercadosEnPT >= 7 AND (SELECT COUNT(*) FROM #resOcupacionFinal) = 4
+    IF @cantMercadosEnPT = 7 AND (SELECT COUNT(*) FROM #resOcupacionFinal) = 4
     BEGIN
-        PRINT '[OK] PRUEBA 4: Caso obligatorio verificado: 7 mercados en Prime Time para la Final y exactamente 4 piezas asignadas por priorización.';
+        PRINT '[OK] PRUEBA 4: Caso obligatorio verificado: exactamente 7 mercados en Prime Time para la Final y exactamente 4 piezas asignadas por priorización.';
     END
     ELSE
     BEGIN
@@ -243,23 +245,39 @@ GO
 
 -- -----------------------------------------------------------------------------
 -- PRUEBA 5: Matriz de Prime Time completa sin parámetros
--- Resultado esperado: Devuelve una fila por cada uno de los 31 partidos del torneo,
--- con columnas para los mercados de PiezaMercado conteniendo 'SÍ' o 'NO'.
+-- Resultado esperado: Devuelve exactamente 31 filas (un partido por fila),
+-- con columnas dinámicas por mercado con 'SÍ' o 'NO'.
+-- Se verifica el rowcount capturando output vía tabla auxiliar.
 -- -----------------------------------------------------------------------------
 BEGIN TRY
-    DROP TABLE IF EXISTS #resMatrizPT;
-    CREATE TABLE #resMatrizPT (
-        nroPartidoOficial int,
-        fase varchar(60),
-        partido varchar(150),
-        fechaHoraUTC datetime2(0)
-        -- Las columnas de países son dinámicas
-    );
+    -- Capturamos el rowcount del SP completo usando tabla auxiliar
+    CREATE TABLE #matrizRowCount (n int);
+    INSERT INTO #matrizRowCount (n) VALUES (0);
 
-    PRINT 'Ejecutando matriz de prime time completa:';
-    EXEC Publicidad.Reporte_MatrizPrimeTime;
+    DECLARE @sqlCnt nvarchar(max) = N'
+        EXEC Publicidad.Reporte_MatrizPrimeTime;
+        UPDATE #matrizRowCount SET n = @@ROWCOUNT;
+    ';
+    EXEC sp_executesql @sqlCnt;
 
-    PRINT '[OK] PRUEBA 5: Matriz de Prime Time generada dinámicamente sin errores de sintaxis ni PIVOT.';
+    DECLARE @filasTotalesMatriz int = (SELECT n FROM #matrizRowCount);
+    DROP TABLE #matrizRowCount;
+
+    SELECT 'EVIDENCIA 5 - Fila count Matriz PT' AS prueba, @filasTotalesMatriz AS filasRetornadas;
+
+    -- Verificamos además que para la Final (partido 104) se retorna 1 fila sin errores
+    DECLARE @idPartidoFinal5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 104);
+    PRINT 'Ejecutando Matriz de Prime Time filtrada por partido Final (104):';
+    EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = @idPartidoFinal5;
+
+    IF @filasTotalesMatriz = 31
+    BEGIN
+        PRINT '[OK] PRUEBA 5: Matriz de Prime Time retornó exactamente 31 filas (un partido por fila) y la Final se consultó sin errores.';
+    END
+    ELSE
+    BEGIN
+        PRINT '[FALLO] PRUEBA 5: Se esperaban 31 filas pero se obtuvieron ' + CAST(@filasTotalesMatriz AS varchar(10)) + '.';
+    END;
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5: ' + ERROR_MESSAGE();
@@ -336,8 +354,9 @@ BEGIN TRY
 
     IF (SELECT COUNT(*) FROM #resMonedaPropia) = 124
        AND NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE monedaLiquidacion <> monedaFacturacionAnunciante)
+       AND NOT EXISTS (SELECT 1 FROM #resMonedaPropia WHERE cotizacionAplicada IS NULL AND monedaLiquidacion <> 'USD')
     BEGIN
-        PRINT '[OK] PRUEBA 7: Liquidación en moneda de origen correcta (cada anunciante en su moneda de facturación).';
+        PRINT '[OK] PRUEBA 7: Liquidación en moneda de origen correcta (cada anunciante en su moneda de facturación, sin cotizaciones faltantes).';
     END
     ELSE
     BEGIN
@@ -432,6 +451,42 @@ BEGIN CATCH
         PRINT '[OK] PRUEBA 12: Error 50001 capturado correctamente ante moneda no registrada en TipoCambio.';
     ELSE
         PRINT '[FALLO] PRUEBA 12: Se esperaba error 50001. Mensaje recibido: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+/* =============================================================================
+   BLOQUE 5: PRUEBAS DE ERROR PARA LA MATRIZ DE PRIME TIME (Casos 13 y 14)
+   ============================================================================= */
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 13: Matriz con @idFase inexistente
+-- Resultado esperado: Error 50001, mensaje '- La fase indicada no existe'.
+-- -----------------------------------------------------------------------------
+BEGIN TRY
+    EXEC Publicidad.Reporte_MatrizPrimeTime @idFase = 999999;
+    PRINT '[FALLO] PRUEBA 13: Debería haber fallado por fase inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%- La fase indicada no existe%'
+        PRINT '[OK] PRUEBA 13: Error 50001 capturado correctamente ante fase inexistente en la Matriz.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 13: Se esperaba error 50001. Mensaje recibido: ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 14: Matriz con @idPartido inexistente
+-- Resultado esperado: Error 50001, mensaje '- El partido indicado no existe'.
+-- -----------------------------------------------------------------------------
+BEGIN TRY
+    EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = 999999;
+    PRINT '[FALLO] PRUEBA 14: Debería haber fallado por partido inexistente.';
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() = 50001 AND ERROR_MESSAGE() LIKE N'%- El partido indicado no existe%'
+        PRINT '[OK] PRUEBA 14: Error 50001 capturado correctamente ante partido inexistente en la Matriz.';
+    ELSE
+        PRINT '[FALLO] PRUEBA 14: Se esperaba error 50001. Mensaje recibido: ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
