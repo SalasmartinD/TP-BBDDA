@@ -51,7 +51,7 @@ Cada script empieza con dos dígitos que indican el orden de ejecución. Cada un
 | Vistas y funciones | `30` ✅ | `31` ✅ | `32` ✅ |
 | Importación | `40` (CSV) ✅ · `43` (APIs) ✅ | `41` (scraping) ✅ | |
 | Carga de datos | `50` (corre primero) ✅ · `53` (cierre de partidos, corre al final) ✅ | `51` ✅ | `52` ✅ |
-| Reportes | `60` | `61` | `62` |
+| Reportes | `60` ✅ | `61` ✅ | `62` ✅ |
 | Seguridad | `70` (cifrado) | | `71` (roles) |
 | Testing | `80` ✅ | `81` ✅ | `82` ✅ |
 
@@ -91,6 +91,8 @@ Los scripts `43` y `50f` consumen APIs (Banco Mundial y Frankfurter) desde T-SQL
 - **Acceso a internet** desde el servidor.
 
 Se usa `sp_OACreate` y no `sp_invoke_external_rest_endpoint` porque este último solo existe en Azure SQL y SQL Server 2025 (el motivo completo está en el encabezado de `43_Importar_APIs.sql`). Todo el código es T-SQL, sin CLR ni scripts por fuera del motor. Sin Ole o sin internet, la base se recrea igual: `50f` informa el motivo y las pruebas en vivo de `80h` dan `[OMITIDA]`.
+
+La documentación de cada fuente (URL, si requiere clave, límites y qué dato aporta) está en el encabezado de `43_Importar_APIs.sql`.
 
 ---
 
