@@ -277,17 +277,25 @@ BEGIN TRY
 
     DECLARE @sqlSi nvarchar(max) = N'SELECT @n = ' + @sumaSi + N' FROM ##matrizPT WHERE nroPartidoOficial = 104;';
 
-    -- 5a. Matriz completa
-    INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime;
-    DECLARE @filasMatriz int = (SELECT COUNT(*) FROM ##matrizPT);
+    -- 5a. Matriz completa (se invoca vía sp_executesql para evitar error de compilación por resolución diferida de ##matrizPT)
+    DECLARE @filasMatriz int;
+    EXEC sp_executesql N'
+        INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime;
+        SELECT @filas = COUNT(*) FROM ##matrizPT;',
+        N'@filas int OUTPUT', @filas = @filasMatriz OUTPUT;
+
     DECLARE @siFinalCompleta int;
     EXEC sp_executesql @sqlSi, N'@n int OUTPUT', @n = @siFinalCompleta OUTPUT;
 
     -- 5b. Matriz filtrada por la Final
-    DELETE FROM ##matrizPT;
     DECLARE @idPartidoFinal5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 104);
-    INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = @idPartidoFinal5;
-    DECLARE @filasFinal int = (SELECT COUNT(*) FROM ##matrizPT);
+    DECLARE @filasFinal int;
+    EXEC sp_executesql N'
+        DELETE FROM ##matrizPT;
+        INSERT INTO ##matrizPT EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = @idPart;
+        SELECT @filas = COUNT(*) FROM ##matrizPT;',
+        N'@idPart int, @filas int OUTPUT', @idPart = @idPartidoFinal5, @filas = @filasFinal OUTPUT;
+
     DECLARE @siFinalFiltrada int;
     EXEC sp_executesql @sqlSi, N'@n int OUTPUT', @n = @siFinalFiltrada OUTPUT;
 
@@ -305,7 +313,7 @@ BEGIN TRY
               + CAST(@filasFinal AS varchar(10)) + ' fila(s) filtrada(s).';
     END;
 
-    DROP TABLE IF EXISTS ##matrizPT;
+    EXEC (N'DROP TABLE IF EXISTS ##matrizPT;');
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 5: ' + ERROR_MESSAGE();

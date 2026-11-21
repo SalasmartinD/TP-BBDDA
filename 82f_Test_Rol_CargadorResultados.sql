@@ -272,8 +272,8 @@ GO
 -- -----------------------------------------------------------------------------
 EXECUTE AS USER = 'usr_cargador';
 BEGIN TRY
-    INSERT INTO Eventos.Gol (idPartido, idJugador, minuto, periodo, tipo)
-    VALUES (1, 1, 45, 'PT', 'Jugada');
+    INSERT INTO Eventos.Gol (idPartido, idJugador, minuto, idPeriodo, tipo)
+    VALUES (1, 1, 45, 1, 'Jugada');
 
     REVERT;
     PRINT '[FALLO] PRUEBA 8: El INSERT directo a Eventos.Gol debió ser denegado.';

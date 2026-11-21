@@ -152,11 +152,7 @@ BEGIN TRY
     DECLARE @p3 int = HAS_PERMS_BY_NAME('Publicidad.Reporte_IngresosPorMoneda', 'OBJECT', 'EXECUTE');
 
     -- Ejecución real de la matriz para verificar el encadenamiento de propiedad
-    DROP TABLE IF EXISTS #tmpMatriz;
-    CREATE TABLE #tmpMatriz (nro int, fase varchar(60), partido varchar(150), colDummy varchar(100));
-    -- Se invoca el reporte (la salida dinámica contiene columnas de países)
-    INSERT INTO #tmpMatriz (nro, fase, partido)
-    SELECT TOP 1 nroPartidoOficial, fase, partido FROM Torneo.vw_Fixture;
+    EXEC Publicidad.Reporte_MatrizPrimeTime @idPartido = 1;
 
     REVERT;
 
