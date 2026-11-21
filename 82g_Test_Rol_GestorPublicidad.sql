@@ -24,7 +24,7 @@
                  * DENY explícito sobre Publicidad.TipoCambio_* (administrado por API/admin).
                  * Prohibido operar o consultar esquemas Equipos, Arbitraje o Eventos.
                  * Prohibido el acceso DML directo a tablas (error 229).
-                 * Prohibido descifrar datos personales.
+                 * Sin permisos sobre el certificado ni la clave de cifrado (plan de cifrado).
 
  Estándares aplicados:
  - Cada prueba se ejecuta suplantando al usuario mediante EXECUTE AS USER.
@@ -80,28 +80,28 @@ GO
 -- -----------------------------------------------------------------------------
 -- PRUEBA 1: Modificación de datos permitida mediante SP (Publicidad.Anunciante_Alta)
 -- Resultado esperado: Permiso concedido. Se inserta un anunciante de prueba y se
--- deshace inmediatamente con ROLLBACK para mantener la prueba 100% idempotente.
+-- deshace inmediatamente con ROLLBACK para mantener la prueba idempotente.
+-- usr_publicidad no tiene SELECT directo sobre las tablas (solo EXECUTE sobre el SP):
+-- el país de prueba se busca y la inserción se verifica fuera de la suplantación.
 -- -----------------------------------------------------------------------------
+DECLARE @idPaisTest int = (SELECT TOP 1 id FROM Torneo.Pais ORDER BY id);
+DECLARE @existe int = 0;
+
+BEGIN TRANSACTION;
 EXECUTE AS USER = 'usr_publicidad';
 BEGIN TRY
-    DECLARE @idPaisTest int;
-    SELECT TOP 1 @idPaisTest = id FROM Torneo.Pais;
-
-    BEGIN TRANSACTION;
-
     EXEC Publicidad.Anunciante_Alta
         @nombre             = 'Anunciante Test Seguridad',
         @rubro              = 'Software & AI',
         @idPais             = @idPaisTest,
         @monedaFacturacion  = 'USD';
 
-    -- Comprobar que se insertó correctamente a través del SP
-    DECLARE @existe int = 0;
+    REVERT;
+
     IF EXISTS (SELECT 1 FROM Publicidad.Anunciante WHERE nombre = 'Anunciante Test Seguridad')
         SET @existe = 1;
 
     ROLLBACK TRANSACTION;
-    REVERT;
 
     IF @existe = 1
         PRINT '[OK] PRUEBA 1: usr_publicidad ejecutó Publicidad.Anunciante_Alta exitosamente (rollback completado).';
@@ -109,8 +109,8 @@ BEGIN TRY
         PRINT '[FALLO] PRUEBA 1: El procedimiento se ejecutó pero no se verificó la inserción.';
 END TRY
 BEGIN CATCH
-    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
     REVERT;
+    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
     PRINT CONCAT('[FALLO] PRUEBA 1: Error al ejecutar Publicidad.Anunciante_Alta - ', ERROR_MESSAGE());
 END CATCH;
 GO
@@ -280,36 +280,64 @@ END CATCH;
 GO
 
 -- -----------------------------------------------------------------------------
--- PRUEBA 9: Verificación de no acceso a descifrado de datos personales
--- Resultado esperado: usr_publicidad NO posee permisos sobre claves simétricas.
+-- PRUEBA 9: El rol no tiene permisos sobre el certificado ni sobre la clave de cifrado
+-- Resultado esperado: HAS_PERMS_BY_NAME devuelve 0 sobre CertDatosPersonales (CONTROL)
+-- y sobre ClaveDatosPersonales (VIEW DEFINITION): los abre cada SP con EXECUTE AS OWNER.
+-- La existencia de los objetos se resuelve ANTES de suplantar: sin permisos el catálogo
+-- no los muestra, y una búsqueda dentro del EXECUTE AS pasaría sin verificar nada.
+-- Antes del script 70 (todavía no existen) la prueba se marca [OMITIDA].
 -- -----------------------------------------------------------------------------
-EXECUTE AS USER = 'usr_publicidad';
-BEGIN TRY
-    DECLARE @clave sysname = NULL;
-    SELECT TOP 1 @clave = name
-    FROM sys.symmetric_keys
-    WHERE name NOT IN (N'##MS_ServiceMasterKey##', N'##MS_DatabaseMasterKey##');
+DECLARE @hayCert  bit = CASE WHEN EXISTS (SELECT 1 FROM sys.certificates   WHERE name = N'CertDatosPersonales')  THEN 1 ELSE 0 END;
+DECLARE @hayClave bit = CASE WHEN EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = N'ClaveDatosPersonales') THEN 1 ELSE 0 END;
 
-    IF @clave IS NOT NULL
-    BEGIN
-        DECLARE @permClave int = HAS_PERMS_BY_NAME(@clave, 'SYMMETRIC KEY', 'VIEW DEFINITION');
+IF @hayCert = 0 OR @hayClave = 0
+    PRINT '[OMITIDA] PRUEBA 9: no existen CertDatosPersonales / ClaveDatosPersonales (pendiente de script 70 de Persona 1).';
+ELSE
+BEGIN
+    EXECUTE AS USER = 'usr_publicidad';
+    BEGIN TRY
+        DECLARE @permCert  int = ISNULL(HAS_PERMS_BY_NAME(N'CertDatosPersonales',  'CERTIFICATE',   'CONTROL'), 0);
+        DECLARE @permClave int = ISNULL(HAS_PERMS_BY_NAME(N'ClaveDatosPersonales', 'SYMMETRIC KEY', 'VIEW DEFINITION'), 0);
         REVERT;
 
-        IF @permClave = 0
-            PRINT CONCAT('[OK (esperado)] PRUEBA 9: usr_publicidad no tiene acceso a la clave de descifrado [', @clave, '].');
+        IF @permCert = 0 AND @permClave = 0
+            PRINT '[OK (esperado)] PRUEBA 9: usr_publicidad no tiene permisos sobre el certificado ni sobre la clave.';
         ELSE
-            PRINT CONCAT('[FALLO] PRUEBA 9: usr_publicidad tiene acceso indebido a la clave [', @clave, '].');
-    END
-    ELSE
-    BEGIN
+            PRINT CONCAT('[FALLO] PRUEBA 9: usr_publicidad tiene permisos indebidos (certificado: ', @permCert, ', clave: ', @permClave, ').');
+    END TRY
+    BEGIN CATCH
         REVERT;
-        PRINT '[OK (esperado)] PRUEBA 9: No existen claves accesibles para usr_publicidad.';
-    END;
-END TRY
-BEGIN CATCH
-    REVERT;
-    PRINT CONCAT('[FALLO] PRUEBA 9: Error verificando permisos de clave - ', ERROR_MESSAGE());
-END CATCH;
+        PRINT CONCAT('[FALLO] PRUEBA 9: Error verificando permisos - ', ERROR_MESSAGE());
+    END CATCH;
+END;
+GO
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 10: Intento de SELECT directo a la vista de descifrado Equipos.vw_Jugador
+-- Resultado esperado (después del script 70): acceso denegado (error 229). Los nombres se
+-- obtienen solo a través de los SP y reportes. Antes del 70 la vista no existe: [OMITIDA].
+-- -----------------------------------------------------------------------------
+IF OBJECT_ID('Equipos.vw_Jugador', 'V') IS NULL
+    PRINT '[OMITIDA] PRUEBA 10: Equipos.vw_Jugador no existe (pendiente de script 70 de Persona 1).';
+ELSE
+BEGIN
+    EXECUTE AS USER = 'usr_publicidad';
+    BEGIN TRY
+        SELECT TOP 1 * FROM Equipos.vw_Jugador;
+        REVERT;
+        PRINT '[FALLO] PRUEBA 10: usr_publicidad no debió poder leer Equipos.vw_Jugador.';
+    END TRY
+    BEGIN CATCH
+        DECLARE @errNum10 int = ERROR_NUMBER();
+        DECLARE @errMsg10 nvarchar(2000) = ERROR_MESSAGE();
+        REVERT;
+
+        IF @errNum10 = 229
+            PRINT CONCAT('[OK (esperado)] PRUEBA 10: SELECT a la vista de descifrado denegado con error 229 (', @errMsg10, ').');
+        ELSE
+            PRINT CONCAT('[FALLO] PRUEBA 10: Se esperaba error 229 pero se recibió: ', @errNum10, ' - ', @errMsg10);
+    END CATCH;
+END;
 GO
 
 -- -----------------------------------------------------------------------------

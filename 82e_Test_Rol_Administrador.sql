@@ -18,7 +18,9 @@
                  todos los esquemas (Torneo, Equipos, Arbitraje, Eventos,
                  Publicidad, Sistema).
                - Consulta de vistas del sistema y parámetros reglamentarios.
-               - Acceso a claves de cifrado y descifrado de datos sensibles.
+               - Ve los datos personales en claro solo a través de los SP y reportes:
+                 la clave la abre cada SP con EXECUTE AS OWNER y el rol no tiene
+                 permisos sobre el certificado ni sobre la clave (plan de cifrado).
                - REGLA GENERAL: Acceso directo DML (INSERT/UPDATE/DELETE)
                  a tablas bloqueado (todo cambio se realiza por SP).
 
@@ -80,18 +82,9 @@ EXECUTE AS USER = 'usr_admin';
 BEGIN TRY
     DECLARE @tienePermiso int = HAS_PERMS_BY_NAME('Publicidad.Reporte_OcupacionPublicitaria', 'OBJECT', 'EXECUTE');
 
-    -- Ejecución de prueba con tabla temporal para descartar salida
-    DROP TABLE IF EXISTS #tmpOcup;
-    CREATE TABLE #tmpOcup (idPartido int, nro int, fase varchar(60), sede varchar(80), ciudad varchar(60),
-                           paisSede varchar(60), selL varchar(60), selV varchar(60), part varchar(150),
-                           fUTC datetime2(0), hLocal datetime2(0), estPart varchar(15), idUbic tinyint,
-                           nomUbic varchar(50), anun nvarchar(100), rubro varchar(50), paisAnun varchar(60),
-                           camp nvarchar(60), pieza nvarchar(80), idio varchar(30), crit varchar(50),
-                           estExh varchar(20), tarUSD decimal(12,2), espOcup int, espTot int, porc decimal(5,2),
-                           ingExh decimal(12,2), ingConf decimal(12,2), totIng decimal(12,2), acumSede decimal(12,2));
-    INSERT INTO #tmpOcup
+    -- Ejecución real (el resultado se muestra en la grilla). No se captura en una tabla
+    -- temporal para no acoplar el test a las 30 columnas y tipos del reporte.
     EXEC Publicidad.Reporte_OcupacionPublicitaria @idPartido = 1;
-    DROP TABLE IF EXISTS #tmpOcup;
 
     REVERT;
 
@@ -197,37 +190,48 @@ END CATCH;
 GO
 
 -- -----------------------------------------------------------------------------
--- PRUEBA 6: Permiso sobre claves simétricas de descifrado (Entrega 8)
--- Resultado esperado: Permiso VIEW DEFINITION sobre clave de cifrado si existe.
--- Si la clave no fue creada todavía por Persona 1, la prueba se marca [OMITIDA].
+-- PRUEBA 6: Descifrado controlado por SP (plan de cifrado, opción A)
+-- Resultado esperado (después del script 70): usr_admin NO tiene permisos sobre el
+-- certificado ni sobre la clave y, aun así, Equipos.Reporte_SeleccionesPlantillas devuelve
+-- los nombres en claro, porque el SP descifra con EXECUTE AS OWNER.
+-- Antes del script 70 (columnas todavía sin cifrar) la prueba se marca [OMITIDA].
+-- Los objetos se buscan ANTES de suplantar: sin permisos el catálogo no los muestra.
 -- -----------------------------------------------------------------------------
-EXECUTE AS USER = 'usr_admin';
-BEGIN TRY
-    DECLARE @clave sysname = NULL;
-    SELECT TOP 1 @clave = name
-    FROM sys.symmetric_keys
-    WHERE name NOT IN (N'##MS_ServiceMasterKey##', N'##MS_DatabaseMasterKey##');
+DECLARE @hayCifrado bit = CASE WHEN COL_LENGTH('Equipos.Jugador', 'nombreCif') IS NOT NULL THEN 1 ELSE 0 END;
+DECLARE @hayCert    bit = CASE WHEN EXISTS (SELECT 1 FROM sys.certificates   WHERE name = N'CertDatosPersonales')  THEN 1 ELSE 0 END;
+DECLARE @hayClave   bit = CASE WHEN EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = N'ClaveDatosPersonales') THEN 1 ELSE 0 END;
+DECLARE @idSelPrueba int = (SELECT TOP 1 idSeleccion FROM Equipos.ListadoJugadores WHERE fechaBaja IS NULL ORDER BY idSeleccion);
 
-    IF @clave IS NOT NULL
-    BEGIN
-        DECLARE @tienePermClave int = HAS_PERMS_BY_NAME(@clave, 'SYMMETRIC KEY', 'VIEW DEFINITION');
+IF @hayCifrado = 0
+    PRINT '[OMITIDA] PRUEBA 6: las columnas todavía no están cifradas (pendiente de script 70 de Persona 1).';
+ELSE IF @hayCert = 0 OR @hayClave = 0
+    PRINT '[FALLO] PRUEBA 6: hay columnas cifradas pero no se encontraron CertDatosPersonales / ClaveDatosPersonales (actualizar los nombres si Persona 1 los cambió).';
+ELSE
+BEGIN
+    -- Variable de tabla (y no temporal) para no depender de qué usuario creó la tabla
+    DECLARE @plantillas TABLE (plantillas xml);
+
+    EXECUTE AS USER = 'usr_admin';
+    BEGIN TRY
+        DECLARE @permCert  int = ISNULL(HAS_PERMS_BY_NAME(N'CertDatosPersonales',  'CERTIFICATE',   'CONTROL'), 0);
+        DECLARE @permClave int = ISNULL(HAS_PERMS_BY_NAME(N'ClaveDatosPersonales', 'SYMMETRIC KEY', 'VIEW DEFINITION'), 0);
+
+        INSERT INTO @plantillas EXEC Equipos.Reporte_SeleccionesPlantillas @idSeleccion = @idSelPrueba;
         REVERT;
 
-        IF @tienePermClave = 1
-            PRINT CONCAT('[OK] PRUEBA 6: usr_admin posee permiso VIEW DEFINITION sobre clave [', @clave, '].');
+        DECLARE @x xml = (SELECT TOP 1 plantillas FROM @plantillas);
+        DECLARE @conNombre int = @x.value('count(//jugador/nombre[string-length(.) > 0])', 'int');
+
+        IF @permCert = 0 AND @permClave = 0 AND @conNombre > 0
+            PRINT CONCAT('[OK] PRUEBA 6: sin permisos sobre la clave, usr_admin ve ', @conNombre, ' nombres en claro a través del reporte.');
         ELSE
-            PRINT CONCAT('[FALLO] PRUEBA 6: usr_admin no posee permiso sobre la clave [', @clave, '].');
-    END
-    ELSE
-    BEGIN
+            PRINT CONCAT('[FALLO] PRUEBA 6: permisos sobre certificado: ', @permCert, ', sobre clave: ', @permClave, ', nombres en claro: ', ISNULL(@conNombre, 0), '.');
+    END TRY
+    BEGIN CATCH
         REVERT;
-        PRINT '[OMITIDA] PRUEBA 6: No se detectó clave simétrica de usuario en la base (pendiente de script 70 de Persona 1).';
-    END;
-END TRY
-BEGIN CATCH
-    REVERT;
-    PRINT CONCAT('[FALLO] PRUEBA 6: Error verificando permisos de clave - ', ERROR_MESSAGE());
-END CATCH;
+        PRINT CONCAT('[FALLO] PRUEBA 6: Error ejecutando el reporte con cifrado - ', ERROR_MESSAGE());
+    END CATCH;
+END;
 GO
 
 /* =============================================================================
@@ -304,6 +308,34 @@ BEGIN CATCH
     ELSE
         PRINT CONCAT('[FALLO] PRUEBA 9: Se esperaba error de seguridad 229 pero se recibió: ', @errNum9, ' - ', @errMsg9);
 END CATCH;
+GO
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 10: Intento de SELECT directo a la vista de descifrado Equipos.vw_Jugador
+-- Resultado esperado (después del script 70): acceso denegado (error 229). Los nombres se
+-- obtienen solo a través de los SP y reportes. Antes del 70 la vista no existe: [OMITIDA].
+-- -----------------------------------------------------------------------------
+IF OBJECT_ID('Equipos.vw_Jugador', 'V') IS NULL
+    PRINT '[OMITIDA] PRUEBA 10: Equipos.vw_Jugador no existe (pendiente de script 70 de Persona 1).';
+ELSE
+BEGIN
+    EXECUTE AS USER = 'usr_admin';
+    BEGIN TRY
+        SELECT TOP 1 * FROM Equipos.vw_Jugador;
+        REVERT;
+        PRINT '[FALLO] PRUEBA 10: usr_admin no debió poder leer Equipos.vw_Jugador.';
+    END TRY
+    BEGIN CATCH
+        DECLARE @errNum10 int = ERROR_NUMBER();
+        DECLARE @errMsg10 nvarchar(2000) = ERROR_MESSAGE();
+        REVERT;
+
+        IF @errNum10 = 229
+            PRINT CONCAT('[OK (esperado)] PRUEBA 10: SELECT a la vista de descifrado denegado con error 229 (', @errMsg10, ').');
+        ELSE
+            PRINT CONCAT('[FALLO] PRUEBA 10: Se esperaba error 229 pero se recibió: ', @errNum10, ' - ', @errMsg10);
+    END CATCH;
+END;
 GO
 
 -- -----------------------------------------------------------------------------
