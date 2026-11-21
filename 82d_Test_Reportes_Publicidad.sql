@@ -266,6 +266,11 @@ BEGIN TRY
           WHERE pa.husoHorario IS NOT NULL) x;
 
     -- Tabla global temporal: una local creada dentro de EXEC() no es visible para este batch
+    IF @columnasMatriz IS NULL
+    BEGIN
+        ;THROW 50001, N'No se registran mercados publicitarios en PiezaMercado con huso horario válido. Requiere haber ejecutado previamente 52_CargaPublicidad.sql.', 1;
+    END;
+
     DROP TABLE IF EXISTS ##matrizPT;
     EXEC (N'CREATE TABLE ##matrizPT (nroPartidoOficial int, fase varchar(60), partido varchar(150), fechaHoraUTC datetime2(0), '
           + @columnasMatriz + N');');

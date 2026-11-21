@@ -199,7 +199,12 @@ GO
 -- -----------------------------------------------------------------------------
 EXECUTE AS USER = 'usr_consulta';
 BEGIN TRY
-    EXEC Eventos.Gol_Alta @idPartido = 1, @idJugador = 1, @minuto = 15;
+    EXEC Eventos.Gol_Alta
+        @idPartido  = 1,
+        @idJugador  = 1,
+        @minuto     = 15,
+        @tipo       = 'Jugada',
+        @idPeriodo  = 1;
     REVERT;
     PRINT '[FALLO] PRUEBA 6: usr_consulta no debió poder ejecutar SPs de eventos.';
 END TRY

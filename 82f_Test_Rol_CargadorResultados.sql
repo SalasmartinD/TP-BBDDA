@@ -160,7 +160,12 @@ BEGIN TRY
 
     IF OBJECT_ID('Eventos.Gol_Alta', 'P') IS NOT NULL
     BEGIN
-        EXEC Eventos.Gol_Alta @idPartido = -1, @idJugador = -1, @minuto = 10;
+        EXEC Eventos.Gol_Alta
+            @idPartido  = -1,
+            @idJugador  = -1,
+            @minuto     = 10,
+            @tipo       = 'Jugada',
+            @idPeriodo  = 1;
         REVERT;
         PRINT '[FALLO] PRUEBA 4: Debió fallar por validación pero continuó.';
     END
@@ -193,7 +198,15 @@ GO
 -- -----------------------------------------------------------------------------
 EXECUTE AS USER = 'usr_cargador';
 BEGIN TRY
-    EXEC Torneo.Partido_Modificacion @idPartido = 1, @cantPublico = 50000;
+    EXEC Torneo.Partido_Modificacion
+        @idPartido            = 1,
+        @idSede               = 1,
+        @idSeleccionLocal     = 1,
+        @idSeleccionVisitante = 2,
+        @fase                 = 1,
+        @fechaHoraUTC         = '2026-06-11 19:00:00',
+        @estado               = 'Programado',
+        @cantPublico          = 50000;
     REVERT;
     PRINT '[FALLO] PRUEBA 5: El cargador no debió poder ejecutar Torneo.Partido_Modificacion.';
 END TRY
