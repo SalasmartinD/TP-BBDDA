@@ -23,17 +23,19 @@
                   - Concesión de ejecución sobre esquemas y objetos específicos.
                   - Asignación de reportes a rol_Consulta.
                   - Restricción puntual de cotizaciones para rol_GestorPublicidad.
+                  - Ningún rol recibe permisos sobre el certificado ni la clave de
+                    cifrado (CertDatosPersonales / ClaveDatosPersonales): cada SP
+                    abre la clave con EXECUTE AS OWNER (plan de cifrado, Persona 1).
+                  - DENY SELECT explícito sobre las tablas y vistas de datos
+                    personales para los roles que no son administrador.
                3. Sistema.CrearUsuarioPrueba:
                   Crea usuarios de base de datos sin login (WITHOUT LOGIN) y los
                   asigna al rol correspondiente, protegiendo credenciales en el repo.
-               4. Sistema.OtorgarPermisosDescifrado:
-                  Otorga permisos de apertura/inspección de claves simétricas a
-                  rol_Administrador, desacoplado del script de cifrado (70).
 
  Estándares aplicados:
  - Manejo de errores acumulativo con THROW 50001 ante parámetros u objetos inválidos.
  - SQL dinámico estrictamente acotado y justificado para DDL que no admite parámetros
-   (CREATE USER ... WITHOUT LOGIN, ALTER ROLE ... ADD MEMBER, GRANT sobre clave simétrica),
+   (CREATE USER ... WITHOUT LOGIN y ALTER ROLE ... ADD MEMBER),
    saneando identificadores con QUOTENAME().
  - Idempotencia en todas las operaciones.
 ================================================================================
@@ -239,12 +241,39 @@ BEGIN
     GRANT EXECUTE ON SCHEMA::Sistema    TO rol_Administrador;
 
     GRANT SELECT ON Torneo.vw_Fixture TO rol_Administrador;
-    IF OBJECT_ID(N'Eventos.vw_HistorialTitularidad', N'V') IS NOT NULL
-        GRANT SELECT ON Eventos.vw_HistorialTitularidad TO rol_Administrador;
-    IF OBJECT_ID(N'Arbitraje.vw_HistorialArbitro', N'V') IS NOT NULL
-        GRANT SELECT ON Arbitraje.vw_HistorialArbitro TO rol_Administrador;
+
+    -- No se otorga SELECT directo sobre Eventos.vw_HistorialTitularidad ni sobre
+    -- Arbitraje.vw_HistorialArbitro: después del script 70 leen los nombres de las vistas
+    -- de descifrado y, sin permisos sobre la clave, devolverían NULL sin avisar.
+    -- Los datos personales se consultan a través de los SP y reportes.
 
     GRANT SELECT ON SCHEMA::Sistema TO rol_Administrador;
+
+    /* -------------------------------------------------------------------------
+       6. Protección de datos personales (plan de cifrado de Persona 1, punto 4)
+          - Ningún rol recibe permisos sobre el certificado ni sobre la clave.
+          - DENY SELECT explícito sobre las tablas y las vistas de descifrado para los
+            roles que no son administrador. Es una defensa adicional: un GRANT SELECT por
+            esquema hecho más adelante dejaría NULL silencioso en las vistas en vez de
+            un error.
+          - Las vistas y el esquema Seguridad existen recién después del script 70:
+            se deniegan solo si existen (el 71 sigue corriendo antes y después del 70).
+    ------------------------------------------------------------------------- */
+    DENY SELECT ON Equipos.Jugador   TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    DENY SELECT ON Equipos.Staff     TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    DENY SELECT ON Arbitraje.Arbitro TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+
+    IF OBJECT_ID(N'Equipos.vw_Jugador', N'V') IS NOT NULL
+        DENY SELECT ON Equipos.vw_Jugador   TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    IF OBJECT_ID(N'Equipos.vw_Staff', N'V') IS NOT NULL
+        DENY SELECT ON Equipos.vw_Staff     TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    IF OBJECT_ID(N'Arbitraje.vw_Arbitro', N'V') IS NOT NULL
+        DENY SELECT ON Arbitraje.vw_Arbitro TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+
+    -- Esquema Seguridad (pimienta de la huella de búsqueda): ningún rol lo toca directamente
+    IF SCHEMA_ID(N'Seguridad') IS NOT NULL
+        DENY SELECT, INSERT, UPDATE, DELETE ON SCHEMA::Seguridad
+            TO rol_Administrador, rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
 
     PRINT 'Permisos de roles otorgados correctamente.';
 END;
@@ -316,48 +345,7 @@ END;
 GO
 
 -- =============================================================================
--- 4. SP: Sistema.OtorgarPermisosDescifrado
--- =============================================================================
-/*
-   Otorga permisos a rol_Administrador para inspeccionar o abrir claves simétricas
-   de cifrado (Entrega 8 - Cifrado de datos sensibles).
-   Se diseña desacoplado: si el script 70 de Persona 1 aún no fue ejecutado en el
-   ambiente, el procedimiento no aborta ni interrumpe la recreación, emitiendo
-   un aviso informativo por consola.
-*/
-CREATE OR ALTER PROCEDURE Sistema.OtorgarPermisosDescifrado
-    @nombreClave sysname = N'ClaveSimetricaMundial'
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Si no existe la clave indicada, buscar si existe alguna clave simétrica creada por usuario
-    IF NOT EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = @nombreClave)
-    BEGIN
-        SELECT TOP 1 @nombreClave = name
-        FROM sys.symmetric_keys
-        WHERE name NOT IN (N'##MS_ServiceMasterKey##', N'##MS_DatabaseMasterKey##')
-        ORDER BY create_date DESC;
-    END;
-
-    -- Otorgar permiso si se encontró una clave válida
-    IF @nombreClave IS NOT NULL AND EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = @nombreClave)
-    BEGIN
-        DECLARE @sql nvarchar(max);
-        SET @sql = N'GRANT VIEW DEFINITION ON SYMMETRIC KEY::' + QUOTENAME(@nombreClave) + N' TO rol_Administrador;';
-        EXEC sys.sp_executesql @sql;
-
-        PRINT CONCAT('Permiso VIEW DEFINITION sobre clave simétrica [', @nombreClave, '] concedido a rol_Administrador.');
-    END
-    ELSE
-    BEGIN
-        PRINT 'ADVERTENCIA: No se detectó clave simétrica de usuario en la base de datos. Permiso de descifrado omitido temporalmente (pendiente de script 70).';
-    END;
-END;
-GO
-
--- =============================================================================
--- 5. EJECUCIÓN INICIAL Y CONFIGURACIÓN DE ROLES Y USUARIOS DE PRUEBA
+-- 4. EJECUCIÓN INICIAL Y CONFIGURACIÓN DE ROLES Y USUARIOS DE PRUEBA
 -- =============================================================================
 PRINT '------------------------------------------------------------------------';
 PRINT 'Iniciando configuración de seguridad de Entrega 8...';
@@ -382,28 +370,25 @@ IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'usr_publicida
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'usr_consulta')
     EXEC Sistema.CrearUsuarioPrueba @usuario = 'usr_consulta', @rol = 'rol_Consulta';
 
--- 4. Permisos de descifrado (condicional / desacoplado)
-EXEC Sistema.OtorgarPermisosDescifrado;
-
 PRINT '------------------------------------------------------------------------';
 PRINT 'Configuración de seguridad completada exitosamente.';
 PRINT '------------------------------------------------------------------------';
 GO
 
 -- =============================================================================
--- 6. CONSULTA DE AUDITORÍA: MATRIZ DE PERMISOS EFECTIVOS POR ROL
+-- 5. CONSULTA DE AUDITORÍA: MATRIZ DE PERMISOS EFECTIVOS POR ROL
 -- =============================================================================
 SELECT
     r.name                                           AS rol,
     p.permission_name                                AS permiso,
     p.state_desc                                     AS estado,
     p.class_desc                                     AS clase,
-    COALESCE(
-        OBJECT_SCHEMA_NAME(p.major_id) + '.' + OBJECT_NAME(p.major_id),
-        SCHEMA_NAME(p.major_id),
-        sk.name,
-        'Base de Datos'
-    )                                                AS objetoOEsquema
+    CASE p.class_desc
+        WHEN 'OBJECT_OR_COLUMN' THEN OBJECT_SCHEMA_NAME(p.major_id) + '.' + OBJECT_NAME(p.major_id)
+        WHEN 'SCHEMA'           THEN 'SCHEMA::' + SCHEMA_NAME(p.major_id)
+        WHEN 'SYMMETRIC_KEY'    THEN 'KEY::' + sk.name
+        ELSE 'Base de Datos'
+    END                                              AS objetoOEsquema
 FROM sys.database_permissions p
 INNER JOIN sys.database_principals r ON r.principal_id = p.grantee_principal_id
 LEFT JOIN sys.symmetric_keys sk ON sk.symmetric_key_id = p.major_id AND p.class_desc = 'SYMMETRIC_KEY'
