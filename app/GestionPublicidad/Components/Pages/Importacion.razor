@@ -1,0 +1,288 @@
+@page "/importacion"
+@rendermode InteractiveServer
+@inject PublicidadDataService DataService
+@inject IJSRuntime JS
+
+<PageTitle>Importación XML & Reportes · Módulo Soporte</PageTitle>
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-code me-2 text-success"></i>Importación XML y Reporte de Plantillas</h2>
+    <p class="text-muted mb-0">
+        Ejecución de procesos masivos mediante Stored Procedures con variable XML set-based y descarga de reportes oficiales.
+    </p>
+</div>
+
+<!-- SECCIÓN 1: IMPORTACIÓN XML DE ÁRBITROS -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-upload me-2 text-primary"></i>1. Importación de Árbitros (XML)
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Seleccione un archivo XML con la estructura <code>&lt;Arbitros&gt;&lt;Arbitro&gt;...&lt;/Arbitro&gt;&lt;/Arbitros&gt;</code>. 
+                    La aplicación envía el contenido al SP <code>Arbitraje.Importar_ArbitrosXMLDatos</code> sin requerir permisos de servidor 
+                    ni accesos locales al filesystem.
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Seleccionar archivo XML</label>
+                    <InputFile OnChange="CargarArchivoXml" class="form-control" accept=".xml" />
+                </div>
+
+                @if (archivoSeleccionado != null)
+                {
+                    <div class="alert alert-info py-2 small d-flex align-items-center mb-3">
+                        <i class="bi bi-filetype-xml me-2 fs-5"></i>
+                        <div>
+                            Archivo preparado: <strong>@archivoSeleccionado.Name</strong> 
+                            (@((archivoSeleccionado.Size / 1024.0).ToString("F1")) KB)
+                        </div>
+                    </div>
+                }
+
+                @if (erroresImportacion.Any())
+                {
+                    <div class="alert alert-danger py-2 mb-3">
+                        <div class="fw-bold mb-1"><i class="bi bi-x-circle me-1"></i>Error durante la importación:</div>
+                        <ul class="mb-0 ps-3 small">
+                            @foreach (var err in erroresImportacion)
+                            {
+                                <li>@err</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <button class="btn btn-primary" @onclick="ProcesarImportacionAsync"
+                        disabled="@(archivoSeleccionado == null || procesandoImportacion)">
+                    @if (procesandoImportacion)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                        <span>Procesando en SQL Server...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-play-circle me-1"></i>
+                        <span>Ejecutar Importación</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: DESCARGA DE REPORTE XML (PLANTILLAS) -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-download me-2 text-success"></i>2. Reporte de Plantillas (XML)
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <p class="text-muted small">
+                        Ejecuta el Stored Procedure oficial de la Entrega 7 <code>Equipos.Reporte_SeleccionesPlantillas</code> y permite 
+                        descargar el XML generado directamente al navegador.
+                    </p>
+                    <div class="p-3 bg-light rounded border small mb-3">
+                        <i class="bi bi-info-circle me-1 text-primary"></i>
+                        Genera el árbol completo de selecciones con su nómina anidada de jugadores convocados (dorsal, club, posición y datos).
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(mensajeDescarga))
+                {
+                    <div class="alert alert-success py-2 small mb-3">
+                        <i class="bi bi-check-circle me-1"></i>@mensajeDescarga
+                    </div>
+                }
+
+                <button class="btn btn-outline-success w-100 py-2 fw-semibold" @onclick="DescargarReporteXmlAsync"
+                        disabled="@descargandoReporte">
+                    @if (descargandoReporte)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                        <span>Generando XML...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                        <span>Descargar XML de Plantillas</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECCIÓN 3: RESULTADOS DE LA ÚLTIMA IMPORTACIÓN -->
+@if (ultimoResumen != null)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 fw-bold"><i class="bi bi-bar-chart me-2 text-primary"></i>Resumen de la Importación</h5>
+            <span class="badge bg-light text-muted border">Origen: @ultimoResumen.Origen</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 text-center mb-3">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded border">
+                        <div class="text-muted small text-uppercase">Filas Leídas</div>
+                        <div class="fs-3 fw-bold text-dark">@ultimoResumen.CantFilas</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-success bg-opacity-10 rounded border border-success border-opacity-25">
+                        <div class="text-success small text-uppercase">Insertados</div>
+                        <div class="fs-3 fw-bold text-success">@ultimoResumen.CantInsertados</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-info bg-opacity-10 rounded border border-info border-opacity-25">
+                        <div class="text-info small text-uppercase">Actualizados</div>
+                        <div class="fs-3 fw-bold text-info">@ultimoResumen.CantActualizados</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-danger bg-opacity-10 rounded border border-danger border-opacity-25">
+                        <div class="text-danger small text-uppercase">Filas con Error</div>
+                        <div class="fs-3 fw-bold text-danger">@ultimoResumen.CantErrores</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de errores parciales de la corrida -->
+            <h6 class="fw-bold mt-4 mb-2">Detalle de Errores Parciales (Sistema.ErrorImportacion)</h6>
+            @if (!erroresDetalle.Any())
+            {
+                <div class="alert alert-success py-2 mb-0 small">
+                    <i class="bi bi-check-circle me-1"></i> No se registraron errores parciales para este archivo. Todos los registros fueron procesados.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Fila</th>
+                                <th>Tabla Destino</th>
+                                <th>Mensaje de Error Registrado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var err in erroresDetalle)
+                            {
+                                <tr>
+                                    <td class="text-muted small">@err.Id</td>
+                                    <td>
+                                        <span class="badge bg-secondary">@(err.NroFila?.ToString() ?? "N/A")</span>
+                                    </td>
+                                    <td><code>@err.TablaDestino</code></td>
+                                    <td class="text-danger small">@err.MensajeError</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private IBrowserFile? archivoSeleccionado;
+    private string? contenidoXml;
+    private bool procesandoImportacion = false;
+    private List<string> erroresImportacion = new();
+
+    private ResumenImportacion? ultimoResumen;
+    private List<ErrorImportacionItem> erroresDetalle = new();
+
+    private bool descargandoReporte = false;
+    private string? mensajeDescarga;
+
+    private async Task CargarArchivoXml(InputFileChangeEventArgs e)
+    {
+        archivoSeleccionado = e.File;
+        erroresImportacion.Clear();
+
+        try
+        {
+            // Límite de 10 MB para lectura
+            using var stream = archivoSeleccionado.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var reader = new StreamReader(stream);
+            contenidoXml = await reader.ReadToEndAsync();
+        }
+        catch (Exception ex)
+        {
+            erroresImportacion.Add("Error al leer el archivo seleccionado: " + ex.Message);
+            archivoSeleccionado = null;
+            contenidoXml = null;
+        }
+    }
+
+    private async Task ProcesarImportacionAsync()
+    {
+        if (string.IsNullOrWhiteSpace(contenidoXml) || archivoSeleccionado == null) return;
+
+        procesandoImportacion = true;
+        erroresImportacion.Clear();
+
+        try
+        {
+            ultimoResumen = await DataService.ImportarArbitrosXmlAsync(contenidoXml, archivoSeleccionado.Name);
+            erroresDetalle = await DataService.ObtenerErroresImportacionAsync(ultimoResumen.Origen);
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            erroresImportacion = PublicidadDataService.ParseSqlExceptions(ex);
+        }
+        catch (Exception ex)
+        {
+            erroresImportacion.Add("Error inesperado: " + ex.Message);
+        }
+        finally
+        {
+            procesandoImportacion = false;
+        }
+    }
+
+    private async Task DescargarReporteXmlAsync()
+    {
+        descargandoReporte = true;
+        mensajeDescarga = null;
+
+        try
+        {
+            string xml = await DataService.DescargarXmlPlantillasAsync();
+            if (string.IsNullOrWhiteSpace(xml))
+            {
+                mensajeDescarga = "El reporte no devolvió datos XML.";
+                return;
+            }
+
+            string nombreArchivo = $"Reporte_Plantillas_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
+            await JS.InvokeVoidAsync("descargarArchivo", nombreArchivo, xml, "application/xml");
+            mensajeDescarga = $"Archivo '{nombreArchivo}' descargado exitosamente.";
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            var errs = PublicidadDataService.ParseSqlExceptions(ex);
+            mensajeDescarga = "Error al generar XML: " + string.Join("; ", errs);
+        }
+        catch (Exception ex)
+        {
+            mensajeDescarga = "Error inesperado al descargar: " + ex.Message;
+        }
+        finally
+        {
+            descargandoReporte = false;
+        }
+    }
+}

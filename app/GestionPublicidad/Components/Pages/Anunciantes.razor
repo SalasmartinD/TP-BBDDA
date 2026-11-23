@@ -1,0 +1,471 @@
+@page "/anunciantes"
+@rendermode InteractiveServer
+@inject PublicidadDataService DataService
+
+<PageTitle>ABM de Anunciantes · Publicidad</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-badge-ad me-2 text-primary"></i>Gestión de Anunciantes</h2>
+        <p class="text-muted mb-0">Padrón publicitario con reglas de negocio validadas mediante Stored Procedures.</p>
+    </div>
+    <button class="btn btn-primary" @onclick="AbrirModalAlta">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Anunciante
+    </button>
+</div>
+
+<!-- Alertas de Éxito / Error General -->
+@if (!string.IsNullOrEmpty(mensajeExito))
+{
+    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div>@mensajeExito</div>
+        <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+    </div>
+}
+
+@if (erroresGenerales.Any())
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="fw-bold d-flex align-items-center mb-1">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> Error de Validación / Base de Datos:
+        </div>
+        <ul class="mb-0 ps-3">
+            @foreach (var err in erroresGenerales)
+            {
+                <li>@err</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" @onclick="() => erroresGenerales.Clear()"></button>
+    </div>
+}
+
+<!-- Barra de Búsqueda y Filtros -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Buscar por nombre o rubro..."
+                           @bind="filtroTexto" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" @bind="filtroPais">
+                    <option value="0">Todos los países</option>
+                    @foreach (var p in paises)
+                    {
+                        <option value="@p.Id">@p.Nombre (@p.CodigoISO3)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-outline-secondary w-100" @onclick="CargarDatosAsync">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Anunciantes -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (cargando)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="text-muted mt-2 mb-0">Cargando anunciantes desde SQL Server...</p>
+            </div>
+        }
+        else if (!AnunciantesFiltrados.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                No se encontraron anunciantes que coincidan con la búsqueda.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" style="width: 50px;">#</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Rubro</th>
+                            <th scope="col">País</th>
+                            <th scope="col" class="text-center">Moneda</th>
+                            <th scope="col" class="text-center">Campañas</th>
+                            <th scope="col" class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in AnunciantesFiltrados)
+                        {
+                            <tr>
+                                <td class="text-muted small">@a.Id</td>
+                                <td class="fw-semibold">@a.Nombre</td>
+                                <td>@(string.IsNullOrWhiteSpace(a.Rubro) ? "-" : a.Rubro)</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        @a.PaisCodigoISO3
+                                    </span>
+                                    <span class="ms-1">@a.Pais</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2">
+                                        @a.MonedaFacturacion
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (a.CantCampaniasTotal == 0)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                                            0 campañas (apto baja)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-50"
+                                              title="@($"{a.CantCampaniasActivas} activas, {a.CantCampaniasVencidas} vencidas")">
+                                            @a.CantCampaniasTotal campañas (@a.CantCampaniasActivas act.)
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-primary me-1" title="Editar"
+                                            @onclick="() => AbrirModalEdicion(a)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Dar de baja"
+                                            @onclick="() => AbrirModalBaja(a)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- MODAL DE ALTA / MODIFICACIÓN -->
+@if (mostrarModalForm)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">
+                        @(esAlta ? "Alta de Anunciante" : "Modificar Anunciante")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalForm"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if (erroresForm.Any())
+                    {
+                        <div class="alert alert-danger py-2 mb-3">
+                            <ul class="mb-0 ps-3 small">
+                                @foreach (var err in erroresForm)
+                                {
+                                    <li>@err</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre del Anunciante <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" maxlength="100" @bind="formActual.Nombre"
+                               placeholder="Ej: Visa, Adidas, Coca-Cola..." />
+                        <div class="form-text">No debe repetirse con anunciantes ya registrados.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rubro</label>
+                        <input type="text" class="form-control" maxlength="50" @bind="formActual.Rubro"
+                               placeholder="Ej: Finanzas, Indumentaria, Bebidas..." />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">País de Origen <span class="text-danger">*</span></label>
+                        <select class="form-select" @bind="formActual.IdPais">
+                            <option value="0">-- Seleccione un país --</option>
+                            @foreach (var p in paises)
+                            {
+                                <option value="@p.Id">@p.Nombre (@p.CodigoISO3)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Moneda de Facturación <span class="text-danger">*</span></label>
+                        <select class="form-select" @bind="formActual.MonedaFacturacion">
+                            @foreach (var m in monedas)
+                            {
+                                <option value="@m.Moneda">@m.Moneda</option>
+                            }
+                        </select>
+                        <div class="form-text">Código ISO 4217 de 3 letras mayúsculas.</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalForm">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="GuardarAnuncianteAsync" disabled="@procesandoGuardado">
+                        @if (procesandoGuardado)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL DE CONFIRMACIÓN DE BAJA -->
+@if (mostrarModalBaja && anuncianteABorrar != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Baja</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CerrarModalBaja"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if (erroresBaja.Any())
+                    {
+                        <div class="alert alert-danger py-2 mb-3">
+                            <div class="fw-bold mb-1">El SP rechazó la baja:</div>
+                            <ul class="mb-0 ps-3 small">
+                                @foreach (var err in erroresBaja)
+                                {
+                                    <li>@err</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <p>¿Está seguro de que desea dar de baja al siguiente anunciante?</p>
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="fw-bold fs-5">@anuncianteABorrar.Nombre</div>
+                        <div class="text-muted small">
+                            País: <strong>@anuncianteABorrar.Pais</strong> | Rubro: <strong>@(anuncianteABorrar.Rubro ?? "N/A")</strong>
+                        </div>
+                        <div class="mt-2 small">
+                            Historial de campañas: <strong>@anuncianteABorrar.CantCampaniasTotal</strong>
+                            (@anuncianteABorrar.CantCampaniasActivas activas, @anuncianteABorrar.CantCampaniasVencidas vencidas)
+                        </div>
+                    </div>
+
+                    @if (!anuncianteABorrar.PuedeDarseDeBaja)
+                    {
+                        <div class="alert alert-warning py-2 small mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <strong>Atención:</strong> Este anunciante posee campañas registradas. De acuerdo con la regla de negocio del SP <code>Publicidad.Anunciante_Baja</code>, la operación será bloqueada por tener campañas activas o vencidas.
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalBaja">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmarBajaAsync" disabled="@procesandoBaja">
+                        @if (procesandoBaja)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Confirmar Baja
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<AnuncianteItem> anunciantes = new();
+    private List<PaisItem> paises = new();
+    private List<MonedaItem> monedas = new();
+
+    private bool cargando = true;
+    private string? mensajeExito;
+    private List<string> erroresGenerales = new();
+
+    private string filtroTexto = string.Empty;
+    private int filtroPais = 0;
+
+    // Modal Alta/Edición
+    private bool mostrarModalForm = false;
+    private bool esAlta = true;
+    private AnuncianteForm formActual = new();
+    private List<string> erroresForm = new();
+    private bool procesandoGuardado = false;
+
+    // Modal Baja
+    private bool mostrarModalBaja = false;
+    private AnuncianteItem? anuncianteABorrar;
+    private List<string> erroresBaja = new();
+    private bool procesandoBaja = false;
+
+    private IEnumerable<AnuncianteItem> AnunciantesFiltrados =>
+        anunciantes.Where(a =>
+            (filtroPais == 0 || a.IdPais == filtroPais) &&
+            (string.IsNullOrWhiteSpace(filtroTexto) ||
+             a.Nombre.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase) ||
+             (a.Rubro != null && a.Rubro.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase)))
+        );
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCatalogosAsync();
+        await CargarDatosAsync();
+    }
+
+    private async Task CargarCatalogosAsync()
+    {
+        try
+        {
+            paises = await DataService.ObtenerPaisesAsync();
+            monedas = await DataService.ObtenerMonedasAsync();
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            erroresGenerales = PublicidadDataService.ParseSqlExceptions(ex);
+        }
+    }
+
+    private async Task CargarDatosAsync()
+    {
+        cargando = true;
+        erroresGenerales.Clear();
+        try
+        {
+            anunciantes = await DataService.ObtenerAnunciantesAsync();
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            erroresGenerales = PublicidadDataService.ParseSqlExceptions(ex);
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void AbrirModalAlta()
+    {
+        esAlta = true;
+        formActual = new AnuncianteForm
+        {
+            IdPais = paises.FirstOrDefault()?.Id ?? 0,
+            MonedaFacturacion = "USD"
+        };
+        erroresForm.Clear();
+        mostrarModalForm = true;
+    }
+
+    private void AbrirModalEdicion(AnuncianteItem item)
+    {
+        esAlta = false;
+        formActual = new AnuncianteForm
+        {
+            Id = item.Id,
+            Nombre = item.Nombre,
+            Rubro = item.Rubro,
+            IdPais = item.IdPais,
+            MonedaFacturacion = item.MonedaFacturacion
+        };
+        erroresForm.Clear();
+        mostrarModalForm = true;
+    }
+
+    private void CerrarModalForm()
+    {
+        mostrarModalForm = false;
+        erroresForm.Clear();
+    }
+
+    private async Task GuardarAnuncianteAsync()
+    {
+        erroresForm.Clear();
+        procesandoGuardado = true;
+
+        try
+        {
+            if (esAlta)
+            {
+                await DataService.CrearAnuncianteAsync(formActual);
+                mensajeExito = $"Anunciante '{formActual.Nombre.Trim()}' dado de alta exitosamente.";
+            }
+            else
+            {
+                await DataService.ModificarAnuncianteAsync(formActual);
+                mensajeExito = $"Anunciante '{formActual.Nombre.Trim()}' modificado exitosamente.";
+            }
+
+            CerrarModalForm();
+            await CargarDatosAsync();
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            erroresForm = PublicidadDataService.ParseSqlExceptions(ex);
+        }
+        catch (Exception ex)
+        {
+            erroresForm.Add("Error inesperado: " + ex.Message);
+        }
+        finally
+        {
+            procesandoGuardado = false;
+        }
+    }
+
+    private void AbrirModalBaja(AnuncianteItem item)
+    {
+        anuncianteABorrar = item;
+        erroresBaja.Clear();
+        mostrarModalBaja = true;
+    }
+
+    private void CerrarModalBaja()
+    {
+        mostrarModalBaja = false;
+        anuncianteABorrar = null;
+        erroresBaja.Clear();
+    }
+
+    private async Task ConfirmarBajaAsync()
+    {
+        if (anuncianteABorrar == null) return;
+
+        erroresBaja.Clear();
+        procesandoBaja = true;
+
+        try
+        {
+            await DataService.EliminarAnuncianteAsync(anuncianteABorrar.Id);
+            mensajeExito = $"Anunciante '{anuncianteABorrar.Nombre}' eliminado exitosamente.";
+            CerrarModalBaja();
+            await CargarDatosAsync();
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex)
+        {
+            erroresBaja = PublicidadDataService.ParseSqlExceptions(ex);
+        }
+        catch (Exception ex)
+        {
+            erroresBaja.Add("Error inesperado: " + ex.Message);
+        }
+        finally
+        {
+            procesandoBaja = false;
+        }
+    }
+}

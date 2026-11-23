@@ -1,0 +1,50 @@
+﻿@inherits LayoutComponentBase
+
+<div class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="">
+                <i class="bi bi-trophy-fill text-warning"></i>
+                <span>Mundial de Fútbol · Gestión de Publicidad</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <NavLink class="nav-link px-3" href="" Match="NavLinkMatch.All">
+                            <i class="bi bi-house-door me-1"></i> Inicio
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link px-3" href="anunciantes">
+                            <i class="bi bi-badge-ad me-1"></i> ABM Anunciantes
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link px-3" href="importacion">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i> Importación XML & Reporte
+                        </NavLink>
+                    </li>
+                </ul>
+                <span class="navbar-text text-white-50 small">
+                    <i class="bi bi-person-badge me-1"></i> Persona 3: Marcos Nahuel Pereira
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="flex-grow-1 container py-4">
+        @Body
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
+        <div class="container">
+            UNLaM · 3641 Bases de Datos Aplicada · Comisión 2900 · Entrega 9
+        </div>
+    </footer>
+</div>
