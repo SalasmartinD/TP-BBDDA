@@ -46,7 +46,7 @@ DELETE FROM Eventos.Gol WHERE idPartido IN
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN
     (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98021 AND 98027);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98021 AND 98027;
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80d';
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80d');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QVA', 'QWA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80d';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('QV', 'QW');
@@ -313,7 +313,7 @@ DELETE FROM Eventos.Gol WHERE idPartido IN
 DELETE FROM Eventos.FormacionPartido WHERE idPartido IN
     (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98021 AND 98027);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98021 AND 98027;
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80d';
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80d');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QVA', 'QWA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80d';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('QV', 'QW');

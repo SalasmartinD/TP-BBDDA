@@ -63,7 +63,7 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98071 AND 98074;
 DELETE FROM Equipos.ListadoJugadores WHERE idSeleccion IN
     (SELECT id FROM Equipos.Seleccion WHERE abreviacion IN ('XXA', 'XYA', 'XZA'));
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80i';
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80i');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('XXA', 'XYA', 'XZA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80i';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('XX', 'XY', 'XZ');
@@ -375,7 +375,7 @@ DECLARE @x xml;
 DECLARE @selX int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'XXA');
 DECLARE @selZ int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'XZA');
 DECLARE @idListadoX3 int = (SELECT lj.id FROM Equipos.ListadoJugadores lj
-                            JOIN Equipos.Jugador j ON j.id = lj.idJugador
+                            JOIN Equipos.vw_Jugador j ON j.id = lj.idJugador
                             WHERE j.nombre = N'X3' AND j.apellido = N'Prueba80i');
 
 -- PRUEBA 2.1: una selección con sus tres convocados
@@ -513,7 +513,7 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98071 AND 98074;
 DELETE FROM Equipos.ListadoJugadores WHERE idSeleccion IN
     (SELECT id FROM Equipos.Seleccion WHERE abreviacion IN ('XXA', 'XYA', 'XZA'));
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80i';
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80i');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('XXA', 'XYA', 'XZA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80i';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('XX', 'XY', 'XZ');

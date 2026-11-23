@@ -52,9 +52,9 @@ DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM 
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 99601;
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Funciones';
 DELETE FROM Torneo.Fase WHERE idFase = 9911;
-DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QFn Arbitro %';
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QFn Jugador %');
-DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QFn Jugador %';
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QFn Arbitro %');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QFn Jugador %');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QFn Jugador %');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QDA', 'QDB');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('R1', 'R2', 'R3');
 GO
@@ -101,13 +101,16 @@ SELECT s.sel + RIGHT('0' + CAST(n.nro AS varchar(2)), 2), s.sel, n.nro,
 FROM (VALUES ('A'), ('B')) s (sel)
 CROSS JOIN (VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9), (10), (11), (12)) n (nro);
 
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion)
-SELECT N'Jugador', N'QFn Jugador ' + codigo, posicion
+-- Los datos personales se guardan cifrados (script 70): se inserta cifrando con la clave.
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+INSERT INTO Equipos.Jugador (nombreCif, apellidoCif, posicion)
+SELECT EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Jugador'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'QFn Jugador ' + codigo), posicion
 FROM #jug;
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 UPDATE j SET id = ej.id
 FROM #jug j
-JOIN Equipos.Jugador ej ON ej.apellido = N'QFn Jugador ' + j.codigo;
+JOIN Equipos.vw_Jugador ej ON ej.apellido = N'QFn Jugador ' + j.codigo;
 
 INSERT INTO Equipos.ListadoJugadores (idSeleccion, idJugador, fechaAlta, dorsal)
 SELECT s.id, j.id, '2026-05-01', j.nro + 10
@@ -147,14 +150,20 @@ VALUES (@idPart, (SELECT id FROM #jug WHERE codigo = 'A03'), 1, 'A', 20, 'Juego 
        (@idPart, (SELECT id FROM #jug WHERE codigo = 'B07'), 2, 'R', 50, 'Conducta violenta', 'Directa');
 
 -- Árbitros: Uno (Principal, con 2 informes y 1 sanción) y Dos (Asistente 1, sin informes)
-INSERT INTO Arbitraje.Arbitro (idPais, nombre, apellido, categoria)
-SELECT p.id, v.nombre, v.apellido, 'FIFA'
+-- La huella (columna NOT NULL) se calcula con la pimienta, que se lee con la clave abierta.
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+DECLARE @pimientaTest nvarchar(100);
+EXEC Seguridad.ObtenerPimienta @pimienta = @pimientaTest OUTPUT;
+INSERT INTO Arbitraje.Arbitro (idPais, nombreCif, apellidoCif, categoria, huella)
+SELECT p.id, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), v.nombre), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), v.apellido), 'FIFA',
+       Seguridad.fn_Huella(@pimientaTest, v.nombre, v.apellido, NULL)
 FROM (VALUES (N'Neutral', N'QFn Arbitro Uno'), (N'Neutral', N'QFn Arbitro Dos')) v (nombre, apellido)
 CROSS JOIN Torneo.Pais p
 WHERE p.codigoISO2 = 'R3';
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
-DECLARE @idArbUno int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QFn Arbitro Uno');
-DECLARE @idArbDos int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QFn Arbitro Dos');
+DECLARE @idArbUno int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QFn Arbitro Uno');
+DECLARE @idArbDos int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QFn Arbitro Dos');
 
 INSERT INTO Arbitraje.cuerpoArbitral (idArbitro, idPartido, rol)
 VALUES (@idArbUno, @idPart, 'Principal'),
@@ -332,8 +341,8 @@ PRINT ' 3. PRUEBAS: Arbitraje.vw_HistorialArbitro';
 PRINT '--------------------------------------------------------------------------------';
 
 DECLARE @idPart int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99601);
-DECLARE @idArbUno int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QFn Arbitro Uno');
-DECLARE @idArbDos int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QFn Arbitro Dos');
+DECLARE @idArbUno int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QFn Arbitro Uno');
+DECLARE @idArbDos int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QFn Arbitro Dos');
 
 SELECT 'HISTORIAL ARBITRO' AS momento, * FROM Arbitraje.vw_HistorialArbitro WHERE idPartido = @idPart ORDER BY idArbitro;
 
@@ -397,9 +406,9 @@ DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM 
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 99601;
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Funciones';
 DELETE FROM Torneo.Fase WHERE idFase = 9911;
-DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QFn Arbitro %';
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QFn Jugador %');
-DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QFn Jugador %';
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QFn Arbitro %');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QFn Jugador %');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QFn Jugador %');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QDA', 'QDB');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('R1', 'R2', 'R3');
 

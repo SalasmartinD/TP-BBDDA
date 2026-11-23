@@ -43,8 +43,8 @@ PRINT '--- Limpieza preventiva de pruebas anteriores ---';
 
 DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903));
 DELETE FROM Arbitraje.cuerpoArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903));
-DELETE FROM Arbitraje.ArbitroIdioma WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
-DELETE FROM Arbitraje.Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado');
+DELETE FROM Arbitraje.ArbitroIdioma WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Arbitraje';
 DELETE FROM Torneo.Fase WHERE idFase = 999;
@@ -129,7 +129,7 @@ BEGIN TRY
         @idArbitro          = @idArbitroGenerado OUTPUT;
 
     PRINT '[OK] PRUEBA 1.1: Árbitro dado de alta con ID = ' + CAST(@idArbitroGenerado AS varchar(10));
-    SELECT idArbitro, nombre, apellido, categoria, idPais, fechaInternacional FROM Arbitraje.Arbitro WHERE idArbitro = @idArbitroGenerado;
+    SELECT idArbitro, nombre, apellido, categoria, idPais, fechaInternacional FROM Arbitraje.vw_Arbitro WHERE idArbitro = @idArbitroGenerado;
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 1.1: ' + ERROR_MESSAGE();
@@ -232,7 +232,7 @@ GO
 
 -- PRUEBA 1.3: Modificación de árbitro exitosa
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPaisNeutro int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TN');
 
     EXEC Arbitraje.Arbitro_Modificacion
@@ -245,7 +245,7 @@ BEGIN TRY
         @fechaInternacional = '2016-05-10';
 
     PRINT '[OK] PRUEBA 1.3: Modificación exitosa.';
-    SELECT idArbitro, nombre, apellido, categoria, fechaInternacional FROM Arbitraje.Arbitro WHERE idArbitro = @idArbitro;
+    SELECT idArbitro, nombre, apellido, categoria, fechaInternacional FROM Arbitraje.vw_Arbitro WHERE idArbitro = @idArbitro;
 END TRY
 BEGIN CATCH
     PRINT '[FALLO] PRUEBA 1.3: ' + ERROR_MESSAGE();
@@ -266,7 +266,7 @@ GO
 
 -- PRUEBA 1.4b: Error Modificación - Nombre obligatorio
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPaisNeutro int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TN');
     EXEC Arbitraje.Arbitro_Modificacion @idArbitro = @idArbitro, @idPais = @idPaisNeutro, @nombre = N'   ', @apellido = N'Collina Test', @categoria = 'FIFA';
     PRINT '[FALLO] PRUEBA 1.4b No detectó nombre vacío.';
@@ -280,7 +280,7 @@ GO
 
 -- PRUEBA 1.4c: Error Modificación - Apellido obligatorio
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPaisNeutro int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TN');
     EXEC Arbitraje.Arbitro_Modificacion @idArbitro = @idArbitro, @idPais = @idPaisNeutro, @nombre = N'Pierluigi', @apellido = N'', @categoria = 'FIFA';
     PRINT '[FALLO] PRUEBA 1.4c No detectó apellido vacío.';
@@ -294,7 +294,7 @@ GO
 
 -- PRUEBA 1.4d: Error Modificación - País inexistente
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.Arbitro_Modificacion @idArbitro = @idArbitro, @idPais = 999999, @nombre = N'Pierluigi', @apellido = N'Collina Test', @categoria = 'FIFA';
     PRINT '[FALLO] PRUEBA 1.4d No detectó país inexistente.';
 END TRY
@@ -307,7 +307,7 @@ GO
 
 -- PRUEBA 1.4e: Error Modificación - Categoría permitida
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPaisNeutro int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TN');
     EXEC Arbitraje.Arbitro_Modificacion @idArbitro = @idArbitro, @idPais = @idPaisNeutro, @nombre = N'Pierluigi', @apellido = N'Collina Test', @categoria = 'LOCAL';
     PRINT '[FALLO] PRUEBA 1.4e No detectó categoría inválida.';
@@ -321,7 +321,7 @@ GO
 
 -- PRUEBA 1.4f: Error Modificación - Fecha internacional no futura
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPaisNeutro int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TN');
     EXEC Arbitraje.Arbitro_Modificacion @idArbitro = @idArbitro, @idPais = @idPaisNeutro, @nombre = N'Pierluigi', @apellido = N'Collina Test', @categoria = 'FIFA', @fechaInternacional = '2099-01-01';
     PRINT '[FALLO] PRUEBA 1.4f No detectó fecha futura.';
@@ -354,7 +354,7 @@ GO
 
 -- PRUEBA 1.4h: Error Modificación - Conflicto de nacionalidad si se cambia país a uno con partidos asignados
 BEGIN TRY
-    DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Duplicado');
+    DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Duplicado');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idPaisA int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TA');
 
@@ -386,7 +386,7 @@ GO
 
 -- PRUEBA 1.5b: Error Baja - Árbitro con designaciones vigentes
 BEGIN TRY
-    DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Duplicado');
+    DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Duplicado');
     EXEC Arbitraje.Arbitro_Baja @idArbitro = @idArbitroAux;
     PRINT '[FALLO] PRUEBA 1.5b Permitió eliminar árbitro con designaciones.';
 END TRY
@@ -398,7 +398,7 @@ END CATCH;
 GO
 
 -- Limpieza del árbitro auxiliar y su designación para los siguientes bloques
-DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Duplicado');
+DECLARE @idArbitroAux int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Duplicado');
 DELETE FROM Arbitraje.cuerpoArbitral WHERE idArbitro = @idArbitroAux;
 DELETE FROM Arbitraje.Arbitro WHERE idArbitro = @idArbitroAux;
 GO
@@ -412,7 +412,7 @@ PRINT '-------------------------------------------------------------------------
 
 -- PRUEBA 2.1: Alta exitosa de idioma
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Alta @idArbitro = @idArbitro, @idioma = 'it';
     PRINT '[OK] PRUEBA 2.1: Idioma "it" registrado con éxito.';
     SELECT idArbitro, idioma FROM Arbitraje.ArbitroIdioma WHERE idArbitro = @idArbitro;
@@ -436,7 +436,7 @@ GO
 
 -- PRUEBA 2.2b: Error Alta - Formato ISO inválido (cadena larga, corta o dígitos)
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Alta @idArbitro = @idArbitro, @idioma = 'esp';
     PRINT '[FALLO] PRUEBA 2.2b No detectó código no ISO.';
 END TRY
@@ -449,7 +449,7 @@ GO
 
 -- PRUEBA 2.2c: Error Alta - Idioma duplicado
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Alta @idArbitro = @idArbitro, @idioma = 'it';
     PRINT '[FALLO] PRUEBA 2.2c No detectó idioma duplicado.';
 END TRY
@@ -462,7 +462,7 @@ GO
 
 -- PRUEBA 2.3: Modificación exitosa de idioma ('it' a 'en')
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Modificacion @idArbitro = @idArbitro, @idiomaActual = 'it', @idiomaNuevo = 'en';
     PRINT '[OK] PRUEBA 2.3: Idioma modificado de "it" a "en".';
     SELECT idArbitro, idioma FROM Arbitraje.ArbitroIdioma WHERE idArbitro = @idArbitro;
@@ -486,7 +486,7 @@ GO
 
 -- PRUEBA 2.4b: Error Modificación - Idioma actual no registrado
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Modificacion @idArbitro = @idArbitro, @idiomaActual = 'de', @idiomaNuevo = 'fr';
     PRINT '[FALLO] PRUEBA 2.4b No detectó que el idioma actual no existía.';
 END TRY
@@ -499,7 +499,7 @@ GO
 
 -- PRUEBA 2.4c: Error Modificación - Idioma nuevo no ISO
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Modificacion @idArbitro = @idArbitro, @idiomaActual = 'en', @idiomaNuevo = '12';
     PRINT '[FALLO] PRUEBA 2.4c No detectó nuevo idioma no ISO.';
 END TRY
@@ -512,7 +512,7 @@ GO
 
 -- PRUEBA 2.4d: Error Modificación - Idioma nuevo idéntico al actual
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Modificacion @idArbitro = @idArbitro, @idiomaActual = 'en', @idiomaNuevo = 'en';
     PRINT '[FALLO] PRUEBA 2.4d No detectó idiomas idénticos.';
 END TRY
@@ -525,7 +525,7 @@ GO
 
 -- PRUEBA 2.4e: Error Modificación - Nuevo idioma ya registrado
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     -- Agregamos 'fr'
     EXEC Arbitraje.ArbitroIdioma_Alta @idArbitro = @idArbitro, @idioma = 'fr';
     -- Intentamos cambiar 'en' por 'fr' que ya lo tiene
@@ -553,7 +553,7 @@ GO
 
 -- PRUEBA 2.5b: Error Baja - Idioma no registrado
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Baja @idArbitro = @idArbitro, @idioma = 'pt';
     PRINT '[FALLO] PRUEBA 2.5b No detectó idioma no registrado.';
 END TRY
@@ -566,7 +566,7 @@ GO
 
 -- PRUEBA 2.6: Baja exitosa de idiomas
 BEGIN TRY
-    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.ArbitroIdioma_Baja @idArbitro = @idArbitro, @idioma = 'fr';
     EXEC Arbitraje.ArbitroIdioma_Baja @idArbitro = @idArbitro, @idioma = 'en';
     PRINT '[OK] PRUEBA 2.6: Bajas de idiomas ejecutadas con éxito.';
@@ -586,7 +586,7 @@ PRINT '-------------------------------------------------------------------------
 -- PRUEBA 3.1: Alta de designación exitosa con árbitro neutral
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idDesignacion int;
 
     EXEC Arbitraje.cuerpoArbitral_Alta
@@ -606,7 +606,7 @@ GO
 -- PRUEBA 3.2a: Error Alta - Partido inexistente
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- El partido especificado no existe."
 BEGIN TRY
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = 999999, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.2a No detectó partido inexistente.';
 END TRY
@@ -635,7 +635,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje conteniendo "El rol arbitral debe ser Principal, Asistente 1..."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @rol = 'JuezDeLinea';
     PRINT '[FALLO] PRUEBA 3.2c No detectó rol inválido.';
 END TRY
@@ -650,7 +650,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se pueden asignar árbitros a un partido ya finalizado o que se encuentra en juego."
 BEGIN TRY
     DECLARE @idPartidoFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99902);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartidoFin, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.2d1 Permitió asignar en partido finalizado.';
 END TRY
@@ -665,7 +665,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se pueden asignar árbitros a un partido ya finalizado o que se encuentra en juego."
 BEGIN TRY
     DECLARE @idPartidoJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99903);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartidoJuego, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.2d2 Permitió asignar en partido en juego.';
 END TRY
@@ -683,9 +683,9 @@ BEGIN TRY
     DECLARE @idPaisExtra int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TX');
     DECLARE @idOtroArbitro int;
 
-    IF NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta')
-        INSERT INTO Arbitraje.Arbitro (idPais, nombre, apellido, categoria) VALUES (@idPaisExtra, N'Howard', N'Arbitro Pais Beta', 'FIFA');
-    SET @idOtroArbitro = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    IF NOT EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta')
+        EXEC Arbitraje.Arbitro_Alta @idPais = @idPaisExtra, @nombre = N'Howard', @apellido = N'Arbitro Pais Beta', @categoria = 'FIFA';
+    SET @idOtroArbitro = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
 
     -- Intentamos asignarlo también como 'Principal' (ya ocupado por Collina)
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartido, @idArbitro = @idOtroArbitro, @rol = 'Principal';
@@ -702,7 +702,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- El árbitro ya posee otro rol asignado en este mismo partido."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     -- Collina ya es Principal, intentamos darle VAR
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.2f Permitió asignar dos roles al mismo árbitro.';
@@ -721,9 +721,9 @@ BEGIN TRY
     DECLARE @idPaisA int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TA');
     DECLARE @idArbitroAlfa int;
 
-    IF NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Alfa')
-        INSERT INTO Arbitraje.Arbitro (idPais, nombre, apellido, categoria) VALUES (@idPaisA, N'Néstor', N'Arbitro Pais Alfa', 'FIFA');
-    SET @idArbitroAlfa = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Alfa');
+    IF NOT EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Alfa')
+        EXEC Arbitraje.Arbitro_Alta @idPais = @idPaisA, @nombre = N'Néstor', @apellido = N'Arbitro Pais Alfa', @categoria = 'FIFA';
+    SET @idArbitroAlfa = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Alfa');
 
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroAlfa, @rol = 'Asistente 1';
     PRINT '[FALLO] PRUEBA 3.2g1 Permitió designar árbitro con nacionalidad local.';
@@ -742,11 +742,11 @@ BEGIN TRY
     DECLARE @idPaisB int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TB');
     DECLARE @idArbitroBeta int;
 
-    IF NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta')
-        INSERT INTO Arbitraje.Arbitro (idPais, nombre, apellido, categoria) VALUES (@idPaisB, N'Wilmar', N'Arbitro Pais Beta', 'FIFA');
+    IF NOT EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta')
+        EXEC Arbitraje.Arbitro_Alta @idPais = @idPaisB, @nombre = N'Wilmar', @apellido = N'Arbitro Pais Beta', @categoria = 'FIFA';
     ELSE
-        UPDATE Arbitraje.Arbitro SET idPais = @idPaisB WHERE apellido = N'Arbitro Pais Beta';
-    SET @idArbitroBeta = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+        UPDATE Arbitraje.Arbitro SET idPais = @idPaisB WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    SET @idArbitroBeta = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
 
     EXEC Arbitraje.cuerpoArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroBeta, @rol = 'Asistente 2';
     PRINT '[FALLO] PRUEBA 3.2g2 Permitió designar árbitro con nacionalidad visitante.';
@@ -757,7 +757,7 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 3.2g2: ' + ERROR_MESSAGE();
 END CATCH;
 -- Revertimos país de Arbitro Beta a neutro/extra TX
-UPDATE Arbitraje.Arbitro SET idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TX') WHERE apellido = N'Arbitro Pais Beta';
+UPDATE Arbitraje.Arbitro SET idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TX') WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
 GO
 
 -- PRUEBA 3.2h: Error Alta - Acumulación masiva de errores (Partido inexistente + Árbitro inexistente + Rol inválido)
@@ -780,7 +780,7 @@ GO
 -- Resultado esperado: Ejecución exitosa y actualización reflejada en Arbitraje.cuerpoArbitral
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idDesignacion int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido AND idArbitro = @idArbitroNeutro);
 
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesignacion, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
@@ -796,7 +796,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- La designación arbitral a modificar no existe."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = -999, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.4a No detectó designación inexistente.';
 END TRY
@@ -812,7 +812,7 @@ GO
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idDesignacion int = (SELECT TOP 1 id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesignacion, @idPartido = 999999, @idArbitro = @idArbitroNeutro, @rol = 'VAR';
     PRINT '[FALLO] PRUEBA 3.4b No detectó partido inexistente.';
 END TRY
@@ -843,7 +843,7 @@ GO
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idDesignacion int = (SELECT TOP 1 id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesignacion, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @rol = 'INVENTADO';
     PRINT '[FALLO] PRUEBA 3.4d No detectó rol inválido.';
 END TRY
@@ -858,7 +858,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se pueden modificar designaciones de un partido ya finalizado o en juego."
 BEGIN TRY
     DECLARE @idPartidoFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99902);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigFin int;
 
     INSERT INTO Arbitraje.cuerpoArbitral (idPartido, idArbitro, rol) VALUES (@idPartidoFin, @idArbitroBeta, 'Principal');
@@ -878,7 +878,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se pueden modificar designaciones de un partido ya finalizado o en juego."
 BEGIN TRY
     DECLARE @idPartidoJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99903);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigJuego int;
 
     INSERT INTO Arbitraje.cuerpoArbitral (idPartido, idArbitro, rol) VALUES (@idPartidoJuego, @idArbitroBeta, 'Principal');
@@ -901,7 +901,7 @@ BEGIN TRY
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idPartidoFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99902);
     DECLARE @idDesigProg int = (SELECT TOP 1 id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartidoProg);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesigProg, @idPartido = @idPartidoFin, @idArbitro = @idArbitroNeutro, @rol = 'Cuarto Arbitro';
     PRINT '[FALLO] PRUEBA 3.4f1 Permitió trasladar designación a partido finalizado.';
@@ -919,7 +919,7 @@ BEGIN TRY
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idPartidoJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99903);
     DECLARE @idDesigProg int = (SELECT TOP 1 id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartidoProg);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesigProg, @idPartido = @idPartidoJuego, @idArbitro = @idArbitroNeutro, @rol = 'Cuarto Arbitro';
     PRINT '[FALLO] PRUEBA 3.4f2 Permitió trasladar designación a partido en juego.';
@@ -935,8 +935,8 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se puede modificar el árbitro o partido de la designación porque ya posee informes arbitrales registrados."
 BEGIN TRY
     DECLARE @idPartidoFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99902);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idDesigFin int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartidoFin AND idArbitro = @idArbitroBeta);
 
     -- Insertamos informe arbitral vinculado
@@ -965,7 +965,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- El rol ya se encuentra cubierto por otro árbitro en este partido."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigBeta int;
 
     -- Asignamos al árbitro Beta como Asistente 1
@@ -986,7 +986,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- El árbitro ya posee otro rol asignado en este mismo partido."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idDesigBeta int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido AND rol = 'Asistente 1');
 
     -- Intentamos asignar en la designación de Asistente 1 a Collina (que ya es VAR)
@@ -1004,7 +1004,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- Conflicto de nacionalidad: el árbitro es de la misma nacionalidad que una de las selecciones del partido."
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroAlfa int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Alfa');
+    DECLARE @idArbitroAlfa int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Alfa');
     DECLARE @idDesigBeta int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido AND rol = 'Asistente 1');
 
     EXEC Arbitraje.cuerpoArbitral_Modificacion @id = @idDesigBeta, @idPartido = @idPartido, @idArbitro = @idArbitroAlfa, @rol = 'Asistente 1';
@@ -1022,7 +1022,7 @@ GO
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
     DECLARE @idPaisB int = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TB');
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigBeta int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartido AND rol = 'Asistente 1');
 
     -- Cambiamos temporalmente país de Arbitro Beta a TB para generar el conflicto
@@ -1037,7 +1037,7 @@ BEGIN CATCH
     ELSE PRINT '[FALLO] PRUEBA 3.4j2: ' + ERROR_MESSAGE();
 END CATCH;
 -- Revertimos país de Arbitro Beta a neutral TX
-UPDATE Arbitraje.Arbitro SET idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TX') WHERE apellido = N'Arbitro Pais Beta';
+UPDATE Arbitraje.Arbitro SET idPais = (SELECT id FROM Torneo.Pais WHERE codigoISO2 = 'TX') WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
 GO
 
 -- PRUEBA 3.4k: Error Modificación - Acumulación masiva de errores (Designación inexistente + Partido inexistente + Árbitro inexistente + Rol inválido)
@@ -1074,7 +1074,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se puede eliminar la designación arbitral de un partido ya finalizado o en juego."
 BEGIN TRY
     DECLARE @idPartidoFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99902);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigFin int;
 
     INSERT INTO Arbitraje.cuerpoArbitral (idPartido, idArbitro, rol) VALUES (@idPartidoFin, @idArbitroBeta, 'Principal');
@@ -1095,7 +1095,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se puede eliminar la designación arbitral de un partido ya finalizado o en juego."
 BEGIN TRY
     DECLARE @idPartidoJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99903);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigJuego int;
 
     INSERT INTO Arbitraje.cuerpoArbitral (idPartido, idArbitro, rol) VALUES (@idPartidoJuego, @idArbitroBeta, 'Principal');
@@ -1116,7 +1116,7 @@ GO
 -- Resultado esperado: Fallo con THROW 50001 y mensaje "- No se puede eliminar la designación porque el árbitro posee informes arbitrales registrados para este partido."
 BEGIN TRY
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigBeta int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartidoProg AND idArbitro = @idArbitroBeta);
 
     -- Insertamos informe asociado
@@ -1138,7 +1138,7 @@ GO
 -- Resultado esperado: Eliminación limpia del registro sin errores
 BEGIN TRY
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Beta');
+    DECLARE @idArbitroBeta int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Beta');
     DECLARE @idDesigBeta int = (SELECT id FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartidoProg AND idArbitro = @idArbitroBeta);
 
     EXEC Arbitraje.cuerpoArbitral_Baja @id = @idDesigBeta;
@@ -1159,7 +1159,7 @@ PRINT '-------------------------------------------------------------------------
 -- PRUEBA 4.2d: Error Alta - Partido aún programado
 BEGIN TRY
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartidoProg, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-16', @esSancion = 0, @detalle = N'Informe prematuro';
     PRINT '[FALLO] PRUEBA 4.2d Permitió registrar informe en partido programado.';
@@ -1177,7 +1177,7 @@ GO
 
 -- PRUEBA 4.2a: Error Alta - Partido inexistente
 BEGIN TRY
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = 999999, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-16', @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.2a No detectó partido inexistente.';
 END TRY
@@ -1204,7 +1204,7 @@ GO
 -- PRUEBA 4.2c: Error Alta - Árbitro no formó parte del cuerpo arbitral
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroAjeno int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Alfa');
+    DECLARE @idArbitroAjeno int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Alfa');
 
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroAjeno, @fecha = '2026-06-16', @esSancion = 0, @detalle = N'Informe ajeno';
     PRINT '[FALLO] PRUEBA 4.2c Permitió informe de árbitro ajeno al partido.';
@@ -1219,7 +1219,7 @@ GO
 -- PRUEBA 4.2e: Error Alta - Fecha nula
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = NULL, @esSancion = 0, @detalle = N'Informe sin fecha';
     PRINT '[FALLO] PRUEBA 4.2e No detectó fecha nula.';
@@ -1234,7 +1234,7 @@ GO
 -- PRUEBA 4.2f: Error Alta - Fecha anterior a la disputa del partido
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     -- El partido se jugó el 2026-06-15; intentamos fecha 2026-06-10
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-10', @esSancion = 0, @detalle = N'Informe fecha vieja';
@@ -1250,7 +1250,7 @@ GO
 -- PRUEBA 4.2g: Error Alta - Bandera esSancion nula
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-16', @esSancion = NULL, @detalle = N'Informe sin tipo';
     PRINT '[FALLO] PRUEBA 4.2g No detectó esSancion nula.';
@@ -1265,7 +1265,7 @@ GO
 -- PRUEBA 4.2h: Error Alta - Sanción requiere detalle obligatorio
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Alta @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-16', @esSancion = 1, @detalle = N'   ';
     PRINT '[FALLO] PRUEBA 4.2h Permitió registrar sanción sin detalle.';
@@ -1280,7 +1280,7 @@ GO
 -- PRUEBA 4.1: Alta de informe arbitral exitoso
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idInformeGenerado int;
 
     EXEC Arbitraje.InformeArbitral_Alta
@@ -1303,7 +1303,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%conducta antideportiva%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion
         @id        = @idInforme,
@@ -1324,7 +1324,7 @@ GO
 -- PRUEBA 4.4a: Error Modificación - Informe inexistente
 BEGIN TRY
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = -999, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-17', @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4a No detectó informe inexistente.';
@@ -1339,7 +1339,7 @@ GO
 -- PRUEBA 4.4b: Error Modificación - Partido inexistente
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = 999999, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-17', @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4b No detectó partido inexistente.';
@@ -1370,7 +1370,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroAjeno int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Arbitro Pais Alfa');
+    DECLARE @idArbitroAjeno int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Arbitro Pais Alfa');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = @idPartido, @idArbitro = @idArbitroAjeno, @fecha = '2026-06-17', @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4d Permitió modificar informe asignándolo a árbitro ajeno.';
@@ -1385,7 +1385,7 @@ GO
 -- PRUEBA 4.4e: Error Modificación - Partido en estado programado
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
     DECLARE @idPartidoProg int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
 
     -- Pasamos temporalmente a programado para verificar el chequeo
@@ -1412,7 +1412,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = NULL, @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4f No detectó fecha nula.';
@@ -1428,7 +1428,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-01', @esSancion = 0, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4g No detectó fecha anterior al partido.';
@@ -1444,7 +1444,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-17', @esSancion = NULL, @detalle = N'Test';
     PRINT '[FALLO] PRUEBA 4.4h No detectó esSancion nula.';
@@ -1460,7 +1460,7 @@ GO
 BEGIN TRY
     DECLARE @idInforme int = (SELECT TOP 1 id FROM Arbitraje.InformeArbitral WHERE detalle LIKE '%apercibimiento formal%');
     DECLARE @idPartido int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99901);
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     EXEC Arbitraje.InformeArbitral_Modificacion @id = @idInforme, @idPartido = @idPartido, @idArbitro = @idArbitroNeutro, @fecha = '2026-06-17', @esSancion = 1, @detalle = N'';
     PRINT '[FALLO] PRUEBA 4.4i Permitió modificar sanción dejándola sin detalle.';
@@ -1514,7 +1514,7 @@ GO
 
 -- PRUEBA 5.2: Baja de árbitro con verificación atómica de borrado en cascada de idiomas
 BEGIN TRY
-    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'Collina Test');
+    DECLARE @idArbitroNeutro int = (SELECT TOP 1 idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'Collina Test');
 
     -- Insertamos idioma para probar la cascada manual de Arbitro_Baja
     EXEC Arbitraje.ArbitroIdioma_Alta @idArbitro = @idArbitroNeutro, @idioma = 'es';
@@ -1524,7 +1524,7 @@ BEGIN TRY
     PRINT '[OK] PRUEBA 5.2: Árbitro Collina y sus idiomas eliminados en cascada de forma atómica.';
 
     -- Evidencia de eliminación total
-    SELECT COUNT(*) AS [ExisteArbitroCollina] FROM Arbitraje.Arbitro WHERE idArbitro = @idArbitroNeutro;
+    SELECT COUNT(*) AS [ExisteArbitroCollina] FROM Arbitraje.vw_Arbitro WHERE idArbitro = @idArbitroNeutro;
     SELECT COUNT(*) AS [ExistenIdiomasCollina] FROM Arbitraje.ArbitroIdioma WHERE idArbitro = @idArbitroNeutro;
 END TRY
 BEGIN CATCH
@@ -1539,8 +1539,8 @@ PRINT '--- Limpiando fixture auxiliar de pruebas ---';
 
 DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903));
 DELETE FROM Arbitraje.cuerpoArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903));
-DELETE FROM Arbitraje.ArbitroIdioma WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
-DELETE FROM Arbitraje.Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado');
+DELETE FROM Arbitraje.ArbitroIdioma WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido IN (N'Collina Test', N'Arbitro Pais Alfa', N'Arbitro Pais Beta', N'Arbitro Duplicado'));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99901, 99902, 99903);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Arbitraje';
 DELETE FROM Torneo.Fase WHERE idFase = 999;

@@ -86,16 +86,16 @@ VALUES (N'$(RUTA_REPO)datasets\arbitros_fifa_reducido.xml', N'$(RUTA_REPO)docs\s
 -- no debe modificar.
 IF OBJECT_ID('tempdb..#arbPre') IS NOT NULL DROP TABLE #arbPre;
 CREATE TABLE #arbPre (idArbitro int PRIMARY KEY);
-INSERT INTO #arbPre (idArbitro) SELECT idArbitro FROM Arbitraje.Arbitro;
+INSERT INTO #arbPre (idArbitro) SELECT idArbitro FROM Arbitraje.vw_Arbitro;
 
 IF OBJECT_ID('tempdb..#foto') IS NOT NULL DROP TABLE #foto;
 SELECT (SELECT COUNT(*) FROM Torneo.Pais)                                  AS cantPais,
-       (SELECT COUNT(*) FROM Arbitraje.Arbitro)                            AS cantArbitro,
+       (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro)                            AS cantArbitro,
        (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma)                      AS cantIdioma,
        (SELECT COUNT(*) FROM Sistema.ErrorImportacion)                     AS cantError,
        (SELECT ISNULL(MAX(id), 0) FROM Sistema.ErrorImportacion)           AS maxIdError,
        (SELECT ISNULL(CHECKSUM_AGG(CHECKSUM(idArbitro, idPais, nombre, apellido, categoria, genero, fechaInternacional)), 0)
-          FROM Arbitraje.Arbitro)                                          AS chkArbitro,
+          FROM Arbitraje.vw_Arbitro)                                          AS chkArbitro,
        (SELECT ISNULL(CHECKSUM_AGG(CHECKSUM(idArbitro, idioma)), 0)
           FROM Arbitraje.ArbitroIdioma)                                    AS chkIdioma
 INTO #foto;
@@ -133,14 +133,14 @@ ELSE PRINT '[FALLO] PRUEBA 1: Torneo.Pais está vacía; ejecutar 50a antes de es
 --   insertados > 0 y errores > 0 (los países que no están en Torneo.Pais fallan sin
 --   cortar la importación); Arbitro aumenta en la cantidad de insertados y los
 --   árbitros nuevos tienen idiomas. Los números exactos dependen de la carga de 50a.
-SET @arbAntes = (SELECT COUNT(*) FROM Arbitraje.Arbitro);
+SET @arbAntes = (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro);
 SET @idiAntes = (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma);
 BEGIN TRY
     EXEC Arbitraje.Importar_ArbitrosXML @rutaArchivo = @rutaXml,
          @cantFilas = @cantFilas OUTPUT, @cantInsertados = @cantInsertados OUTPUT,
          @cantActualizados = @cantActualizados OUTPUT, @cantErrores = @cantErrores OUTPUT;
 
-    SET @arbNuevos = (SELECT COUNT(*) FROM Arbitraje.Arbitro) - @arbAntes;
+    SET @arbNuevos = (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro) - @arbAntes;
     SET @idiNuevos = (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma) - @idiAntes;
 
     PRINT '  Se insertaron ' + CAST(@cantInsertados AS varchar(10)) + ' árbitros correctos y fallaron '
@@ -192,7 +192,7 @@ SET @maxIdImp1 = (SELECT ISNULL(MAX(id), 0) FROM Sistema.ErrorImportacion);   --
 -- Resultado esperado: 0 insertados; actualizados = insertados + actualizados de la
 --   corrida 1 (los árbitros ya cargados se modifican); los mismos errores; y los
 --   conteos de Arbitro y ArbitroIdioma no cambian (sin duplicados).
-SET @arbAntes = (SELECT COUNT(*) FROM Arbitraje.Arbitro);
+SET @arbAntes = (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro);
 SET @idiAntes = (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma);
 BEGIN TRY
     EXEC Arbitraje.Importar_ArbitrosXML @rutaArchivo = @rutaXml,
@@ -201,13 +201,13 @@ BEGIN TRY
 
     SELECT 'REIMPORTACION' AS momento, @cantFilas2 AS cantFilas, @cantInsertados2 AS cantInsertados,
            @cantActualizados2 AS cantActualizados, @cantErrores2 AS cantErrores,
-           (SELECT COUNT(*) FROM Arbitraje.Arbitro) - @arbAntes AS variacionArbitros,
+           (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro) - @arbAntes AS variacionArbitros,
            (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma) - @idiAntes AS variacionIdiomas;
 
     IF @cantInsertados2 = 0
        AND @cantActualizados2 = @cantInsertados + @cantActualizados
        AND @cantErrores2 = @cantErrores
-       AND (SELECT COUNT(*) FROM Arbitraje.Arbitro) = @arbAntes
+       AND (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro) = @arbAntes
        AND (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma) = @idiAntes
         PRINT '[OK] PRUEBA 4: Reimportación sin altas, ' + CAST(@cantActualizados2 AS varchar(10)) + ' actualizados y sin duplicados de árbitros ni idiomas.';
     ELSE PRINT '[FALLO] PRUEBA 4: La reimportación insertó, duplicó o cambió los contadores (ver REIMPORTACION).';
@@ -244,12 +244,12 @@ SELECT 'PAIS INEXISTENTE' AS momento, @idError AS idError, @paisError AS paisNoC
        (SELECT COUNT(*) FROM Sistema.ErrorImportacion
         WHERE id > @maxIdAntes AND id <= @maxIdImp1 AND mensajeError LIKE N'%- El país especificado no existe.%') AS filasConEseError;
 SELECT 'INGLATERRA' AS momento, a.idArbitro, a.nombre, a.apellido, p.nombre AS pais
-FROM Arbitraje.Arbitro AS a JOIN Torneo.Pais AS p ON p.id = a.idPais
+FROM Arbitraje.vw_Arbitro AS a JOIN Torneo.Pais AS p ON p.id = a.idPais
 WHERE a.nombre = N'Abigail' AND a.apellido = N'BYRNE';
 
 IF @idError IS NOT NULL AND @cantPaisFaltante = (SELECT COUNT(*) FROM Sistema.ErrorImportacion
                                                  WHERE id > @maxIdAntes AND id <= @maxIdImp1 AND mensajeError LIKE N'%- El país especificado no existe.%')
-   AND EXISTS (SELECT 1 FROM Arbitraje.Arbitro AS a JOIN Torneo.Pais AS p ON p.id = a.idPais
+   AND EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro AS a JOIN Torneo.Pais AS p ON p.id = a.idPais
                WHERE a.nombre = N'Abigail' AND a.apellido = N'BYRNE' AND p.nombre = N'Inglaterra')
     PRINT '[OK] PRUEBA 5: País inexistente (' + @paisError + ') informado como error de fila; Inglaterra (ISO3 vacío) se resolvió por nombre y se insertó.';
 ELSE PRINT '[FALLO] PRUEBA 5: No hay error por país inexistente coherente o falta el árbitro de Inglaterra.';
@@ -436,7 +436,7 @@ SELECT 'ERRORES XML LITERAL' AS momento, nroFila, archivo, tablaDestino, REPLACE
 FROM Sistema.ErrorImportacion WHERE id > @maxIdAntes AND archivo = @origen ORDER BY nroFila;
 SELECT 'ARBITRO VALIDO' AS momento, a.idArbitro, a.nombre, a.apellido,
        (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma i WHERE i.idArbitro = a.idArbitro) AS idiomas
-FROM Arbitraje.Arbitro AS a WHERE a.nombre = N'Test81f' AND a.apellido = N'VALIDO81F';
+FROM Arbitraje.vw_Arbitro AS a WHERE a.nombre = N'Test81f' AND a.apellido = N'VALIDO81F';
 
 -- PRUEBA 14: Importación parcial con una fila de errores propios acumulados
 -- Resultado esperado: cantFilas = 3, cantInsertados = 1 (la fila válida entró con sus
@@ -444,7 +444,7 @@ FROM Arbitraje.Arbitro AS a WHERE a.nombre = N'Test81f' AND a.apellido = N'VALID
 --   datoOriginal no nulo) con "Datos inválidos en el archivo:" y los 5 textos: fecha
 --   inválida, nombre y apellido > 60, género > 20 y categoría > 15.
 IF @cantFilas = 3 AND @cantInsertados = 1 AND @cantActualizados = 0 AND @cantErrores = 2
-   AND (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma AS i JOIN Arbitraje.Arbitro AS a ON a.idArbitro = i.idArbitro
+   AND (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma AS i JOIN Arbitraje.vw_Arbitro AS a ON a.idArbitro = i.idArbitro
         WHERE a.nombre = N'Test81f' AND a.apellido = N'VALIDO81F') = 2
    AND EXISTS (SELECT 1 FROM Sistema.ErrorImportacion
                WHERE id > @maxIdAntes AND archivo = @origen AND nroFila = 2 AND datoOriginal IS NOT NULL
@@ -466,7 +466,7 @@ ELSE PRINT '[FALLO] PRUEBA 14: Importación parcial o errores propios distintos 
 IF EXISTS (SELECT 1 FROM Sistema.ErrorImportacion
            WHERE id > @maxIdAntes AND archivo = @origen AND nroFila = 3 AND datoOriginal IS NOT NULL
              AND mensajeError LIKE N'%- La categoría debe ser ''FIFA'' o ''Confederacion''.%')
-   AND NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE apellido = N'CATEGORIAXXX')
+   AND NOT EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro WHERE apellido = N'CATEGORIAXXX')
    AND @cantInsertados = 1
     PRINT '[OK] PRUEBA 15: Categoría inválida rechazada por el ABM, registrada como error de fila sin cortar la importación.';
 ELSE PRINT '[FALLO] PRUEBA 15: La fila con categoría XXX no quedó registrada como error esperado.';
@@ -488,7 +488,7 @@ DECLARE @id int = 0, @borrados int = 0, @noBorrados int = 0;
 IF OBJECT_ID('tempdb..#nuevos') IS NOT NULL DROP TABLE #nuevos;
 CREATE TABLE #nuevos (idArbitro int PRIMARY KEY);
 INSERT INTO #nuevos (idArbitro)
-SELECT a.idArbitro FROM Arbitraje.Arbitro AS a
+SELECT a.idArbitro FROM Arbitraje.vw_Arbitro AS a
 WHERE NOT EXISTS (SELECT 1 FROM #arbPre AS p WHERE p.idArbitro = a.idArbitro);
 
 WHILE EXISTS (SELECT 1 FROM #nuevos WHERE idArbitro > @id)
@@ -510,19 +510,19 @@ DELETE FROM Sistema.ErrorImportacion WHERE id > @maxIdAntes;
 --   vuelven a los valores de la foto inicial, los árbitros e idiomas preexistentes
 --   no cambiaron (mismo checksum) y no quedó ningún árbitro nuevo.
 SELECT 'FOTO FINAL' AS momento,
-       (SELECT COUNT(*) FROM Arbitraje.Arbitro)                        AS cantArbitro,
+       (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro)                        AS cantArbitro,
        (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma)                  AS cantIdioma,
        (SELECT COUNT(*) FROM Sistema.ErrorImportacion)                 AS cantError,
        (SELECT ISNULL(MAX(id), 0) FROM Sistema.ErrorImportacion)       AS maxIdError,
        @borrados AS arbitrosBorrados, @noBorrados AS arbitrosNoBorrados;
 
 IF @noBorrados = 0
-   AND (SELECT COUNT(*) FROM Arbitraje.Arbitro) = (SELECT cantArbitro FROM #foto)
+   AND (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro) = (SELECT cantArbitro FROM #foto)
    AND (SELECT COUNT(*) FROM Arbitraje.ArbitroIdioma) = (SELECT cantIdioma FROM #foto)
    AND (SELECT COUNT(*) FROM Sistema.ErrorImportacion) = (SELECT cantError FROM #foto)
    AND (SELECT ISNULL(MAX(id), 0) FROM Sistema.ErrorImportacion) = (SELECT maxIdError FROM #foto)
    AND (SELECT ISNULL(CHECKSUM_AGG(CHECKSUM(idArbitro, idPais, nombre, apellido, categoria, genero, fechaInternacional)), 0)
-        FROM Arbitraje.Arbitro) = (SELECT chkArbitro FROM #foto)
+        FROM Arbitraje.vw_Arbitro) = (SELECT chkArbitro FROM #foto)
    AND (SELECT ISNULL(CHECKSUM_AGG(CHECKSUM(idArbitro, idioma)), 0)
         FROM Arbitraje.ArbitroIdioma) = (SELECT chkIdioma FROM #foto)
     PRINT '[OK] PRUEBA 16: Base restaurada: ' + CAST(@borrados AS varchar(10)) + ' árbitros nuevos borrados; conteos y árbitros/idiomas preexistentes idénticos a la foto inicial.';
