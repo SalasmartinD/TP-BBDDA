@@ -181,7 +181,10 @@ public class PublicidadDataService
             CommandType = CommandType.StoredProcedure
         };
 
-        cmd.Parameters.Add(new SqlParameter("@xml", SqlDbType.Xml) { Value = xmlContenido });
+        // Si el XML incluye declaración <?xml ... encoding='...'?>, SQL Server rechaza el cambio de encoding
+        // ya que la cadena .NET viaja como Unicode/UTF-16. Se remueve la declaración XML inicial si existe:
+        string xmlSanitizado = System.Text.RegularExpressions.Regex.Replace(xmlContenido, @"^<\?xml[^>]*\?>\s*", "");
+        cmd.Parameters.Add(new SqlParameter("@xml", SqlDbType.Xml) { Value = xmlSanitizado });
         cmd.Parameters.Add(new SqlParameter("@origen", SqlDbType.NVarChar, 260) { Value = origenUnico });
 
         var pCantFilas = cmd.Parameters.Add(new SqlParameter("@cantFilas", SqlDbType.Int) { Direction = ParameterDirection.Output });

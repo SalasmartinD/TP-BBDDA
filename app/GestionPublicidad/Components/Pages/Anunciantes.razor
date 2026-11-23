@@ -359,8 +359,13 @@
         }
     }
 
-    private void AbrirModalAlta()
+    private async Task AbrirModalAlta()
     {
+        if (!paises.Any() || !monedas.Any())
+        {
+            await CargarCatalogosAsync();
+        }
+
         esAlta = true;
         formActual = new AnuncianteForm
         {
@@ -371,8 +376,13 @@
         mostrarModalForm = true;
     }
 
-    private void AbrirModalEdicion(AnuncianteItem item)
+    private async Task AbrirModalEdicion(AnuncianteItem item)
     {
+        if (!paises.Any() || !monedas.Any())
+        {
+            await CargarCatalogosAsync();
+        }
+
         esAlta = false;
         formActual = new AnuncianteForm
         {
