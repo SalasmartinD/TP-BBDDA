@@ -94,6 +94,14 @@ Se usa `sp_OACreate` y no `sp_invoke_external_rest_endpoint` porque este último
 
 La documentación de cada fuente (URL, si requiere clave, límites y qué dato aporta) está en el encabezado de `43_Importar_APIs.sql`.
 
+### Cifrado de datos personales (scripts `70a` a `70f`)
+
+Los datos personales de jugadores, cuerpo técnico y árbitros se guardan cifrados. Para ejecutarlos:
+
+- **Orden:** el `70` corre después del `62` y antes del `71` y de las pruebas. Las cargas (`50` a `54`) corren antes, con datos en claro, y el `70b` los migra. Después del `70` no se pueden volver a correr esas cargas sin recrear la base.
+- **Contraseña de la clave maestra:** el repositorio es público, así que la real no se sube. En `70a` van los marcadores `<PASSWORD_DMK>` y `<RUTA_BACKUP_CLAVES>`. Sin reemplazarlos, el script usa una contraseña aleatoria de un solo uso y la base se recrea sin más pasos, pero la clave queda protegida solo por el servidor y una copia de la base no se puede descifrar en otro. Para poder restaurar en otro servidor, cargar las dos localmente (una carpeta fuera del repositorio que exista y donde el servicio de SQL Server pueda escribir) **y no commitearlas**: el script respalda la clave maestra y el certificado con la fecha y la hora en el nombre.
+- **Leer y escribir:** las columnas en claro ya no existen. Los datos se leen con `Equipos.vw_Jugador`, `Equipos.vw_Staff` y `Arbitraje.vw_Arbitro` y se escriben con los SP de ABM.
+
 ---
 
 ## 3. Reglas generales
