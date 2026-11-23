@@ -339,19 +339,26 @@
         {
             erroresGenerales = PublicidadDataService.ParseSqlExceptions(ex);
         }
+        catch (Exception ex)
+        {
+            erroresGenerales = new List<string> { "Error al cargar catálogos: " + ex.Message };
+        }
     }
 
     private async Task CargarDatosAsync()
     {
         cargando = true;
-        erroresGenerales.Clear();
         try
         {
             anunciantes = await DataService.ObtenerAnunciantesAsync();
         }
         catch (Microsoft.Data.SqlClient.SqlException ex)
         {
-            erroresGenerales = PublicidadDataService.ParseSqlExceptions(ex);
+            erroresGenerales.AddRange(PublicidadDataService.ParseSqlExceptions(ex));
+        }
+        catch (Exception ex)
+        {
+            erroresGenerales.Add("Error al cargar anunciantes: " + ex.Message);
         }
         finally
         {
