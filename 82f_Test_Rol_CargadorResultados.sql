@@ -15,8 +15,10 @@
                esquemas ajenos y acceso directo a tablas.
 
  Perfil      : rol_CargadorResultados (usuario de prueba: usr_cargador)
-               - Registro de incidencias de partido (goles, tarjetas, cambios,
-                 formaciones) mediante los SPs del esquema Eventos.
+               - Registro de incidencias de partido: solo ALTAS y REGISTROS, mediante
+                 Eventos.Gol_Alta y los SP de negocio Eventos.RegistrarFormacion,
+                 RegistrarCambio y RegistrarTarjeta (con sus tipos tabla). Las bajas,
+                 las modificaciones y Suspension_* son del administrador.
                - Cierre de partidos y carga de resultado oficial mediante
                  Torneo.RegistrarResultado (con validaciones de negocio).
                - Consulta de fixture (Torneo.vw_Fixture) y reportes de su área
@@ -182,6 +184,32 @@ BEGIN
 END;
 GO
 
+-- -----------------------------------------------------------------------------
+-- PRUEBA 4b: Permisos de registro del cargador (SP de negocio y tipos tabla)
+-- Resultado esperado: EXECUTE sobre Eventos.RegistrarFormacion, RegistrarCambio y
+-- RegistrarTarjeta, y sobre los tipos tabla Eventos.FormacionJugadorLista y
+-- Eventos.CuerpoTecnicoLista (hacen falta para declarar los parámetros de RegistrarFormacion).
+-- -----------------------------------------------------------------------------
+EXECUTE AS USER = 'usr_cargador';
+BEGIN TRY
+    DECLARE @pFormacion int = ISNULL(HAS_PERMS_BY_NAME('Eventos.RegistrarFormacion', 'OBJECT', 'EXECUTE'), 0);
+    DECLARE @pCambio    int = ISNULL(HAS_PERMS_BY_NAME('Eventos.RegistrarCambio',    'OBJECT', 'EXECUTE'), 0);
+    DECLARE @pTarjeta   int = ISNULL(HAS_PERMS_BY_NAME('Eventos.RegistrarTarjeta',   'OBJECT', 'EXECUTE'), 0);
+    DECLARE @pTipoForm  int = ISNULL(HAS_PERMS_BY_NAME('Eventos.FormacionJugadorLista', 'TYPE', 'EXECUTE'), 0);
+    DECLARE @pTipoCT    int = ISNULL(HAS_PERMS_BY_NAME('Eventos.CuerpoTecnicoLista',    'TYPE', 'EXECUTE'), 0);
+    REVERT;
+
+    IF @pFormacion = 1 AND @pCambio = 1 AND @pTarjeta = 1 AND @pTipoForm = 1 AND @pTipoCT = 1
+        PRINT '[OK] PRUEBA 4b: usr_cargador puede ejecutar los 3 SP de registro y usar sus tipos tabla.';
+    ELSE
+        PRINT CONCAT('[FALLO] PRUEBA 4b: permisos incompletos (Formación: ', @pFormacion, ', Cambio: ', @pCambio, ', Tarjeta: ', @pTarjeta, ', tipo formación: ', @pTipoForm, ', tipo cuerpo técnico: ', @pTipoCT, ').');
+END TRY
+BEGIN CATCH
+    REVERT;
+    PRINT CONCAT('[FALLO] PRUEBA 4b: Error inesperado - ', ERROR_MESSAGE());
+END CATCH;
+GO
+
 /* =============================================================================
    BLOQUE 2: CASOS QUE DEBEN FALLAR (RESTRICCIONES Y SEGURIDAD)
    ============================================================================= */
@@ -344,6 +372,41 @@ BEGIN
             PRINT CONCAT('[FALLO] PRUEBA 10: Se esperaba error 229 pero se recibió: ', @errNum10, ' - ', @errMsg10);
     END CATCH;
 END;
+GO
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 11: Bajas, modificaciones, suspensiones y ABM de alta que saltean la lógica de negocio
+-- Resultado esperado: usr_cargador no tiene EXECUTE sobre ninguno de esos SP, y un intento
+-- real (Eventos.Gol_Baja) da error 229. Las correcciones las hace el administrador; para
+-- tarjetas, cambios y formaciones se usan los SP Registrar* (el ABM de alta no aplica sus reglas).
+-- -----------------------------------------------------------------------------
+EXECUTE AS USER = 'usr_cargador';
+DECLARE @conPermiso nvarchar(max);
+BEGIN TRY
+    SELECT @conPermiso = STRING_AGG(CAST(v.n AS nvarchar(max)), N', ')
+    FROM (VALUES (N'Eventos.Gol_Modificacion'), (N'Eventos.Gol_Baja'),
+                 (N'Eventos.Tarjeta_Alta'), (N'Eventos.Tarjeta_Modificacion'), (N'Eventos.Tarjeta_Baja'),
+                 (N'Eventos.Sustitucion_Alta'), (N'Eventos.Sustitucion_Modificacion'), (N'Eventos.Sustitucion_Baja'),
+                 (N'Eventos.FormacionPartido_Alta'), (N'Eventos.FormacionPartido_Modificacion'), (N'Eventos.FormacionPartido_Baja'),
+                 (N'Eventos.CuerpoTecnicoPartido_Alta'), (N'Eventos.CuerpoTecnicoPartido_Modificacion'), (N'Eventos.CuerpoTecnicoPartido_Baja'),
+                 (N'Eventos.Suspension_Alta'), (N'Eventos.Suspension_Modificacion'), (N'Eventos.Suspension_Baja')) AS v(n)
+    WHERE HAS_PERMS_BY_NAME(v.n, 'OBJECT', 'EXECUTE') = 1;
+
+    EXEC Eventos.Gol_Baja;
+
+    REVERT;
+    PRINT '[FALLO] PRUEBA 11: usr_cargador no debió poder ejecutar Eventos.Gol_Baja.';
+END TRY
+BEGIN CATCH
+    DECLARE @errNum11 int = ERROR_NUMBER();
+    DECLARE @errMsg11 nvarchar(2000) = ERROR_MESSAGE();
+    REVERT;
+
+    IF @errNum11 = 229 AND @conPermiso IS NULL
+        PRINT CONCAT('[OK (esperado)] PRUEBA 11: sin permisos sobre bajas, modificaciones, Suspension_* ni ABM de alta; Eventos.Gol_Baja denegado con error 229 (', @errMsg11, ').');
+    ELSE
+        PRINT CONCAT('[FALLO] PRUEBA 11: error ', @errNum11, ' - ', @errMsg11, ' | SP con permiso indebido: ', ISNULL(@conPermiso, N'ninguno'));
+END CATCH;
 GO
 
 -- -----------------------------------------------------------------------------

@@ -17,6 +17,9 @@
                - Gestión integral mediante Procedimientos Almacenados sobre
                  todos los esquemas (Torneo, Equipos, Arbitraje, Eventos,
                  Publicidad, Sistema).
+               - Sin acceso a la administración de roles y usuarios (DENY puntual sobre
+                 Sistema.CrearRoles, OtorgarPermisosRoles y CrearUsuarioPrueba) ni a
+                 Sistema.ErrorImportacion (SELECT solo sobre Sistema.Parametro).
                - Consulta de vistas del sistema y parámetros reglamentarios.
                - Ve los datos personales en claro solo a través de los SP y reportes:
                  la clave la abre cada SP con EXECUTE AS OWNER y el rol no tiene
@@ -148,26 +151,61 @@ END CATCH;
 GO
 
 -- -----------------------------------------------------------------------------
--- PRUEBA 4: Ejecución de SP administrativo del esquema Sistema
--- Resultado esperado: Permiso concedido. Al probar Sistema.CrearUsuarioPrueba con
--- un rol inexistente, el SP debe ejecutarse y rechazar por validación de negocio (50001).
--- Esto demuestra que el usuario tiene EXECUTE y no falla por permisos (error 229).
+-- PRUEBA 4: La administración de roles y usuarios queda fuera de rol_Administrador
+-- Resultado esperado: acceso denegado (error 229) sobre Sistema.CrearRoles,
+-- Sistema.OtorgarPermisosRoles y Sistema.CrearUsuarioPrueba, por DENY puntual. La
+-- administración de roles la hace el dueño de la base (separación de funciones) y el
+-- DENY evita una escalada de privilegios si alguien declara esos SP con EXECUTE AS OWNER.
 -- -----------------------------------------------------------------------------
+EXECUTE AS USER = 'usr_admin';
+BEGIN TRY
+    EXEC Sistema.CrearRoles;
+    REVERT;
+    PRINT '[FALLO] PRUEBA 4a: usr_admin no debió poder ejecutar Sistema.CrearRoles.';
+END TRY
+BEGIN CATCH
+    DECLARE @errNum4a int = ERROR_NUMBER();
+    DECLARE @errMsg4a nvarchar(2000) = ERROR_MESSAGE();
+    REVERT;
+
+    IF @errNum4a = 229
+        PRINT CONCAT('[OK (esperado)] PRUEBA 4a: Sistema.CrearRoles denegado con error 229 (', @errMsg4a, ').');
+    ELSE
+        PRINT CONCAT('[FALLO] PRUEBA 4a: Se esperaba error 229 pero se recibió: ', @errNum4a, ' - ', @errMsg4a);
+END CATCH;
+
+EXECUTE AS USER = 'usr_admin';
+BEGIN TRY
+    EXEC Sistema.OtorgarPermisosRoles;
+    REVERT;
+    PRINT '[FALLO] PRUEBA 4b: usr_admin no debió poder ejecutar Sistema.OtorgarPermisosRoles.';
+END TRY
+BEGIN CATCH
+    DECLARE @errNum4b int = ERROR_NUMBER();
+    DECLARE @errMsg4b nvarchar(2000) = ERROR_MESSAGE();
+    REVERT;
+
+    IF @errNum4b = 229
+        PRINT CONCAT('[OK (esperado)] PRUEBA 4b: Sistema.OtorgarPermisosRoles denegado con error 229 (', @errMsg4b, ').');
+    ELSE
+        PRINT CONCAT('[FALLO] PRUEBA 4b: Se esperaba error 229 pero se recibió: ', @errNum4b, ' - ', @errMsg4b);
+END CATCH;
+
 EXECUTE AS USER = 'usr_admin';
 BEGIN TRY
     EXEC Sistema.CrearUsuarioPrueba @usuario = 'usr_temp_invalido', @rol = 'rol_Inexistente_XYZ';
     REVERT;
-    PRINT '[FALLO] PRUEBA 4: Debió fallar por rol inexistente pero continuó.';
+    PRINT '[FALLO] PRUEBA 4c: usr_admin no debió poder ejecutar Sistema.CrearUsuarioPrueba.';
 END TRY
 BEGIN CATCH
-    DECLARE @errNum int = ERROR_NUMBER();
-    DECLARE @errMsg nvarchar(2000) = ERROR_MESSAGE();
+    DECLARE @errNum4c int = ERROR_NUMBER();
+    DECLARE @errMsg4c nvarchar(2000) = ERROR_MESSAGE();
     REVERT;
 
-    IF @errNum = 50001
-        PRINT CONCAT('[OK] PRUEBA 4: usr_admin ejecutó Sistema.CrearUsuarioPrueba (falló por regla de negocio esperada 50001: ', @errMsg, ').');
+    IF @errNum4c = 229
+        PRINT CONCAT('[OK (esperado)] PRUEBA 4c: Sistema.CrearUsuarioPrueba denegado con error 229 (', @errMsg4c, ').');
     ELSE
-        PRINT CONCAT('[FALLO] PRUEBA 4: Se esperaba error 50001 pero ocurrió error ', @errNum, ' - ', @errMsg);
+        PRINT CONCAT('[FALLO] PRUEBA 4c: Se esperaba error 229 pero se recibió: ', @errNum4c, ' - ', @errMsg4c);
 END CATCH;
 GO
 
@@ -336,6 +374,30 @@ BEGIN
             PRINT CONCAT('[FALLO] PRUEBA 10: Se esperaba error 229 pero se recibió: ', @errNum10, ' - ', @errMsg10);
     END CATCH;
 END;
+GO
+
+-- -----------------------------------------------------------------------------
+-- PRUEBA 11: Intento de SELECT directo a Sistema.ErrorImportacion
+-- Resultado esperado: acceso denegado (error 229). El administrador recibe SELECT solo
+-- sobre Sistema.Parametro: ErrorImportacion.datoOriginal guarda el XML original de las
+-- filas rechazadas (con nombre y apellido de árbitros en claro) y quedaría fuera del cifrado.
+-- -----------------------------------------------------------------------------
+EXECUTE AS USER = 'usr_admin';
+BEGIN TRY
+    SELECT TOP 1 * FROM Sistema.ErrorImportacion;
+    REVERT;
+    PRINT '[FALLO] PRUEBA 11: usr_admin no debió poder leer Sistema.ErrorImportacion.';
+END TRY
+BEGIN CATCH
+    DECLARE @errNum11 int = ERROR_NUMBER();
+    DECLARE @errMsg11 nvarchar(2000) = ERROR_MESSAGE();
+    REVERT;
+
+    IF @errNum11 = 229
+        PRINT CONCAT('[OK (esperado)] PRUEBA 11: SELECT a Sistema.ErrorImportacion denegado con error 229 (', @errMsg11, ').');
+    ELSE
+        PRINT CONCAT('[FALLO] PRUEBA 11: Se esperaba error 229 pero se recibió: ', @errNum11, ' - ', @errMsg11);
+END CATCH;
 GO
 
 -- -----------------------------------------------------------------------------

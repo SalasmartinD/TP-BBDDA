@@ -25,7 +25,10 @@
                  7. Publicidad.Reporte_MatrizPrimeTime
                  8. Publicidad.Reporte_IngresosPorMoneda
                - Consulta de la vista oficial Torneo.vw_Fixture.
-               - Perfil base para la conexión de herramientas BI (Entrega 9).
+               - Perfil de CONSULTA INTERNA: ejecuta los ocho reportes, incluidos los cuatro
+                 que muestran nombres (el SP descifra con EXECUTE AS OWNER; opción A del plan
+                 de cifrado). NO es el perfil de BI: para la Entrega 9 se define un rol
+                 aparte (rol_BI), sin esos cuatro permisos.
                - RESTRICCIONES:
                  * Prohibida la ejecución de cualquier SP de ABM o modificación.
                  * Prohibido el acceso directo SELECT a tablas subyacentes.
