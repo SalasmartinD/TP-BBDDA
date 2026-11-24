@@ -409,6 +409,30 @@ IF EXISTS (SELECT 1 FROM Arbitraje.vw_Arbitro a JOIN Arbitraje.Arbitro t ON t.id
 ELSE PRINT '[FALLO] PRUEBA 4.3: lo importado no coincide o no está cifrado.';
 GO
 
+-- PRUEBA 4.4: una fila rechazada se guarda en Sistema.ErrorImportacion sin datos personales
+-- Resultado esperado: la fila con un país inexistente queda registrada (1 error) y su datoOriginal conserva el
+--   país pero no tiene el nombre, el apellido ni el género (Sistema.ErrorImportacion no está cifrada).
+DECLARE @xml44 xml = CAST(CONCAT(N'<Arbitros><Arbitro><Nombre>Secreto80jNombre</Nombre><Apellido>Secreto80jApellido</Apellido>',
+    N'<Pais codigoISO3="ZZZ">Pais Inexistente80j</Pais><Categoria>FIFA</Categoria><Genero>Masculino</Genero>',
+    N'<FechaInternacional>2012-03-04</FechaInternacional></Arbitro></Arbitros>') AS xml);
+DECLARE @f44 int, @i44 int, @a44 int, @e44 int, @dato nvarchar(max), @nodo xml;
+BEGIN TRY
+    EXEC Arbitraje.Importar_ArbitrosXMLDatos @xml = @xml44, @origen = N'80j (en memoria)',
+         @cantFilas = @f44 OUTPUT, @cantInsertados = @i44 OUTPUT, @cantActualizados = @a44 OUTPUT, @cantErrores = @e44 OUTPUT;
+    SELECT @dato = datoOriginal FROM Sistema.ErrorImportacion
+    WHERE archivo = N'80j (en memoria)' AND datoOriginal LIKE N'%Pais Inexistente80j%';
+    SET @nodo = CAST(@dato AS xml);
+    IF @e44 = 1 AND @dato IS NOT NULL AND @dato NOT LIKE N'%Secreto80j%'
+       AND @nodo.exist('/Arbitro/Nombre') = 0 AND @nodo.exist('/Arbitro/Apellido') = 0 AND @nodo.exist('/Arbitro/Genero') = 0
+       AND @nodo.exist('/Arbitro/Pais') = 1
+        PRINT '[OK] PRUEBA 4.4: la fila rechazada se guarda sin nombre, apellido ni género y conserva el país.';
+    ELSE PRINT '[FALLO] PRUEBA 4.4: errores=' + ISNULL(CAST(@e44 AS varchar(10)), 'NULL') + ' datoOriginal=' + ISNULL(@dato, 'NULL');
+END TRY
+BEGIN CATCH
+    PRINT '[FALLO] PRUEBA 4.4: error inesperado -> ' + ERROR_MESSAGE();
+END CATCH;
+GO
+
 /* =============================================================================
    5. MANEJO DE LA CLAVE
    ============================================================================= */
@@ -497,6 +521,9 @@ GO
 -- PRUEBA 6.2: leer la vista de descifrado con SELECT pero sin permiso sobre la clave
 -- Resultado esperado: devuelve las filas, con los datos cifrados en NULL y sin ningún error.
 -- (Por eso el plan de roles pone DENY SELECT sobre las vistas a quien no deba ver datos personales.)
+-- OJO: esta prueba solo documenta qué pasa si falta ese DENY; no demuestra que el acceso sea seguro. El control
+-- real lo pone el 71 (DENY SELECT sobre las vistas y las tablas) y el acceso a fn_EquipoEnCancha,
+-- vw_HistorialTitularidad y vw_HistorialArbitro depende de que ningún rol tenga SELECT sobre ellos.
 DECLARE @filas int, @nulos int, @e62 int;
 EXECUTE AS USER = 'usr_prueba80j';
 BEGIN TRY
