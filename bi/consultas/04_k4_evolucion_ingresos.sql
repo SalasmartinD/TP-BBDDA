@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Pregunta: K4 - Evolución Cronológica del Ingreso Publicitario
 -- Tipo de gráfico recomendado: Gráfico de Líneas / Área Acumulada
--- Métricas: Ingreso diario y evolución acumulada en el transcurso del torneo
+-- Métricas: Ingreso diario facturado (estado 'Exhibida') y evolución acumulada en el torneo
 -- Fuente: Publicidad.vw_BI_Exhibiciones
 -- =============================================================================
 WITH Diario AS (
@@ -9,7 +9,7 @@ WITH Diario AS (
         CAST(fechaHoraUTC AS date) AS [Fecha],
         SUM(montoUSD)              AS [Ingreso Diario (USD)]
     FROM Publicidad.vw_BI_Exhibiciones
-    WHERE 1 = 1
+    WHERE estadoExhibicion = 'Exhibida'
       [[AND idSede = {{idSede}}]]
       [[AND idFase = {{idFase}}]]
     GROUP BY

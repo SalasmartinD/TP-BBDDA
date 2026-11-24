@@ -1,6 +1,6 @@
 # Guía de Montaje y Visualización en Metabase · Entrega 9
 ## Sistema de Registro y Gestión del Mundial de Fútbol · Comisión 2900
-### Persona 3: Marcos Nahuel Pereira (Publicidad, Seguridad y BI)
+### GRUPO 09 (Publicidad, Seguridad y BI)
 
 Este documento detalla la instalación, conexión y configuración paso a paso del Dashboard de Business Intelligence utilizando **Metabase** conectado a **SQL Server 2022** (`MundialFutbol`).
 
@@ -9,10 +9,11 @@ Este documento detalla la instalación, conexión y configuración paso a paso d
 ## 1. Requisitos Previos
 
 1. **Java Runtime Environment (JRE / JDK):**
-   - Java 11 o superior (verificado con `java -version`).
+   - **Java 21 LTS o superior** (probado localmente con **OpenJDK 25 LTS**; verificado con `java -version`), versión mínima requerida por las releases recientes de Metabase.
 2. **Archivo ejecutable de Metabase:**
    - Descargar el archivo `metabase.jar` (versión Open Source gratuita) desde [metabase.com/start/oss/jar](https://www.metabase.com/start/oss/jar).
    - Guardarlo en una carpeta local fuera del control de Git (ej: `C:\Metabase\metabase.jar` o en la carpeta `bi/local/`).
+3. **Base de Datos y Configuración de SQL Server (Crítico en SQL Express):**
 3. **Base de Datos y Configuración de SQL Server (Crítico en SQL Express):**
    - Base de datos `MundialFutbol` con datos cargados y el script `32b_Vistas_BI.sql` ejecutado.
    - **Habilitar protocolo TCP/IP:** en SQL Server Express el protocolo de red TCP viene deshabilitado por defecto. Es obligatorio activarlo para que Metabase (JDBC) pueda conectarse:
@@ -76,11 +77,11 @@ Todas las preguntas que conforman el Dashboard están versionadas en este reposi
 
 | Archivo | Pregunta / KPI | Tipo de Gráfico | Fuente de Datos |
 |---|---|---|---|
-| [`01_k1_ingresos_por_sede.sql`](consultas/01_k1_ingresos_por_sede.sql) | **K1:** Facturación por Sede | Barras Horizontales | `Publicidad.vw_BI_Exhibiciones` |
-| [`02_k2_ocupacion_por_fase.sql`](consultas/02_k2_ocupacion_por_fase.sql) | **K2:** Ocupación e Ingresos por Fase | Barras Verticales | `Publicidad.vw_BI_Exhibiciones` |
+| [`01_k1_ingresos_por_sede.sql`](consultas/01_k1_ingresos_por_sede.sql) | **K1:** Facturación por Sede (Exhibida) | Barras Horizontales | `Publicidad.vw_BI_Exhibiciones` |
+| [`02_k2_ocupacion_por_fase.sql`](consultas/02_k2_ocupacion_por_fase.sql) | **K2:** Ocupación e Ingresos por Fase (Exhibida) | Barras Verticales | `Publicidad.vw_BI_Exhibiciones` |
 | [`03_k3_criterios_asignacion.sql`](consultas/03_k3_criterios_asignacion.sql) | **K3:** Criterios de Priorización | Torta / Donut | `Publicidad.vw_BI_Exhibiciones` |
-| [`04_k4_evolucion_ingresos.sql`](consultas/04_k4_evolucion_ingresos.sql) | **K4:** Evolución de Ingresos | Línea / Área | `Publicidad.vw_BI_Exhibiciones` |
-| [`05_k5_top_anunciantes.sql`](consultas/05_k5_top_anunciantes.sql) | **K5:** Ranking de Anunciantes | Barras / Tabla | `Publicidad.vw_BI_Exhibiciones` |
+| [`04_k4_evolucion_ingresos.sql`](consultas/04_k4_evolucion_ingresos.sql) | **K4:** Evolución de Ingresos (Exhibida) | Línea / Área | `Publicidad.vw_BI_Exhibiciones` |
+| [`05_k5_top_anunciantes.sql`](consultas/05_k5_top_anunciantes.sql) | **K5:** Ranking de Anunciantes (Exhibida) | Barras / Tabla | `Publicidad.vw_BI_Exhibiciones` |
 | [`06_k6_mapa_sedes.sql`](consultas/06_k6_mapa_sedes.sql) | **K6:** Mapa de Sedes del Torneo | Mapa de Pines | `Torneo.vw_BI_Sedes` |
 | [`07_k7_goles_por_seleccion.sql`](consultas/07_k7_goles_por_seleccion.sql) | **K7:** Goles por Selección | Barras Verticales | `Eventos.vw_BI_GolesPorSeleccion` |
 | [`08_reporte_ocupacion_e7.sql`](consultas/08_reporte_ocupacion_e7.sql) | **R1:** Reporte Ocupación E7 | Tabla con Totales | `Reporte_OcupacionPublicitaria` |
@@ -105,7 +106,7 @@ En Metabase, hacer clic en **"+ New"** ➔ **"SQL query"**:
 - Pegar el código de `06_k6_mapa_sedes.sql`.
 - Ejecutar la consulta.
 - En la visualización elegir **Map** ➔ **Pin Map**.
-- Metabase detectará automáticamente `Latitud` y `Longitud`.
+- Seleccionar manualmente el campo  `Latitud` y `Longitud`.
 - En tooltip/hover seleccionar que muestre: `Estadio`, `Ciudad`, `Capacidad de Espectadores` y `Partidos Asignados`.
 - Guardar como *"K6 - Mapa de Sedes del Torneo"*.
 

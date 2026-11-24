@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Pregunta: K5 - Ranking de Anunciantes por Inversión y País de Origen
 -- Tipo de gráfico recomendado: Gráfico de Barras Horizontales o Tabla Dinámica
--- Métricas: Monto facturado y cantidad de exhibiciones por anunciante
+-- Métricas: Monto facturado (estado 'Exhibida') y cantidad de exhibiciones por anunciante
 -- Fuente: Publicidad.vw_BI_Exhibiciones
 -- =============================================================================
 SELECT
@@ -11,7 +11,7 @@ SELECT
     COUNT(idPieza)           AS [Exhibiciones Totales],
     SUM(montoUSD)            AS [Total Invertido (USD)]
 FROM Publicidad.vw_BI_Exhibiciones
-WHERE 1 = 1
+WHERE estadoExhibicion = 'Exhibida'
   [[AND idSede = {{idSede}}]]
   [[AND idFase = {{idFase}}]]
 GROUP BY
