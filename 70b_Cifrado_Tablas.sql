@@ -29,7 +29,8 @@
     da un resultado distinto cada vez, así que no se pueden comparar dos textos
     cifrados.
  4. Verifica que todo se pueda descifrar y coincida con el original ANTES de
-    borrar las columnas en claro. Si algo no coincide, se deshace todo.
+    borrar las columnas en claro. Si algo no coincide, se deshace la migración y
+    no se borra ninguna columna en claro (el borrado exige las columnas Cif completas).
  5. Elimina las columnas en claro y los CHECK de altura y peso, que ya no se
     pueden aplicar sobre un valor cifrado. Esas validaciones ya están en los SP de
     alta y modificación (10b), así que no se pierde ninguna.
@@ -181,11 +182,16 @@ GO
 
 /* =============================================================================
    3. Restricciones de integridad y borrado de las columnas en claro
-   (solo si todavía existen: la verificación del paso 2 ya pasó)
+   (solo si todavía existen y si la migración del paso 2 dejó completas las
+   columnas Cif: ese paso no corta los lotes siguientes cuando falla)
    ============================================================================= */
 
 -- 3.1 Equipos.Jugador. Los CHECK de altura y peso se borran antes que sus columnas.
+-- Cada borrado exige que la migración haya llegado a buen puerto: un error en el lote
+-- anterior no corta los siguientes en SSMS ni en sqlcmd, y si la migración falló las
+-- columnas Cif quedan en NULL y las columnas en claro son lo único que queda del dato.
 IF COL_LENGTH(N'Equipos.Jugador', N'nombre') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM Equipos.Jugador WHERE nombreCif IS NULL OR apellidoCif IS NULL)
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Jugador_Altura' AND parent_object_id = OBJECT_ID(N'Equipos.Jugador'))
         ALTER TABLE Equipos.Jugador DROP CONSTRAINT CK_Jugador_Altura;
@@ -202,6 +208,7 @@ GO
 
 -- 3.2 Equipos.Staff
 IF COL_LENGTH(N'Equipos.Staff', N'nombre') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM Equipos.Staff WHERE nombreCif IS NULL OR apellidoCif IS NULL)
     ALTER TABLE Equipos.Staff DROP COLUMN nombre, apellido, fechaNacimiento;
 GO
 
@@ -211,6 +218,7 @@ GO
 
 -- 3.3 Arbitraje.Arbitro
 IF COL_LENGTH(N'Arbitraje.Arbitro', N'nombre') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE nombreCif IS NULL OR apellidoCif IS NULL OR huella IS NULL)
     ALTER TABLE Arbitraje.Arbitro DROP COLUMN nombre, apellido, genero;
 GO
 
