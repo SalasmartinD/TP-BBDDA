@@ -99,8 +99,11 @@ La documentación de cada fuente (URL, si requiere clave, límites y qué dato a
 Los datos personales de jugadores, cuerpo técnico y árbitros se guardan cifrados. Para ejecutarlos:
 
 - **Orden:** el `70` corre después del `62` y antes del `71` y de las pruebas. Las cargas (`50` a `54`) corren antes, con datos en claro, y el `70b` los migra. Después del `70` no se pueden volver a correr esas cargas sin recrear la base.
-- **Contraseña de la clave maestra:** el repositorio es público, así que la real no se sube. En `70a` van los marcadores `<PASSWORD_DMK>` y `<RUTA_BACKUP_CLAVES>`. Sin reemplazarlos, el script usa una contraseña aleatoria de un solo uso y la base se recrea sin más pasos, pero la clave queda protegida solo por el servidor y una copia de la base no se puede descifrar en otro. Para poder restaurar en otro servidor, cargar las dos localmente (una carpeta fuera del repositorio que exista y donde el servicio de SQL Server pueda escribir) **y no commitearlas**: el script respalda la clave maestra y el certificado con la fecha y la hora en el nombre.
+- **Dónde se cambian los SP:** el `70` redefine con `CREATE OR ALTER` los objetos de `10b`, `11a`, `21`, `31`, `41`, `60` y `61` que usaban nombres de personas, y esos archivos quedan como estaban. **Desde el `70` la versión vigente está en `70c`, `70d`, `70e` y `70f`:** un cambio hecho solo en el original se pisa al correr el orden completo, y volver a correr un original después del `70` falla porque nombra columnas que ya no existen.
+- **Contraseña de la clave maestra:** el repositorio es público, así que la real no se sube. En `70a` van los marcadores `<PASSWORD_DMK>` y `<RUTA_BACKUP_CLAVES>`. Sin reemplazarlos, el script usa una contraseña aleatoria de un solo uso y la base se recrea sin más pasos, pero la clave queda protegida solo por el servidor y una copia de la base no se puede descifrar en otro. Para poder restaurar en otro servidor, cargar las dos localmente (una carpeta fuera del repositorio que exista y donde el servicio de SQL Server pueda escribir) **y no commitearlas**: el script respalda la clave maestra y el certificado con la fecha y la hora en el nombre. Para no subir la contraseña por error con un `git add`, conviene marcar el archivo con `git update-index --skip-worktree 70a_Cifrado_Claves.sql` (se revierte con `--no-skip-worktree`).
 - **Leer y escribir:** las columnas en claro ya no existen. Los datos se leen con `Equipos.vw_Jugador`, `Equipos.vw_Staff` y `Arbitraje.vw_Arbitro` y se escriben con los SP de ABM.
+- **Altura y peso:** el `70b` elimina los CHECK `CK_Jugador_Altura` y `CK_Jugador_Peso`, que no se pueden aplicar sobre un valor cifrado. Esas validaciones quedan solo en los SP de alta y modificación, así que un `INSERT` directo ya no las aplica.
+- **Filas rechazadas:** `Sistema.ErrorImportacion` no está cifrada. El importador de árbitros (`70e`) guarda en `datoOriginal` el nodo XML sin el nombre, el apellido ni el género, y el `70b` limpia las filas que ya estuvieran cargadas.
 
 ---
 
@@ -353,6 +356,7 @@ END
 | `50001` | Validaciones de datos en los SP |
 | `50002` | Reglas de negocio (por ejemplo, conflicto de nacionalidad del árbitro) |
 | `50003` | Errores de importación |
+| `50010` | Infraestructura de cifrado (clave sin abrir, secreto ausente, migración que no coincide, respaldo de claves) |
 
 ### Testing
 
