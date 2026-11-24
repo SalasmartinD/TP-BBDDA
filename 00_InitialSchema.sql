@@ -4,9 +4,9 @@
  Materia     : 3641 - Bases de Datos Aplicada
  Comisión    : 2900
 
- Integrantes : Pereira, Marcos Nahuel - 45066788
-               Salas, Martin Daniel - 45205702
-               Zito Padró, Ezequiel Nehuén - 46097917
+ Integrantes : Pereira, Marcos Nahuel
+               Salas, Martin Daniel
+               Zito Padró, Ezequiel Nehuén
 
  Fecha       : 11/10/2026
 
