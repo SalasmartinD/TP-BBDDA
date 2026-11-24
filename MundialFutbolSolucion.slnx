@@ -25,6 +25,7 @@
     <File Path="30a_Fixture.sql" />
     <File Path="31_Fn_Eventos_Arbitraje.sql" />
     <File Path="32_SimulPrimeTime.sql" />
+    <File Path="32b_Vistas_BI.sql" />
   </Folder>
   <Folder Name="/4x. Importación/">
     <File Path="40a_Importar_FixtureCSV.sql" />
@@ -56,7 +57,8 @@
     <File Path="70d_Cifrado_Vistas.sql" />
     <File Path="70e_Cifrado_Negocio_Importacion.sql" />
     <File Path="70f_Cifrado_Reportes.sql" />
-    <File Path="71_Roles_Seguridad.sql" />
+    <File Path="71a_Roles_Seguridad.sql" />
+    <File Path="71b_Roles_BI_App.sql" />
   </Folder>
   <Folder Name="/8x. Testing/">
     <File Path="80a_Test_ABM_Torneo.sql" />
@@ -84,6 +86,7 @@
     <File Path="82f_Test_Rol_CargadorResultados.sql" />
     <File Path="82g_Test_Rol_GestorPublicidad.sql" />
     <File Path="82h_Test_Rol_Consulta.sql" />
+    <File Path="82i_Test_Rol_BI.sql"/>
   </Folder>
   <Folder Name="/9x. Utilidades/">
     <File Path="90_Borrar_Base_de_Datos.sql" />

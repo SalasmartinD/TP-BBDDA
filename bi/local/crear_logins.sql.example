@@ -1,0 +1,59 @@
+/*
+================================================================================
+ Universidad : Universidad Nacional de La Matanza
+ Materia     : 3641 - Bases de Datos Aplicada
+ Comisión    : 2900
+ Integrantes : Pereira, Marcos Nahuel
+               Salas, Martín Daniel
+               Zito Padró, Ezequiel Nehuén
+ Fecha       : 23/11/2026
+
+ Objetivo    : Plantilla para creación de logins de SQL Server en la instancia local.
+               
+ INSTRUCCIONES:
+ 1. NO suba sus contraseñas reales al repositorio de GitHub.
+ 2. Copie este archivo a 'bi/local/crear_logins.local.sql' (ignorado por Git).
+ 3. Reemplace '<PASSWORD_BI>', '<PASSWORD_APP>' y '<PASSWORD_IMPORT>' por
+    contraseñas seguras para su entorno local.
+ 4. Ejecute el script resultante en SSMS conectado como 'sysadmin' (sa o Windows Auth).
+================================================================================
+*/
+
+USE master;
+GO
+
+-- 1. Login para plataforma BI (Metabase)
+IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'login_bi')
+BEGIN
+    CREATE LOGIN login_bi WITH PASSWORD = N'<PASSWORD_BI>', CHECK_POLICY = OFF;
+    PRINT 'Login [login_bi] creado exitosamente.';
+END
+ELSE
+BEGIN
+    PRINT 'Login [login_bi] ya existe en el servidor.';
+END;
+GO
+
+-- 2. Login para la App Blazor (Gestor de Publicidad - ABM Anunciante)
+IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'login_app')
+BEGIN
+    CREATE LOGIN login_app WITH PASSWORD = N'<PASSWORD_APP>', CHECK_POLICY = OFF;
+    PRINT 'Login [login_app] creado exitosamente.';
+END
+ELSE
+BEGIN
+    PRINT 'Login [login_app] ya existe en el servidor.';
+END;
+GO
+
+-- 3. Login para operaciones de importación XML y descarga de plantillas (rol_ImportadorApp)
+IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'login_import')
+BEGIN
+    CREATE LOGIN login_import WITH PASSWORD = N'<PASSWORD_IMPORT>', CHECK_POLICY = OFF;
+    PRINT 'Login [login_import] creado exitosamente.';
+END
+ELSE
+BEGIN
+    PRINT 'Login [login_import] ya existe en el servidor.';
+END;
+GO
