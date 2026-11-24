@@ -66,25 +66,25 @@ PRINT '--- Limpieza preventiva de pruebas anteriores ---';
 
 DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Arbitraje.cuerpoArbitral  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
+                                         OR idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
 DELETE FROM Eventos.Gol               WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 -- Suspension referencia a Tarjeta (idTarjeta): se borra antes que Tarjeta
 DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
                                          OR idTarjeta IN (SELECT idTarjeta FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705)))
-                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %')
-                                         OR idStaff   IN (SELECT id FROM Equipos.Staff   WHERE apellido LIKE N'QNeg Staff %');
+                                         OR idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %')
+                                         OR idStaff   IN (SELECT id FROM Equipos.vw_Staff   WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.Tarjeta           WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.Sustitucion       WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %');
+                                         OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Negocio';
 DELETE FROM Torneo.Fase WHERE idFase IN (9901, 9902);
-DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %';
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
-DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %';
-DELETE FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %';
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QNA', 'QNB', 'QNC');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('Q1', 'Q2', 'Q3', 'Q4');
 GO
@@ -167,13 +167,16 @@ SELECT s.sel + RIGHT('0' + CAST(n.nro AS varchar(2)), 2), s.sel, n.nro,
 FROM (VALUES ('A', 27), ('B', 26), ('C', 11)) s (sel, cant)
 JOIN Numero n ON n.nro BETWEEN 1 AND s.cant;
 
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion)
-SELECT N'Jugador', N'QNeg Jugador ' + codigo, posicion
+-- Los datos personales se guardan cifrados (script 70): se inserta cifrando con la clave.
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+INSERT INTO Equipos.Jugador (nombreCif, apellidoCif, posicion)
+SELECT EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Jugador'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'QNeg Jugador ' + codigo), posicion
 FROM #jug;
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 UPDATE j SET id = ej.id
 FROM #jug j
-JOIN Equipos.Jugador ej ON ej.apellido = N'QNeg Jugador ' + j.codigo;
+JOIN Equipos.vw_Jugador ej ON ej.apellido = N'QNeg Jugador ' + j.codigo;
 
 INSERT INTO Equipos.ListadoJugadores (idSeleccion, idJugador, fechaAlta, dorsal)
 SELECT s.id, j.id, '2026-05-01', j.nro
@@ -205,14 +208,16 @@ VALUES ('ADP',  'A', 'Director Principal'),
        ('CDP',  'C', 'Director Principal'),
        ('CAY',  'C', 'Ayudante');
 
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol)
-SELECT s.id, N'Staff', N'QNeg Staff ' + t.codigo, t.rol
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol)
+SELECT s.id, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Staff'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'QNeg Staff ' + t.codigo), t.rol
 FROM #staff t
 JOIN Equipos.Seleccion s ON s.abreviacion = 'QN' + t.sel;
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 UPDATE t SET id = es.id
 FROM #staff t
-JOIN Equipos.Staff es ON es.apellido = N'QNeg Staff ' + t.codigo;
+JOIN Equipos.vw_Staff es ON es.apellido = N'QNeg Staff ' + t.codigo;
 
 -- Fases propias: 9901 grupos (orden 1) y 9902 dieciseisavos (orden 2)
 INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden)
@@ -225,8 +230,13 @@ FROM Torneo.Pais WHERE codigoISO2 = 'Q4';
 
 -- Árbitros: N1-N5 neutrales, A del país de la selección A (conflicto de
 -- nacionalidad) y C del país de la selección C (advertencia de cruce)
-INSERT INTO Arbitraje.Arbitro (idPais, nombre, apellido, categoria)
-SELECT p.id, v.nombre, v.apellido, 'FIFA'
+-- La huella (columna NOT NULL) se calcula con la pimienta, que se lee con la clave abierta.
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+DECLARE @pimientaTest nvarchar(100);
+EXEC Seguridad.ObtenerPimienta @pimienta = @pimientaTest OUTPUT;
+INSERT INTO Arbitraje.Arbitro (idPais, nombreCif, apellidoCif, categoria, huella)
+SELECT p.id, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), v.nombre), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), v.apellido), 'FIFA',
+       Seguridad.fn_Huella(@pimientaTest, v.nombre, v.apellido, NULL)
 FROM (VALUES ('Q4', N'Neutral', N'QNeg Arbitro N1'),
              ('Q4', N'Neutral', N'QNeg Arbitro N2'),
              ('Q4', N'Neutral', N'QNeg Arbitro N3'),
@@ -235,6 +245,7 @@ FROM (VALUES ('Q4', N'Neutral', N'QNeg Arbitro N1'),
              ('Q1', N'Local',   N'QNeg Arbitro A'),
              ('Q3', N'Rival',   N'QNeg Arbitro C')) v (iso, nombre, apellido)
 JOIN Torneo.Pais p ON p.codigoISO2 = v.iso;
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 DECLARE @idSede int = (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Negocio');
 DECLARE @idSelA int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QNA');
@@ -341,7 +352,7 @@ BEGIN TRY
     SELECT 'FORMACION 1.1' AS momento, titular, COUNT(*) AS jugadores
     FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelB GROUP BY titular;
     SELECT 'CUERPO TECNICO 1.1' AS momento, ct.idPartido, ct.idStaff, st.apellido, st.rol
-    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.vw_Staff st ON st.id = ct.idStaff
     WHERE ct.idPartido = @idPartSig ORDER BY ct.idStaff;
     SELECT 'PARTIDO 1.1' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
     IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelB) = 26
@@ -1415,13 +1426,13 @@ PRINT '-------------------------------------------------------------------------
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99701);
 DECLARE @idPartSig   int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99703);
 DECLARE @idPartKO    int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99704);
-DECLARE @idN1 int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro N1');
-DECLARE @idN2 int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro N2');
-DECLARE @idN3 int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro N3');
-DECLARE @idN4 int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro N4');
-DECLARE @idN5 int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro N5');
-DECLARE @idArbA int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro A');
-DECLARE @idArbC int = (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido = N'QNeg Arbitro C');
+DECLARE @idN1 int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro N1');
+DECLARE @idN2 int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro N2');
+DECLARE @idN3 int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro N3');
+DECLARE @idN4 int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro N4');
+DECLARE @idN5 int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro N5');
+DECLARE @idArbA int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro A');
+DECLARE @idArbC int = (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido = N'QNeg Arbitro C');
 DECLARE @advertencia nvarchar(2000);
 
 -- PRUEBA 4.1: Designación exitosa en fase de grupos, con un VAR del país C (en competencia)
@@ -1430,7 +1441,7 @@ BEGIN TRY
     EXEC Arbitraje.DesignarCuerpoArbitral @idPartido = @idPartSig, @idPrincipal = @idN1, @idAsistente1 = @idN2, @idAsistente2 = @idN3,
          @idCuartoArbitro = @idN4, @idVar = @idArbC, @advertencia = @advertencia OUTPUT;
     SELECT 'DESIGNACION 4.1' AS momento, ca.rol, a.apellido, a.nombre
-    FROM Arbitraje.cuerpoArbitral ca JOIN Arbitraje.Arbitro a ON a.idArbitro = ca.idArbitro
+    FROM Arbitraje.cuerpoArbitral ca JOIN Arbitraje.vw_Arbitro a ON a.idArbitro = ca.idArbitro
     WHERE ca.idPartido = @idPartSig ORDER BY ca.id;
     IF (SELECT COUNT(*) FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartSig) = 5 AND @advertencia IS NULL
         PRINT '[OK] PRUEBA 4.1: Cuerpo arbitral designado sin advertencia en fase de grupos.';
@@ -1556,7 +1567,7 @@ BEGIN TRY
     EXEC Arbitraje.DesignarCuerpoArbitral @idPartido = @idPartKO, @idPrincipal = @idN1, @idAsistente1 = @idN2, @idAsistente2 = @idN3,
          @idCuartoArbitro = @idN4, @idVar = @idArbC, @advertencia = @advertencia OUTPUT;
     SELECT 'DESIGNACION 4.10' AS momento, ca.rol, a.apellido, a.nombre
-    FROM Arbitraje.cuerpoArbitral ca JOIN Arbitraje.Arbitro a ON a.idArbitro = ca.idArbitro
+    FROM Arbitraje.cuerpoArbitral ca JOIN Arbitraje.vw_Arbitro a ON a.idArbitro = ca.idArbitro
     WHERE ca.idPartido = @idPartKO ORDER BY ca.id;
     SELECT 'ADVERTENCIA 4.10' AS momento, @advertencia AS advertencia;
     IF (SELECT COUNT(*) FROM Arbitraje.cuerpoArbitral WHERE idPartido = @idPartKO) = 5
@@ -1647,7 +1658,7 @@ BEGIN CATCH
     SELECT 'SUSPENSION 5.2' AS momento, idPartido, idStaff, cantPartidos, partidosRestantes FROM Eventos.Suspension WHERE idStaff = @idAAY;
     IF ERROR_NUMBER() = 50002 AND ERROR_MESSAGE() LIKE @esperado
        AND EXISTS (SELECT 1 FROM Eventos.Suspension WHERE idStaff = @idAAY AND cantPartidos = 1 AND partidosRestantes = 1)
-       AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+       AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.vw_Staff st ON st.id = ct.idStaff
                        WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA)
        AND NOT EXISTS (SELECT 1 FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA)
         PRINT '[OK] PRUEBA 5.2: Cuerpo técnico suspendido rechazado en el partido siguiente, sin descontar ni registrar nada.';
@@ -1692,12 +1703,12 @@ BEGIN TRY
     WHERE idJugador IN (@idA06, @idA07, @idA09, @idA10, @idA11) OR idStaff IN (@idAAY, @idAMD, @idAFI)
     ORDER BY idJugador, idStaff;
     SELECT 'CUERPO TECNICO 5.4' AS momento, ct.idPartido, ct.idStaff, st.apellido, st.rol
-    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+    FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.vw_Staff st ON st.id = ct.idStaff
     WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA ORDER BY ct.idStaff;
     SELECT 'PARTIDO 5.4' AS momento, idPartido, esquemaLocal, esquemaVisitante FROM Torneo.Partido WHERE idPartido = @idPartSig;
     IF (SELECT COUNT(*) FROM Eventos.FormacionPartido WHERE idPartido = @idPartSig AND idSeleccion = @idSelA) = 13
        AND EXISTS (SELECT 1 FROM Torneo.Partido WHERE idPartido = @idPartSig AND esquemaLocal = '3-4-1-1-1' AND esquemaVisitante = '4-4-2')
-       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.Staff st ON st.id = ct.idStaff
+       AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido ct JOIN Equipos.vw_Staff st ON st.id = ct.idStaff
             WHERE ct.idPartido = @idPartSig AND st.idSeleccion = @idSelA) = 2
        AND (SELECT COUNT(*) FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idPartSig AND idStaff IN (@idADP, @idAX1)) = 2
        AND (SELECT COUNT(*) FROM Eventos.Suspension
@@ -1721,25 +1732,25 @@ PRINT '--- Limpiando fixture auxiliar de pruebas ---';
 
 DELETE FROM Arbitraje.InformeArbitral WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Arbitraje.cuerpoArbitral  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idArbitro IN (SELECT idArbitro FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
+                                         OR idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
 DELETE FROM Eventos.Gol               WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 -- Suspension referencia a Tarjeta (idTarjeta): se borra antes que Tarjeta
 DELETE FROM Eventos.Suspension        WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
                                          OR idTarjeta IN (SELECT idTarjeta FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705)))
-                                         OR idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %')
-                                         OR idStaff   IN (SELECT id FROM Equipos.Staff   WHERE apellido LIKE N'QNeg Staff %');
+                                         OR idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %')
+                                         OR idStaff   IN (SELECT id FROM Equipos.vw_Staff   WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.Tarjeta           WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.Sustitucion       WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705))
-                                         OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %');
+                                         OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Eventos.FormacionPartido  WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705));
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99701, 99702, 99703, 99704, 99705);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Negocio';
 DELETE FROM Torneo.Fase WHERE idFase IN (9901, 9902);
-DELETE FROM Arbitraje.Arbitro WHERE apellido LIKE N'QNeg Arbitro %';
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %');
-DELETE FROM Equipos.Jugador WHERE apellido LIKE N'QNeg Jugador %';
-DELETE FROM Equipos.Staff WHERE apellido LIKE N'QNeg Staff %';
+DELETE FROM Arbitraje.Arbitro WHERE idArbitro IN (SELECT idArbitro FROM Arbitraje.vw_Arbitro WHERE apellido LIKE N'QNeg Arbitro %');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido LIKE N'QNeg Jugador %');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'QNeg Staff %');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QNA', 'QNB', 'QNC');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('Q1', 'Q2', 'Q3', 'Q4');
 

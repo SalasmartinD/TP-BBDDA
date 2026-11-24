@@ -45,9 +45,9 @@ GO
    una corrida anterior se cortó y dejó datos con dependencias)
    ============================================================================= */
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
-    AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80e');
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80e');
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80e';
+    AND idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98031;
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QXA', 'QYA', 'QZA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80e';
@@ -408,9 +408,9 @@ GO
    LIMPIEZA FINAL
    ============================================================================= */
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
-    AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80e');
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80e');
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80e';
+    AND idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80e');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98031;
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QXA', 'QYA', 'QZA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80e';

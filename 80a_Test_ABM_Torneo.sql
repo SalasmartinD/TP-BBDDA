@@ -47,8 +47,8 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM T
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004
     OR idSede IN (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%');
-DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80a';
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80a';
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80a');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80a');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QMA', 'QNA', 'QOA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('QM', 'QN', 'QO', 'QP');
@@ -819,8 +819,8 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM T
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004);
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 98001 AND 98004
     OR idSede IN (SELECT idSede FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%');
-DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80a';
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80a';
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80a');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80a');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QMA', 'QNA', 'QOA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio LIKE N'Estadio Prueba 80a%';
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('QM', 'QN', 'QO', 'QP');

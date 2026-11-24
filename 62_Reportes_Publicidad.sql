@@ -177,13 +177,19 @@ GO
    cae dentro de la franja prime time (19:00 a 23:00 locales, evaluado mediante
    Publicidad.fn_EsPrimeTime y los parámetros de Sistema.Parametro).
 
-   JUSTIFICACIÓN DE SQL DINÁMICO:
+   JUSTIFICACIÓN DE SQL DINÁMICO Y CONTEXTO DE EJECUCIÓN:
    La instrucción PIVOT de T-SQL requiere que las columnas pivotadas estén
    listadas literalmente en la cláusula FOR ... IN (...). Dado que los países
    destino de pauta provienen de la tabla Publicidad.PiezaMercado y pueden
    ampliarse dinámicamente con nuevas campañas o anunciantes, no es viable
    un PIVOT rígido. Se ensambla la lista de columnas utilizando STRING_AGG()
    y QUOTENAME() para sanear los identificadores y prevenir inyección SQL.
+
+   Dado que la consulta dinámica se despacha mediante sp_executesql, el
+   encadenamiento de propiedad se interrumpiría para usuarios que solo posean
+   permiso EXECUTE sobre el SP (por ejemplo, rol_Consulta). Por ello, el SP
+   se define WITH EXECUTE AS OWNER, garantizando el acceso controlado a los
+   objetos subyacentes sin otorgar permisos directos sobre las tablas.
 
    Parámetros opcionales:
      @idFase    int = NULL  -> Permite filtrar la matriz por fase.
@@ -192,6 +198,7 @@ GO
 CREATE OR ALTER PROCEDURE Publicidad.Reporte_MatrizPrimeTime
     @idFase    int = NULL,
     @idPartido int = NULL
+WITH EXECUTE AS OWNER
 AS
 BEGIN
     SET NOCOUNT ON;

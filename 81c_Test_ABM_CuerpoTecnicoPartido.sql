@@ -56,14 +56,14 @@ PRINT '--- Limpieza preventiva de pruebas anteriores ---';
 
 -- Suspension referencia a Tarjeta (FK_Suspension_Tarjeta): se borra antes que Tarjeta
 DELETE FROM Eventos.Suspension WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955)
-                                   OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'CT Test%');
+                                   OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955);
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955)
-                                             OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'CT Test%');
+                                             OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955;
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test CuerpoTec';
 DELETE FROM Torneo.Fase WHERE idFase = 997;
-DELETE FROM Equipos.Staff WHERE apellido LIKE N'CT Test%';
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('CTL', 'CTV', 'CTX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('W1', 'W2', 'W3');
 GO
@@ -89,14 +89,16 @@ DECLARE @idSelX int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'CTX
 
 -- Staff: local (2 Directores Principales, 2 ayudantes y un ayudante con suspensión),
 -- visitante (Director Principal y ayudante) y uno de la selección ajena
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Diego',   N'CT Test DirLocal1',   'Director Principal');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Marcelo', N'CT Test DirLocal2',   'Director Principal');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Walter',  N'CT Test AyuLocal1',   'Ayudante');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Pablo',   N'CT Test AyuLocal2',   'Ayudante');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Hernan',  N'CT Test Suspendido',  'Ayudante');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelV, N'Didier',  N'CT Test DirVisit',    'Director Principal');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelV, N'Guy',     N'CT Test AyuVisit',    'Ayudante');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelX, N'Ajeno',   N'CT Test Ajeno',       'Ayudante');
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Diego'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test DirLocal1'), 'Director Principal');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Marcelo'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test DirLocal2'), 'Director Principal');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Walter'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test AyuLocal1'), 'Ayudante');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Pablo'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test AyuLocal2'), 'Ayudante');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Hernan'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test Suspendido'), 'Ayudante');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelV, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Didier'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test DirVisit'), 'Director Principal');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelV, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Guy'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test AyuVisit'), 'Ayudante');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelX, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Ajeno'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'CT Test Ajeno'), 'Ayudante');
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 -- Fase y sede
 INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden) VALUES (997, 'Fase Test CuerpoTec', 0, 97);
@@ -135,11 +137,11 @@ DECLARE @idP2 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficia
 DECLARE @idP3 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99953);
 DECLARE @idP4 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99954);
 DECLARE @idP5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99955);
-DECLARE @idDL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirLocal1');
-DECLARE @idAL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal1');
-DECLARE @idSS  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test Suspendido');
-DECLARE @idDV  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirVisit');
-DECLARE @idAV  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuVisit');
+DECLARE @idDL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirLocal1');
+DECLARE @idAL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal1');
+DECLARE @idSS  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test Suspendido');
+DECLARE @idDV  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirVisit');
+DECLARE @idAV  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuVisit');
 
 -- Suspensión activa del ayudante suspendido, originada en el partido más antiguo (99950)
 INSERT INTO Eventos.Suspension (idPartido, idStaff, cantPartidos, partidosRestantes) VALUES (@idP0, @idSS, 2, 1);
@@ -171,11 +173,11 @@ PRINT '-------------------------------------------------------------------------
 DECLARE @idP1 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99951);
 DECLARE @idP2 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99952);
 DECLARE @idP3 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99953);
-DECLARE @idDL2 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirLocal2');
-DECLARE @idAL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal1');
-DECLARE @idAL2 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal2');
-DECLARE @idSS  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test Suspendido');
-DECLARE @idAJ  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test Ajeno');
+DECLARE @idDL2 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirLocal2');
+DECLARE @idAL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal1');
+DECLARE @idAL2 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal2');
+DECLARE @idSS  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test Suspendido');
+DECLARE @idAJ  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test Ajeno');
 
 -- PRUEBA 1.1: Alta exitosa de un ayudante local en el partido programado 99951
 -- Resultado esperado: Fila insertada en Eventos.CuerpoTecnicoPartido.
@@ -183,7 +185,7 @@ BEGIN TRY
     SELECT 'ANTES 1.1' AS momento, COUNT(*) AS integrantes FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP1;
     EXEC Eventos.CuerpoTecnicoPartido_Alta @idPartido = @idP1, @idStaff = @idAL1;
     SELECT 'DESPUES 1.1' AS momento, c.idPartido, c.idStaff, s.apellido, s.rol
-    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.Staff s ON s.id = c.idStaff
+    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.vw_Staff s ON s.id = c.idStaff
     WHERE c.idPartido = @idP1 ORDER BY s.apellido;
     IF EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP1 AND idStaff = @idAL1)
         PRINT '[OK] PRUEBA 1.1: Integrante agregado al cuerpo técnico del partido.';
@@ -310,23 +312,23 @@ PRINT '-------------------------------------------------------------------------
 DECLARE @idP3 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99953);
 DECLARE @idP4 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99954);
 DECLARE @idP5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99955);
-DECLARE @idDL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirLocal1');
-DECLARE @idDL2 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirLocal2');
-DECLARE @idAL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal1');
-DECLARE @idAL2 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal2');
-DECLARE @idDV  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test DirVisit');
-DECLARE @idAV  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuVisit');
-DECLARE @idAJ  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test Ajeno');
+DECLARE @idDL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirLocal1');
+DECLARE @idDL2 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirLocal2');
+DECLARE @idAL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal1');
+DECLARE @idAL2 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal2');
+DECLARE @idDV  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test DirVisit');
+DECLARE @idAV  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuVisit');
+DECLARE @idAJ  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test Ajeno');
 
 -- PRUEBA 2.1: Reemplazo exitoso de AyuLocal1 por AyuLocal2 en el partido 99955
 -- Resultado esperado: AyuLocal2 figura en el partido y AyuLocal1 ya no; evidencia antes/después.
 BEGIN TRY
     SELECT 'ANTES 2.1' AS momento, s.apellido, s.rol
-    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.Staff s ON s.id = c.idStaff
+    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.vw_Staff s ON s.id = c.idStaff
     WHERE c.idPartido = @idP5 ORDER BY s.apellido;
     EXEC Eventos.CuerpoTecnicoPartido_Modificacion @idPartido = @idP5, @idStaffActual = @idAL1, @idStaffNuevo = @idAL2;
     SELECT 'DESPUES 2.1' AS momento, s.apellido, s.rol
-    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.Staff s ON s.id = c.idStaff
+    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.vw_Staff s ON s.id = c.idStaff
     WHERE c.idPartido = @idP5 ORDER BY s.apellido;
     IF EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP5 AND idStaff = @idAL2)
        AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP5 AND idStaff = @idAL1)
@@ -380,11 +382,11 @@ END CATCH;
 -- Resultado esperado: Reemplazo PERMITIDO (el actual se excluye de la regla de un solo Director Principal); evidencia antes/después.
 BEGIN TRY
     SELECT 'ANTES 2.5' AS momento, s.apellido, s.rol
-    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.Staff s ON s.id = c.idStaff
+    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.vw_Staff s ON s.id = c.idStaff
     WHERE c.idPartido = @idP5 ORDER BY s.apellido;
     EXEC Eventos.CuerpoTecnicoPartido_Modificacion @idPartido = @idP5, @idStaffActual = @idDL1, @idStaffNuevo = @idDL2;
     SELECT 'DESPUES 2.5' AS momento, s.apellido, s.rol
-    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.Staff s ON s.id = c.idStaff
+    FROM Eventos.CuerpoTecnicoPartido c JOIN Equipos.vw_Staff s ON s.id = c.idStaff
     WHERE c.idPartido = @idP5 ORDER BY s.apellido;
     IF EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP5 AND idStaff = @idDL2)
        AND NOT EXISTS (SELECT 1 FROM Eventos.CuerpoTecnicoPartido WHERE idPartido = @idP5 AND idStaff = @idDL1)
@@ -447,8 +449,8 @@ DECLARE @idP1 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficia
 DECLARE @idP3 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99953);
 DECLARE @idP4 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99954);
 DECLARE @idP5 int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99955);
-DECLARE @idAL1 int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuLocal1');
-DECLARE @idAV  int = (SELECT id FROM Equipos.Staff WHERE apellido = N'CT Test AyuVisit');
+DECLARE @idAL1 int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuLocal1');
+DECLARE @idAV  int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'CT Test AyuVisit');
 
 -- PRUEBA 3.1: Baja de un integrante que no figura en el partido (AyuVisit no está en el 99955)
 -- Resultado esperado: THROW 50001 "No se pudo dar de baja al integrante del cuerpo técnico del partido:" + "- El integrante no figura en el cuerpo técnico de este partido."
@@ -512,14 +514,14 @@ PRINT '--- Limpiando fixture auxiliar de pruebas ---';
 
 -- Suspension referencia a Tarjeta (FK_Suspension_Tarjeta): se borra antes que Tarjeta
 DELETE FROM Eventos.Suspension WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955)
-                                   OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'CT Test%');
+                                   OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Eventos.Tarjeta WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955);
 DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idPartido IN (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955)
-                                             OR idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido LIKE N'CT Test%');
+                                             OR idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial BETWEEN 99950 AND 99955;
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test CuerpoTec';
 DELETE FROM Torneo.Fase WHERE idFase = 997;
-DELETE FROM Equipos.Staff WHERE apellido LIKE N'CT Test%';
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido LIKE N'CT Test%');
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('CTL', 'CTV', 'CTX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('W1', 'W2', 'W3');
 
