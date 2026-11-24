@@ -6,9 +6,9 @@
 -- Fuente: Eventos.vw_BI_GolesPorSeleccion
 -- =============================================================================
 SELECT
-    seleccion                AS [Selección Nacional],
-    SUM(totalGoles)          AS [Total de Goles Marcados],
-    SUM(golesEnContraRecibidos) AS [Goles en Contra Favorecidos]
+    seleccion                   AS [Selección Nacional],
+    SUM(totalGoles)             AS [Total de Goles Marcados],
+    SUM(golesEnContraAFavor)    AS [Goles en Contra Favorecidos]
 FROM Eventos.vw_BI_GolesPorSeleccion
 WHERE 1 = 1
   [[AND idFase = {{idFase}}]]
