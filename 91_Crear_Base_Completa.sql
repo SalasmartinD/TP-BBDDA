@@ -10,12 +10,14 @@
 
  Objetivo    : Crear la base de datos MundialFutbol completa desde un único
                archivo: ejecuta en orden los scripts de TP-BBDDA (esquema, ABM,
-               negocio, funciones, importaciones, carga de datos y reportes).
+               negocio, funciones, importaciones, carga de datos, reportes,
+               cifrado de datos personales y roles de seguridad).
                No ejecuta los scripts de testing (8x), que van por separado.
-               Cada script incluido es idempotente (valida la existencia de los
-               objetos antes de crearlos), por lo que este archivo se puede
-               ejecutar más de una vez. Para empezar de cero, ejecutar antes
-               90_Borrar_Base_de_Datos.sql.
+               Para empezar de cero, ejecutar antes 90_Borrar_Base_de_Datos.sql.
+               Después del cifrado (70) este archivo NO se puede volver a
+               ejecutar sobre la misma base: las cargas y los SP originales
+               nombran columnas en claro que el 70b elimina. Si la base ya
+               existe, ejecutar primero el 90.
 
  Requisitos  : Este archivo usa comandos de SQLCMD (:setvar, :r, :on error).
                - SSMS: menú Consulta > Modo SQLCMD activado.
@@ -25,6 +27,11 @@
                Si el repositorio no está en C:\TP-BBDDA, editar solo la variable
                RUTA (carpeta TP-BBDDA de esta máquina, sin barra final) y no
                commitear ese cambio.
+               Cifrado: sin tocar 70a, la clave maestra usa una contraseña
+               aleatoria de un solo uso (ver el encabezado de 70a para poder
+               restaurar la base en otro servidor).
+               Al terminar, ejecutar 92_Ejecutar_Reportes.sql para ver los
+               reportes.
 ================================================================================
 */
 
@@ -78,8 +85,18 @@
 :r $(RUTA)\61_Reportes_Arbitraje_Eventos.sql
 :r $(RUTA)\62_Reportes_Publicidad.sql
 
--- 70 a 72 (seguridad): todavía no existen. Agregar acá cuando se creen:
--- :r $(RUTA)\7x_....sql
+-- 70: cifrado de datos personales (va después de las cargas: el 70b migra los
+--     datos ya cargados y redefine SP de 10b, 11a, 21, 31, 41, 60 y 61)
+:r $(RUTA)\70a_Cifrado_Claves.sql
+:r $(RUTA)\70b_Cifrado_Tablas.sql
+:r $(RUTA)\70c_Cifrado_SP_ABM.sql
+:r $(RUTA)\70d_Cifrado_Vistas.sql
+:r $(RUTA)\70e_Cifrado_Negocio_Importacion.sql
+:r $(RUTA)\70f_Cifrado_Reportes.sql
+
+-- 71: roles, permisos y usuarios de prueba (va último: da permisos sobre objetos
+--     que el 70 redefine)
+:r $(RUTA)\71_Roles_Seguridad.sql
 
 PRINT N'Creación de la base de datos MundialFutbol finalizada.';
 GO

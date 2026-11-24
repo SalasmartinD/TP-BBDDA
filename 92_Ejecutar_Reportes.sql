@@ -20,10 +20,11 @@
                     Publicidad.Reporte_IngresosPorMoneda
                Cada reporte tiene una ejecución sin parámetros (activa) y debajo
                sus variantes, comentadas: seleccionar la línea y ejecutar (F5).
-               Al final hay una sección con los errores de validación de los
-               parámetros, que sí se ejecuta (cada error se captura y se muestra).
 
- Requisitos  : Base MundialFutbol creada y cargada (91_Crear_Base_Completa.sql).
+ Requisitos  : Base MundialFutbol creada y cargada (91_Crear_Base_Completa.sql,
+               que ya incluye el cifrado y los roles: desde el 70f los reportes
+               de nombres se ejecutan con EXECUTE AS OWNER y devuelven los
+               nombres descifrados, con las mismas firmas que en 60 y 61).
                Los reportes XML devuelven 1 fila / 1 columna: en SSMS, clic sobre
                el valor para abrir el XML completo.
 
