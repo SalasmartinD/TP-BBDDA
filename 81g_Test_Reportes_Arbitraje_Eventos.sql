@@ -190,7 +190,7 @@ BEGIN
     WHILE 1 = 1
     BEGIN
         SET @id = NULL;
-        SELECT @id = MIN(idArbitro) FROM Arbitraje.Arbitro WHERE apellido = N'QRep Arbitro Sin Partidos';
+        SELECT @id = MIN(idArbitro) FROM Arbitraje.vw_Arbitro WHERE apellido = N'QRep Arbitro Sin Partidos';
         IF @id IS NULL BREAK;
         EXEC Arbitraje.Arbitro_Baja @idArbitro = @id;
     END;
@@ -255,7 +255,7 @@ SELECT v.tabla, v.n
 INTO #base
 FROM (SELECT 'Gol' AS tabla, COUNT(*) AS n FROM Eventos.Gol
       UNION ALL SELECT 'Suspension', COUNT(*) FROM Eventos.Suspension
-      UNION ALL SELECT 'Arbitro',    COUNT(*) FROM Arbitraje.Arbitro
+      UNION ALL SELECT 'Arbitro',    COUNT(*) FROM Arbitraje.vw_Arbitro
       UNION ALL SELECT 'Tarjeta',    COUNT(*) FROM Eventos.Tarjeta
       UNION ALL SELECT 'cuerpoArbitral', COUNT(*) FROM Arbitraje.cuerpoArbitral) v;
 
@@ -325,7 +325,7 @@ BEGIN TRY
     JOIN Eventos.Gol g               ON g.idGol      = c.idGol
     JOIN Torneo.Partido p            ON p.idPartido  = g.idPartido
     JOIN Eventos.FormacionPartido fp ON fp.idPartido = g.idPartido AND fp.idJugador = g.idJugador
-    JOIN Equipos.Jugador j           ON j.id         = g.idJugador
+    JOIN Equipos.vw_Jugador j           ON j.id         = g.idJugador
     JOIN Equipos.Seleccion sa        ON sa.id        = fp.idSeleccion
     JOIN Torneo.Pais pa              ON pa.id        = sa.idPais
     JOIN Equipos.Seleccion sc        ON sc.id        = c.idSeleccion
@@ -621,7 +621,7 @@ SELECT TOP 1 @selT = x.idSel
 FROM (SELECT COALESCE(fp.idSeleccion, st.idSeleccion) AS idSel
       FROM Eventos.Tarjeta t
       LEFT JOIN Eventos.FormacionPartido fp ON fp.idPartido = t.idPartido AND fp.idJugador = t.idJugador
-      LEFT JOIN Equipos.Staff st            ON st.id = t.idStaff) x
+      LEFT JOIN Equipos.vw_Staff st            ON st.id = t.idStaff) x
 WHERE x.idSel IS NOT NULL
 GROUP BY x.idSel
 ORDER BY COUNT(*) DESC, x.idSel;
@@ -629,7 +629,7 @@ ORDER BY COUNT(*) DESC, x.idSel;
 SELECT @nTarjSel = COUNT(*)
 FROM Eventos.Tarjeta t
 LEFT JOIN Eventos.FormacionPartido fp ON fp.idPartido = t.idPartido AND fp.idJugador = t.idJugador
-LEFT JOIN Equipos.Staff st            ON st.id = t.idStaff
+LEFT JOIN Equipos.vw_Staff st            ON st.id = t.idStaff
 WHERE COALESCE(fp.idSeleccion, st.idSeleccion) = @selT;
 
 BEGIN TRY
@@ -695,7 +695,7 @@ BEGIN TRY
     SET @ok = CASE WHEN (SELECT COUNT(*) FROM #repT) = @nPersAct + 1
                     AND EXISTS (SELECT 1 FROM #repT
                                 WHERE tipoPersona = 'Jugador'
-                                  AND persona = (SELECT apellido + N', ' + nombre FROM Equipos.Jugador WHERE id = @jugT)
+                                  AND persona = (SELECT apellido + N', ' + nombre FROM Equipos.vw_Jugador WHERE id = @jugT)
                                   AND suspensionesActivas = 1 AND partidosPorCumplir = 2
                                   AND suspensionesTotales = (SELECT COUNT(*) FROM Eventos.Suspension WHERE idJugador = @jugT)
                                   AND amarillas = ISNULL(@amJug, 0) AND rojas = ISNULL(@roJug, 0)
@@ -842,7 +842,7 @@ END CATCH;
 -- PRUEBA 3.3: Árbitro sin designaciones (alta con Arbitro_Alta, baja al terminar con Arbitro_Baja)
 -- Resultado esperado: una fila con la raíz vacía <DesignacionesArbitrales /> (sin ningún nodo hijo).
 DECLARE @idArbNuevo int, @arbitrosAntes int, @idPaisArb int = (SELECT MIN(id) FROM Torneo.Pais);
-SELECT @arbitrosAntes = COUNT(*) FROM Arbitraje.Arbitro;
+SELECT @arbitrosAntes = COUNT(*) FROM Arbitraje.vw_Arbitro;
 BEGIN TRY
     EXEC Arbitraje.Arbitro_Alta @idPais = @idPaisArb, @nombre = N'Test', @apellido = N'QRep Arbitro Sin Partidos',
          @categoria = 'FIFA', @idArbitro = @idArbNuevo OUTPUT;
@@ -859,7 +859,7 @@ BEGIN TRY
                    THEN 1 ELSE 0 END;
 
     EXEC Arbitraje.Arbitro_Baja @idArbitro = @idArbNuevo;
-    SET @ok = CASE WHEN @ok = 1 AND (SELECT COUNT(*) FROM Arbitraje.Arbitro) = @arbitrosAntes THEN 1 ELSE 0 END;
+    SET @ok = CASE WHEN @ok = 1 AND (SELECT COUNT(*) FROM Arbitraje.vw_Arbitro) = @arbitrosAntes THEN 1 ELSE 0 END;
     EXEC #Resultado 'PRUEBA 3.3', @ok, N'Árbitro sin designaciones: raíz vacía <DesignacionesArbitrales />.',
          N'El reporte de un árbitro sin designaciones no devolvió la raíz vacía.';
 END TRY
@@ -901,7 +901,7 @@ SET @ok = CASE WHEN NOT EXISTS (SELECT 1
                                 FROM #base b
                                 JOIN (SELECT 'Gol' AS tabla, COUNT(*) AS n FROM Eventos.Gol
                                       UNION ALL SELECT 'Suspension', COUNT(*) FROM Eventos.Suspension
-                                      UNION ALL SELECT 'Arbitro',    COUNT(*) FROM Arbitraje.Arbitro
+                                      UNION ALL SELECT 'Arbitro',    COUNT(*) FROM Arbitraje.vw_Arbitro
                                       UNION ALL SELECT 'Tarjeta',    COUNT(*) FROM Eventos.Tarjeta
                                       UNION ALL SELECT 'cuerpoArbitral', COUNT(*) FROM Arbitraje.cuerpoArbitral) a ON a.tabla = b.tabla
                                 WHERE a.n <> b.n)

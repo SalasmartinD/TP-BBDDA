@@ -41,11 +41,11 @@ GO
    una corrida anterior se cortó y dejó datos con dependencias)
    ============================================================================= */
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
-    AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
-DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido = N'Prueba80b');
-DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80b';
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80b';
+    AND idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98011;
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QRA', 'QSA', 'QTA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80b';
@@ -193,11 +193,11 @@ DECLARE @id int;
 -- PRUEBA 2.1: alta exitosa
 -- Resultado esperado: se crea el jugador con todos sus datos.
 BEGIN TRY
-    SELECT 'ANTES 2.1' AS momento, COUNT(*) AS filas FROM Equipos.Jugador WHERE apellido = N'Prueba80b';
+    SELECT 'ANTES 2.1' AS momento, COUNT(*) AS filas FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b';
     EXEC Equipos.Jugador_Alta @nombre = N'Uno', @apellido = N'Prueba80b', @fechaNacimiento = '2000-03-15',
          @altura = 1.80, @peso = 75, @piernaHabil = 'Derecha', @club = N'Club Prueba', @posicion = 'Delantero',
          @id = @id OUTPUT;
-    SELECT 'DESPUES 2.1' AS momento, * FROM Equipos.Jugador WHERE id = @id;
+    SELECT 'DESPUES 2.1' AS momento, * FROM Equipos.vw_Jugador WHERE id = @id;
     IF @id IS NOT NULL
         PRINT '[OK] PRUEBA 2.1: jugador creado con ID = ' + CAST(@id AS varchar(10));
     ELSE PRINT '[FALLO] PRUEBA 2.1: no se devolvió el ID.';
@@ -264,13 +264,13 @@ END CATCH;
 -- PRUEBA 2.6: modificación exitosa
 -- Resultado esperado: el jugador Uno cambia de club.
 BEGIN TRY
-    SET @id = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
-    SELECT 'ANTES 2.6' AS momento, id, club FROM Equipos.Jugador WHERE id = @id;
+    SET @id = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
+    SELECT 'ANTES 2.6' AS momento, id, club FROM Equipos.vw_Jugador WHERE id = @id;
     EXEC Equipos.Jugador_Modificacion @id = @id, @nombre = N'Uno', @apellido = N'Prueba80b',
          @fechaNacimiento = '2000-03-15', @altura = 1.80, @peso = 75, @piernaHabil = 'Derecha',
          @club = N'Club Prueba Nuevo', @posicion = 'Delantero';
-    SELECT 'DESPUES 2.6' AS momento, id, club FROM Equipos.Jugador WHERE id = @id;
-    IF EXISTS (SELECT 1 FROM Equipos.Jugador WHERE id = @id AND club = N'Club Prueba Nuevo')
+    SELECT 'DESPUES 2.6' AS momento, id, club FROM Equipos.vw_Jugador WHERE id = @id;
+    IF EXISTS (SELECT 1 FROM Equipos.vw_Jugador WHERE id = @id AND club = N'Club Prueba Nuevo')
         PRINT '[OK] PRUEBA 2.6: jugador modificado.';
     ELSE PRINT '[FALLO] PRUEBA 2.6: el jugador no se modificó.';
 END TRY
@@ -294,10 +294,10 @@ END CATCH;
 -- Resultado esperado: el jugador Descartable deja de existir.
 BEGIN TRY
     EXEC Equipos.Jugador_Alta @nombre = N'Descartable', @apellido = N'Prueba80b', @id = @id OUTPUT;
-    SELECT 'ANTES 2.8' AS momento, COUNT(*) AS filas FROM Equipos.Jugador WHERE id = @id;
+    SELECT 'ANTES 2.8' AS momento, COUNT(*) AS filas FROM Equipos.vw_Jugador WHERE id = @id;
     EXEC Equipos.Jugador_Baja @id = @id;
-    SELECT 'DESPUES 2.8' AS momento, COUNT(*) AS filas FROM Equipos.Jugador WHERE id = @id;
-    IF NOT EXISTS (SELECT 1 FROM Equipos.Jugador WHERE id = @id)
+    SELECT 'DESPUES 2.8' AS momento, COUNT(*) AS filas FROM Equipos.vw_Jugador WHERE id = @id;
+    IF NOT EXISTS (SELECT 1 FROM Equipos.vw_Jugador WHERE id = @id)
         PRINT '[OK] PRUEBA 2.8: jugador eliminado.';
     ELSE PRINT '[FALLO] PRUEBA 2.8: el jugador sigue existiendo.';
 END TRY
@@ -323,11 +323,11 @@ DECLARE @id int;
 -- PRUEBA 3.1: alta exitosa del director principal
 -- Resultado esperado: se crea el integrante con rol Director Principal.
 BEGIN TRY
-    SELECT 'ANTES 3.1' AS momento, COUNT(*) AS filas FROM Equipos.Staff WHERE idSeleccion = @selR;
+    SELECT 'ANTES 3.1' AS momento, COUNT(*) AS filas FROM Equipos.vw_Staff WHERE idSeleccion = @selR;
     EXEC Equipos.Staff_Alta @idSeleccion = @selR, @nombre = N'Director', @apellido = N'Prueba80b',
          @rol = 'Director Principal', @fechaNacimiento = '1970-01-01', @id = @id OUTPUT;
-    SELECT 'DESPUES 3.1' AS momento, * FROM Equipos.Staff WHERE id = @id;
-    IF EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @id AND rol = 'Director Principal')
+    SELECT 'DESPUES 3.1' AS momento, * FROM Equipos.vw_Staff WHERE id = @id;
+    IF EXISTS (SELECT 1 FROM Equipos.vw_Staff WHERE id = @id AND rol = 'Director Principal')
         PRINT '[OK] PRUEBA 3.1: director principal creado.';
     ELSE PRINT '[FALLO] PRUEBA 3.1: el integrante no se creó.';
 END TRY
@@ -368,11 +368,11 @@ END CATCH;
 BEGIN TRY
     EXEC Equipos.Staff_Alta @idSeleccion = @selR, @nombre = N'Ayudante', @apellido = N'Prueba80b',
          @rol = 'Ayudante', @id = @id OUTPUT;
-    SELECT 'ANTES 3.4' AS momento, id, rol FROM Equipos.Staff WHERE id = @id;
+    SELECT 'ANTES 3.4' AS momento, id, rol FROM Equipos.vw_Staff WHERE id = @id;
     EXEC Equipos.Staff_Modificacion @id = @id, @idSeleccion = @selR, @nombre = N'Ayudante',
          @apellido = N'Prueba80b', @rol = 'Preparador Fisico';
-    SELECT 'DESPUES 3.4' AS momento, id, rol FROM Equipos.Staff WHERE id = @id;
-    IF EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @id AND rol = 'Preparador Fisico')
+    SELECT 'DESPUES 3.4' AS momento, id, rol FROM Equipos.vw_Staff WHERE id = @id;
+    IF EXISTS (SELECT 1 FROM Equipos.vw_Staff WHERE id = @id AND rol = 'Preparador Fisico')
         PRINT '[OK] PRUEBA 3.4: integrante modificado.';
     ELSE PRINT '[FALLO] PRUEBA 3.4: el integrante no se modificó.';
 END TRY
@@ -396,10 +396,10 @@ END CATCH;
 -- PRUEBA 3.6: baja exitosa
 -- Resultado esperado: el preparador físico deja de existir.
 BEGIN TRY
-    SELECT 'ANTES 3.6' AS momento, COUNT(*) AS filas FROM Equipos.Staff WHERE id = @id;
+    SELECT 'ANTES 3.6' AS momento, COUNT(*) AS filas FROM Equipos.vw_Staff WHERE id = @id;
     EXEC Equipos.Staff_Baja @id = @id;
-    SELECT 'DESPUES 3.6' AS momento, COUNT(*) AS filas FROM Equipos.Staff WHERE id = @id;
-    IF NOT EXISTS (SELECT 1 FROM Equipos.Staff WHERE id = @id)
+    SELECT 'DESPUES 3.6' AS momento, COUNT(*) AS filas FROM Equipos.vw_Staff WHERE id = @id;
+    IF NOT EXISTS (SELECT 1 FROM Equipos.vw_Staff WHERE id = @id)
         PRINT '[OK] PRUEBA 3.6: integrante eliminado.';
     ELSE PRINT '[FALLO] PRUEBA 3.6: el integrante sigue existiendo.';
 END TRY
@@ -450,11 +450,11 @@ PRINT '--- 4. Equipos.ListadoJugadores ---';
 
 DECLARE @selR int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QRA');
 DECLARE @selS int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'QSA');
-DECLARE @j1 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
-DECLARE @j2 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Dos');
-DECLARE @j3 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Tres');
-DECLARE @j4 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Cuatro');
-DECLARE @j5 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Cinco');
+DECLARE @j1 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
+DECLARE @j2 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Dos');
+DECLARE @j3 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Tres');
+DECLARE @j4 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Cuatro');
+DECLARE @j5 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Cinco');
 DECLARE @conv1 int, @conv2 int, @convS int, @id int;
 
 -- PRUEBA 4.1: alta exitosa del jugador Uno con el dorsal 10
@@ -687,7 +687,7 @@ END CATCH;
 -- PRUEBA 5.2: baja de un jugador que figura en una convocatoria
 -- Resultado esperado: error 50001 "El jugador figura en convocatorias."
 BEGIN TRY
-    DECLARE @j1 int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
+    DECLARE @j1 int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b' AND nombre = N'Uno');
     EXEC Equipos.Jugador_Baja @id = @j1;
     PRINT '[FALLO] PRUEBA 5.2: se eliminó un jugador convocado.';
 END TRY
@@ -717,11 +717,11 @@ GO
    LIMPIEZA FINAL
    ============================================================================= */
 DELETE FROM Equipos.ListadoJugadores WHERE idReemplazaA IS NOT NULL
-    AND idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
-DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.Jugador WHERE apellido = N'Prueba80b');
-DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.Staff WHERE apellido = N'Prueba80b');
-DELETE FROM Equipos.Staff WHERE apellido = N'Prueba80b';
-DELETE FROM Equipos.Jugador WHERE apellido = N'Prueba80b';
+    AND idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.ListadoJugadores WHERE idJugador IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
+DELETE FROM Eventos.CuerpoTecnicoPartido WHERE idStaff IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Prueba80b');
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Prueba80b');
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial = 98011;
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('QRA', 'QSA', 'QTA');
 DELETE FROM Torneo.Sede WHERE nombreEstadio = N'Estadio Prueba 80b';
