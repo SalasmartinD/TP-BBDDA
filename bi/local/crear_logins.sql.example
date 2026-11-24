@@ -46,7 +46,7 @@ BEGIN
 END;
 GO
 
--- 3. Login para operaciones de importación / soporte (Administrador)
+-- 3. Login para operaciones de importación XML y descarga de plantillas (rol_ImportadorApp)
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'login_import')
 BEGIN
     CREATE LOGIN login_import WITH PASSWORD = N'<PASSWORD_IMPORT>', CHECK_POLICY = OFF;

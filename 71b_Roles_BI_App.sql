@@ -6,19 +6,18 @@
  Integrantes : Pereira, Marcos Nahuel
                Salas, Martín Daniel
                Zito Padró, Ezequiel Nehuén
- Fecha       : 23/11/2026
+ Fecha       : 24/11/2026
 
  Objetivo    : Entrega 9 - Seguridad para Plataforma BI y App Blazor (Script 71b):
                1. Sistema.CrearRolBI:
-                  Crea el quinto rol de la base de datos (rol_BI) si no existe.
+                  Crea los roles rol_BI y rol_ImportadorApp si no existen.
                2. Sistema.OtorgarPermisosRolBI_App:
                   Configura permisos de menor privilegio y privacidad estricta:
                   - rol_BI:
                     * SELECT exclusivo sobre las vistas analíticas de BI:
                       Publicidad.vw_BI_Exhibiciones, Torneo.vw_BI_Sedes,
                       Eventos.vw_BI_GolesPorSeleccion.
-                    * EXECUTE únicamente sobre reportes que no exponen datos
-                      personales ni nombres de personas:
+                    * EXECUTE únicamente sobre reportes sin datos personales:
                       Publicidad.Reporte_OcupacionPublicitaria,
                       Publicidad.Reporte_MatrizPrimeTime,
                       Publicidad.Reporte_IngresosPorMoneda,
@@ -26,29 +25,28 @@
                     * SELECT sobre Torneo.vw_Fixture.
                     * DENY SELECT explícito sobre tablas de datos personales
                       (Equipos.Jugador, Equipos.Staff, Arbitraje.Arbitro) y
-                      vistas de descifrado, garantizando que el usuario de BI
-                      no acceda a datos sensibles.
+                      vistas de descifrado (Equipos.vw_Jugador, Equipos.vw_Staff,
+                      Arbitraje.vw_Arbitro, Eventos.vw_HistorialTitularidad,
+                      Arbitraje.vw_HistorialArbitro).
                   - rol_GestorPublicidad:
-                    * Incorpora permisos SELECT sobre las vistas de catálogo
-                      y listado requeridas por la App Blazor:
-                      Publicidad.vw_AnuncianteListado, Torneo.vw_PaisCatalogo,
-                      Publicidad.vw_MonedaCatalogo.
-                    * Mantiene DENY de acceso directo a tablas y esquemas ajenos.
-                  - rol_Administrador:
-                    * SELECT sobre Sistema.vw_ErrorImportacion (vista sanitizada
-                      sin datoOriginal) para la pantalla de soporte de la app.
+                    * SELECT sobre Publicidad.vw_AnuncianteListado,
+                      Torneo.vw_PaisCatalogo, Publicidad.vw_MonedaCatalogo.
+                  - rol_ImportadorApp (menor privilegio para importación/XML):
+                    * EXECUTE exclusivo sobre Arbitraje.Importar_ArbitrosXMLDatos
+                      y Equipos.Reporte_SeleccionesPlantillas.
+                    * SELECT exclusivo sobre Sistema.vw_ErrorImportacion (sin
+                      datoOriginal).
+                  - Separación de funciones:
+                    * DENY EXECUTE a rol_Administrador sobre los 4 SP de
+                      seguridad definidos en este script.
                3. Sistema.CrearUsuarioConLogin:
-                  SP que vincula de manera idempotente un usuario de base de datos
-                  a un login existente a nivel de instancia SQL Server:
-                  - Mapea el login mediante CREATE USER ... FOR LOGIN ...
-                  - Asigna el usuario al rol especificado.
-                  - Si el login aún no fue creado en el servidor, emite una advertencia
-                    clara (no falla en silencio ni rompe la recreación).
+                  Mapea de manera idempotente un usuario de BD a un login de
+                  servidor (con advertencia limpia si el login no existe).
                4. Sistema.CrearUsuarioPruebaBI:
-                  Crea el usuario de prueba sin login usr_bi para testing unitario
-                  y automatizado con EXECUTE AS USER.
+                  Crea los usuarios sin login usr_bi (rol_BI) y usr_import_prueba
+                  (rol_ImportadorApp) para pruebas automatizadas.
                5. Configuración automática de usuarios para logins reales:
-                  Intenta mapear login_bi (usr_bi), login_app (usr_app) y
+                  Mapea login_bi (usr_bi_net), login_app (usr_app) y
                   login_import (usr_import).
 
  Estándares aplicados:
@@ -71,9 +69,6 @@ GO
 -- =============================================================================
 -- 1. SP: Sistema.CrearRolBI
 -- =============================================================================
-/*
-   Crea el rol de base de datos rol_BI si no existe previamente.
-*/
 CREATE OR ALTER PROCEDURE Sistema.CrearRolBI
 AS
 BEGIN
@@ -87,17 +82,23 @@ BEGIN
     ELSE
     BEGIN
         PRINT 'Rol [rol_BI] ya existía.';
+    END;
+
+    IF DATABASE_PRINCIPAL_ID('rol_ImportadorApp') IS NULL
+    BEGIN
+        CREATE ROLE rol_ImportadorApp;
+        PRINT 'Rol [rol_ImportadorApp] creado exitosamente.';
     END
+    ELSE
+    BEGIN
+        PRINT 'Rol [rol_ImportadorApp] ya existía.';
+    END;
 END;
 GO
 
 -- =============================================================================
 -- 2. SP: Sistema.OtorgarPermisosRolBI_App
 -- =============================================================================
-/*
-   Aplica los permisos granulares para rol_BI y amplía los permisos de lectura
-   para la App Blazor en rol_GestorPublicidad y rol_Administrador.
-*/
 CREATE OR ALTER PROCEDURE Sistema.OtorgarPermisosRolBI_App
 AS
 BEGIN
@@ -111,6 +112,8 @@ BEGIN
     -- Validar roles
     IF DATABASE_PRINCIPAL_ID('rol_BI') IS NULL
         SET @errores = CONCAT(@errores, CHAR(10), N'- El rol rol_BI no existe.');
+    IF DATABASE_PRINCIPAL_ID('rol_ImportadorApp') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- El rol rol_ImportadorApp no existe.');
     IF DATABASE_PRINCIPAL_ID('rol_GestorPublicidad') IS NULL
         SET @errores = CONCAT(@errores, CHAR(10), N'- El rol rol_GestorPublicidad no existe.');
     IF DATABASE_PRINCIPAL_ID('rol_Administrador') IS NULL
@@ -144,6 +147,12 @@ BEGIN
     IF OBJECT_ID(N'Torneo.Reporte_Resultados', N'P') IS NULL
         SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Torneo.Reporte_Resultados.');
 
+    -- Validar objetos requeridos por rol_ImportadorApp
+    IF OBJECT_ID(N'Arbitraje.Importar_ArbitrosXMLDatos', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Arbitraje.Importar_ArbitrosXMLDatos.');
+    IF OBJECT_ID(N'Equipos.Reporte_SeleccionesPlantillas', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Equipos.Reporte_SeleccionesPlantillas.');
+
     IF @errores <> N''
     BEGIN
         SET @errores = N'No se pudieron configurar los permisos de BI y App:' + @errores;
@@ -152,9 +161,6 @@ BEGIN
 
     /* -------------------------------------------------------------------------
        2. Permisos para rol_BI
-          - Lectura sobre vistas analíticas.
-          - Ejecución exclusiva sobre los 4 reportes sin datos personales.
-          - Lectura sobre el fixture público.
     ------------------------------------------------------------------------- */
     GRANT SELECT ON Publicidad.vw_BI_Exhibiciones   TO rol_BI;
     GRANT SELECT ON Torneo.vw_BI_Sedes              TO rol_BI;
@@ -169,55 +175,53 @@ BEGIN
         GRANT SELECT ON Torneo.vw_Fixture TO rol_BI;
 
     /* -------------------------------------------------------------------------
-       3. Protección de privacidad para rol_BI
-          - DENY explícito sobre tablas con datos personales y vistas de descifrado.
+       3. Protección de privacidad para rol_BI (defensa en profundidad)
     ------------------------------------------------------------------------- */
     DENY SELECT ON Equipos.Jugador   TO rol_BI;
     DENY SELECT ON Equipos.Staff     TO rol_BI;
     DENY SELECT ON Arbitraje.Arbitro TO rol_BI;
 
     IF OBJECT_ID(N'Equipos.vw_Jugador', N'V') IS NOT NULL
-        DENY SELECT ON Equipos.vw_Jugador   TO rol_BI;
+        DENY SELECT ON Equipos.vw_Jugador TO rol_BI;
     IF OBJECT_ID(N'Equipos.vw_Staff', N'V') IS NOT NULL
-        DENY SELECT ON Equipos.vw_Staff     TO rol_BI;
+        DENY SELECT ON Equipos.vw_Staff TO rol_BI;
     IF OBJECT_ID(N'Arbitraje.vw_Arbitro', N'V') IS NOT NULL
         DENY SELECT ON Arbitraje.vw_Arbitro TO rol_BI;
+    IF OBJECT_ID(N'Eventos.vw_HistorialTitularidad', N'V') IS NOT NULL
+        DENY SELECT ON Eventos.vw_HistorialTitularidad TO rol_BI;
+    IF OBJECT_ID(N'Arbitraje.vw_HistorialArbitro', N'V') IS NOT NULL
+        DENY SELECT ON Arbitraje.vw_HistorialArbitro TO rol_BI;
 
     /* -------------------------------------------------------------------------
        4. Permisos de lectura para la App Blazor en rol_GestorPublicidad
-          - Lectura de catálogos y padrón para el ABM de Anunciante.
     ------------------------------------------------------------------------- */
     GRANT SELECT ON Publicidad.vw_AnuncianteListado TO rol_GestorPublicidad;
     GRANT SELECT ON Torneo.vw_PaisCatalogo          TO rol_GestorPublicidad;
     GRANT SELECT ON Publicidad.vw_MonedaCatalogo    TO rol_GestorPublicidad;
 
     /* -------------------------------------------------------------------------
-       5. Permisos para la pantalla de soporte de la App en rol_Administrador
-          - Lectura sanitizada de errores de importación (sin datoOriginal).
+       5. Permisos de menor privilegio para importación/XML en rol_ImportadorApp
     ------------------------------------------------------------------------- */
-    GRANT SELECT ON Sistema.vw_ErrorImportacion TO rol_Administrador;
+    GRANT EXECUTE ON Arbitraje.Importar_ArbitrosXMLDatos   TO rol_ImportadorApp;
+    GRANT EXECUTE ON Equipos.Reporte_SeleccionesPlantillas TO rol_ImportadorApp;
+    GRANT SELECT  ON Sistema.vw_ErrorImportacion           TO rol_ImportadorApp;
 
-    PRINT 'Permisos de rol_BI y App Blazor configurados exitosamente.';
+    /* -------------------------------------------------------------------------
+       6. Separación de funciones: impedir que rol_Administrador ejecute los
+          SP de seguridad de este script (mismo patrón que 71_Roles_Seguridad.sql)
+    ------------------------------------------------------------------------- */
+    DENY EXECUTE ON Sistema.CrearRolBI                TO rol_Administrador;
+    DENY EXECUTE ON Sistema.OtorgarPermisosRolBI_App  TO rol_Administrador;
+    DENY EXECUTE ON Sistema.CrearUsuarioConLogin      TO rol_Administrador;
+    DENY EXECUTE ON Sistema.CrearUsuarioPruebaBI      TO rol_Administrador;
+
+    PRINT 'Permisos de rol_BI, rol_ImportadorApp y App Blazor configurados exitosamente.';
 END;
 GO
 
 -- =============================================================================
 -- 3. SP: Sistema.CrearUsuarioConLogin
 -- =============================================================================
-/*
-   Mapea un usuario de base de datos a un login existente a nivel de instancia
-   y lo añade al rol correspondiente.
-
-   JUSTIFICACIÓN DE SQL DINÁMICO:
-   Las sentencias CREATE USER ... FOR LOGIN y ALTER ROLE ... ADD MEMBER no aceptan
-   variables ni parámetros en sintaxis T-SQL estándar. Se aplica QUOTENAME() para
-   evitar cualquier riesgo de inyección SQL.
-
-   MANEJO DE LOGIN INEXISTENTE:
-   Si el login a nivel de servidor no existe, el procedimiento NO lanza un error fatal
-   para permitir que los scripts de recreación de base de datos corran sin fallar; en
-   su lugar imprime una advertencia informativa con la acción requerida.
-*/
 CREATE OR ALTER PROCEDURE Sistema.CrearUsuarioConLogin
     @login   sysname,
     @usuario sysname,
@@ -238,8 +242,8 @@ BEGIN
     IF @rol IS NULL OR @rol = N''
         SET @errores = CONCAT(@errores, CHAR(10), N'- El nombre de rol no puede estar vacío.');
 
-    IF DATABASE_PRINCIPAL_ID(@rol) IS NULL
-        SET @errores = CONCAT(@errores, CHAR(10), N'- El rol especificado no existe en la base de datos: ', ISNULL(@rol, N'(null)'));
+    IF @rol IS NOT NULL AND @rol <> N'' AND DATABASE_PRINCIPAL_ID(@rol) IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- El rol especificado no existe en la base de datos: ', @rol);
 
     IF @errores <> N''
     BEGIN
@@ -284,10 +288,6 @@ GO
 -- =============================================================================
 -- 4. SP: Sistema.CrearUsuarioPruebaBI
 -- =============================================================================
-/*
-   Crea el usuario sin login usr_bi para pruebas de seguridad automatizadas
-   (EXECUTE AS USER = 'usr_bi').
-*/
 CREATE OR ALTER PROCEDURE Sistema.CrearUsuarioPruebaBI
 AS
 BEGIN
@@ -308,6 +308,22 @@ BEGIN
         ALTER ROLE rol_BI ADD MEMBER usr_bi;
         PRINT 'Usuario [usr_bi] incorporado a [rol_BI].';
     END;
+
+    IF USER_ID('usr_import_prueba') IS NULL
+    BEGIN
+        CREATE USER usr_import_prueba WITHOUT LOGIN;
+        PRINT 'Usuario de prueba [usr_import_prueba] creado exitosamente.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Usuario de prueba [usr_import_prueba] ya existía.';
+    END;
+
+    IF IS_ROLEMEMBER('rol_ImportadorApp', 'usr_import_prueba') = 0 OR IS_ROLEMEMBER('rol_ImportadorApp', 'usr_import_prueba') IS NULL
+    BEGIN
+        ALTER ROLE rol_ImportadorApp ADD MEMBER usr_import_prueba;
+        PRINT 'Usuario [usr_import_prueba] incorporado a [rol_ImportadorApp].';
+    END;
 END;
 GO
 
@@ -319,7 +335,7 @@ EXEC Sistema.OtorgarPermisosRolBI_App;
 EXEC Sistema.CrearUsuarioPruebaBI;
 
 -- Mapeos para logins de red si estuvieran presentes en la instancia
-EXEC Sistema.CrearUsuarioConLogin @login = N'login_bi',     @usuario = N'usr_bi_net',     @rol = N'rol_BI';
-EXEC Sistema.CrearUsuarioConLogin @login = N'login_app',    @usuario = N'usr_app',        @rol = N'rol_GestorPublicidad';
-EXEC Sistema.CrearUsuarioConLogin @login = N'login_import', @usuario = N'usr_import',     @rol = N'rol_Administrador';
+EXEC Sistema.CrearUsuarioConLogin @login = N'login_bi',     @usuario = N'usr_bi_net', @rol = N'rol_BI';
+EXEC Sistema.CrearUsuarioConLogin @login = N'login_app',    @usuario = N'usr_app',    @rol = N'rol_GestorPublicidad';
+EXEC Sistema.CrearUsuarioConLogin @login = N'login_import', @usuario = N'usr_import', @rol = N'rol_ImportadorApp';
 GO
