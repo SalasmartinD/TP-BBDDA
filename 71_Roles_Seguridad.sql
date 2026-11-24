@@ -153,6 +153,18 @@ BEGIN
     -- Verificación de SPs específicos de negocio
     IF OBJECT_ID(N'Torneo.RegistrarResultado', N'P') IS NULL
         SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Torneo.RegistrarResultado.');
+    IF OBJECT_ID(N'Eventos.Gol_Alta', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Eventos.Gol_Alta.');
+    IF OBJECT_ID(N'Eventos.RegistrarFormacion', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Eventos.RegistrarFormacion.');
+    IF OBJECT_ID(N'Eventos.RegistrarCambio', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Eventos.RegistrarCambio.');
+    IF OBJECT_ID(N'Eventos.RegistrarTarjeta', N'P') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Eventos.RegistrarTarjeta.');
+    IF TYPE_ID(N'Eventos.FormacionJugadorLista') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el tipo tabla Eventos.FormacionJugadorLista.');
+    IF TYPE_ID(N'Eventos.CuerpoTecnicoLista') IS NULL
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el tipo tabla Eventos.CuerpoTecnicoLista.');
     IF OBJECT_ID(N'Publicidad.TipoCambio_Alta', N'P') IS NULL
         SET @errores = CONCAT(@errores, CHAR(10), N'- Falta el procedimiento Publicidad.TipoCambio_Alta.');
     IF OBJECT_ID(N'Publicidad.TipoCambio_Modificacion', N'P') IS NULL
@@ -214,12 +226,33 @@ BEGIN
 
     /* -------------------------------------------------------------------------
        4. Permisos para rol_CargadorResultados
-          - Carga operativa de eventos de partido (goles, tarjetas, cambios, formaciones).
+          - Carga operativa de eventos de partido: solo ALTAS y REGISTROS, SP por SP
+            (sin permiso por esquema: no recibe SP futuros ni ABM no listados).
+          - NO recibe bajas ni modificaciones (las correcciones las hace el administrador)
+            ni Suspension_*.
+          - NO recibe los ABM de alta que tienen un SP de negocio equivalente
+            (Tarjeta_Alta, Sustitucion_Alta, FormacionPartido_Alta y CuerpoTecnicoPartido_Alta):
+            RegistrarTarjeta, RegistrarCambio y RegistrarFormacion agregan reglas que el ABM
+            no aplica (doble amarilla, expulsión y suspensión, ventanas de cambios,
+            cumplimiento de suspensiones). Es el mismo criterio que RegistrarResultado
+            frente a Partido_Modificacion.
+          - Gol_Alta: no tiene SP de negocio equivalente.
           - Ejecución de Torneo.RegistrarResultado (valida coherencia con eventos).
           - Consulta de reportes propios de eventos y resultados.
           - Consulta de fixture.
     ------------------------------------------------------------------------- */
-    GRANT EXECUTE ON SCHEMA::Eventos TO rol_CargadorResultados;
+    GRANT EXECUTE ON Eventos.RegistrarFormacion TO rol_CargadorResultados;
+    GRANT EXECUTE ON Eventos.RegistrarCambio    TO rol_CargadorResultados;
+    GRANT EXECUTE ON Eventos.RegistrarTarjeta   TO rol_CargadorResultados;
+    GRANT EXECUTE ON Eventos.Gol_Alta           TO rol_CargadorResultados;
+
+    -- Tipos tabla que usa RegistrarFormacion como parámetro: para declararlos hace falta
+    -- EXECUTE sobre el tipo (antes lo cubría el permiso por esquema).
+    GRANT EXECUTE ON TYPE::Eventos.FormacionJugadorLista TO rol_CargadorResultados;
+    GRANT EXECUTE ON TYPE::Eventos.CuerpoTecnicoLista    TO rol_CargadorResultados;
+
+    GRANT EXECUTE ON Eventos.Reporte_Goleadores TO rol_CargadorResultados;
+    GRANT EXECUTE ON Eventos.Reporte_Tarjetas   TO rol_CargadorResultados;
 
     GRANT EXECUTE ON Torneo.RegistrarResultado TO rol_CargadorResultados;
     GRANT EXECUTE ON Torneo.Reporte_Resultados TO rol_CargadorResultados;
@@ -240,6 +273,13 @@ BEGIN
     GRANT EXECUTE ON SCHEMA::Publicidad TO rol_Administrador;
     GRANT EXECUTE ON SCHEMA::Sistema    TO rol_Administrador;
 
+    -- Restricción puntual: la administración de roles y usuarios la hace el dueño de la base,
+    -- fuera de rol_Administrador (separación de funciones). El DENY evita una escalada de
+    -- privilegios si alguien declara estos SP con EXECUTE AS OWNER más adelante.
+    DENY EXECUTE ON Sistema.CrearRoles           TO rol_Administrador;
+    DENY EXECUTE ON Sistema.OtorgarPermisosRoles TO rol_Administrador;
+    DENY EXECUTE ON Sistema.CrearUsuarioPrueba   TO rol_Administrador;
+
     GRANT SELECT ON Torneo.vw_Fixture TO rol_Administrador;
 
     -- No se otorga SELECT directo sobre Eventos.vw_HistorialTitularidad ni sobre
@@ -247,7 +287,10 @@ BEGIN
     -- de descifrado y, sin permisos sobre la clave, devolverían NULL sin avisar.
     -- Los datos personales se consultan a través de los SP y reportes.
 
-    GRANT SELECT ON SCHEMA::Sistema TO rol_Administrador;
+    -- Solo Sistema.Parametro: un SELECT por esquema también daría acceso a
+    -- Sistema.ErrorImportacion.datoOriginal, que guarda el XML original de las filas
+    -- rechazadas (con nombre y apellido de árbitros) y quedaría fuera del cifrado.
+    GRANT SELECT ON Sistema.Parametro TO rol_Administrador;
 
     /* -------------------------------------------------------------------------
        6. Protección de datos personales (plan de cifrado de Persona 1, punto 4)
@@ -265,15 +308,23 @@ BEGIN
 
     IF OBJECT_ID(N'Equipos.vw_Jugador', N'V') IS NOT NULL
         DENY SELECT ON Equipos.vw_Jugador   TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    ELSE
+        PRINT N'AVISO: no existe Equipos.vw_Jugador (el script 70 todavía no se ejecutó): no se aplicó el DENY. Volver a ejecutar el 71 después del 70.';
     IF OBJECT_ID(N'Equipos.vw_Staff', N'V') IS NOT NULL
         DENY SELECT ON Equipos.vw_Staff     TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    ELSE
+        PRINT N'AVISO: no existe Equipos.vw_Staff (el script 70 todavía no se ejecutó): no se aplicó el DENY. Volver a ejecutar el 71 después del 70.';
     IF OBJECT_ID(N'Arbitraje.vw_Arbitro', N'V') IS NOT NULL
         DENY SELECT ON Arbitraje.vw_Arbitro TO rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    ELSE
+        PRINT N'AVISO: no existe Arbitraje.vw_Arbitro (el script 70 todavía no se ejecutó): no se aplicó el DENY. Volver a ejecutar el 71 después del 70.';
 
     -- Esquema Seguridad (pimienta de la huella de búsqueda): ningún rol lo toca directamente
     IF SCHEMA_ID(N'Seguridad') IS NOT NULL
         DENY SELECT, INSERT, UPDATE, DELETE ON SCHEMA::Seguridad
             TO rol_Administrador, rol_CargadorResultados, rol_GestorPublicidad, rol_Consulta;
+    ELSE
+        PRINT N'AVISO: no existe el esquema Seguridad (el script 70 todavía no se ejecutó): no se aplicó el DENY. Volver a ejecutar el 71 después del 70.';
 
     PRINT 'Permisos de roles otorgados correctamente.';
 END;
@@ -318,6 +369,10 @@ BEGIN
         SELECT 1 FROM sys.database_principals WHERE name = @rol AND type = 'R'
     )
         SET @errores = CONCAT(@errores, CHAR(10), N'- El rol especificado no existe: ', @rol);
+
+    -- Solo roles del sistema (rol_*): los roles fijos de la base (db_owner, etc.) no se admiten
+    IF @rol IS NOT NULL AND @rol <> N'' AND @rol NOT LIKE N'rol[_]%'
+        SET @errores = CONCAT(@errores, CHAR(10), N'- Solo se admiten los roles del sistema (rol_*), no roles fijos de la base: ', @rol);
 
     -- Validar que el usuario no exista previamente en la base de datos
     IF @usuario IS NOT NULL AND @usuario <> N'' AND EXISTS (
