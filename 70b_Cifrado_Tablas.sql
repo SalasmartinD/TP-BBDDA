@@ -231,8 +231,15 @@ BEGIN
 END;
 GO
 
-ALTER TABLE Equipos.Jugador ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
-ALTER TABLE Equipos.Jugador ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
+-- Las columnas Cif pasan a NOT NULL solo si la migración las dejó completas. Si no, el ALTER
+-- fallaría con el error 515 en cada tabla y tapa la causa real, que ya informó el paso 2.
+IF NOT EXISTS (SELECT 1 FROM Equipos.Jugador WHERE nombreCif IS NULL OR apellidoCif IS NULL)
+BEGIN
+    ALTER TABLE Equipos.Jugador ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
+    ALTER TABLE Equipos.Jugador ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
+END
+ELSE
+    PRINT N'AVISO: Equipos.Jugador tiene filas sin cifrar. Se conservan las columnas en claro. Corregir la causa del error del paso 2 y volver a ejecutar este script.';
 GO
 
 -- 3.2 Equipos.Staff
@@ -241,8 +248,13 @@ IF COL_LENGTH(N'Equipos.Staff', N'nombre') IS NOT NULL
     ALTER TABLE Equipos.Staff DROP COLUMN nombre, apellido, fechaNacimiento;
 GO
 
-ALTER TABLE Equipos.Staff ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
-ALTER TABLE Equipos.Staff ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM Equipos.Staff WHERE nombreCif IS NULL OR apellidoCif IS NULL)
+BEGIN
+    ALTER TABLE Equipos.Staff ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
+    ALTER TABLE Equipos.Staff ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
+END
+ELSE
+    PRINT N'AVISO: Equipos.Staff tiene filas sin cifrar. Se conservan las columnas en claro. Corregir la causa del error del paso 2 y volver a ejecutar este script.';
 GO
 
 -- 3.3 Arbitraje.Arbitro
@@ -251,9 +263,22 @@ IF COL_LENGTH(N'Arbitraje.Arbitro', N'nombre') IS NOT NULL
     ALTER TABLE Arbitraje.Arbitro DROP COLUMN nombre, apellido, genero;
 GO
 
-ALTER TABLE Arbitraje.Arbitro ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
-ALTER TABLE Arbitraje.Arbitro ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
-ALTER TABLE Arbitraje.Arbitro ALTER COLUMN huella      varbinary(32)  NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM Arbitraje.Arbitro WHERE nombreCif IS NULL OR apellidoCif IS NULL OR huella IS NULL)
+BEGIN
+    -- Si una corrida anterior falló, el paso 4 ya creó IX_Arbitro_Huella con huella permitiendo
+    -- NULL y el ALTER de abajo no puede cambiar una columna que tiene un índice (errores 5074
+    -- y 4922). Se descarta solo en ese caso: el paso 4 lo vuelve a crear. Con huella ya NOT NULL
+    -- (instalación limpia o script repetido) no se toca nada.
+    IF COLUMNPROPERTY(OBJECT_ID(N'Arbitraje.Arbitro'), N'huella', 'AllowsNull') = 1
+       AND EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Arbitro_Huella' AND object_id = OBJECT_ID(N'Arbitraje.Arbitro'))
+        DROP INDEX IX_Arbitro_Huella ON Arbitraje.Arbitro;
+
+    ALTER TABLE Arbitraje.Arbitro ALTER COLUMN nombreCif   varbinary(256) NOT NULL;
+    ALTER TABLE Arbitraje.Arbitro ALTER COLUMN apellidoCif varbinary(256) NOT NULL;
+    ALTER TABLE Arbitraje.Arbitro ALTER COLUMN huella      varbinary(32)  NOT NULL;
+END
+ELSE
+    PRINT N'AVISO: Arbitraje.Arbitro tiene filas sin cifrar. Se conservan las columnas en claro. Corregir la causa del error del paso 2 y volver a ejecutar este script.';
 GO
 
 /* =============================================================================
