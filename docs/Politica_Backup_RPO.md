@@ -42,19 +42,33 @@ ALTER DATABASE MundialFutbol SET RECOVERY FULL;
 - **Limitación de Express:** nuestro servidor de desarrollo es Express y ahí ninguna de las dos opciones está disponible. Lo probamos: `BACKUP ... WITH COMPRESSION` y `WITH ENCRYPTION` fallan con el error 1844 ("not supported on Express Edition"). En Express los backups van sin comprimir ni cifrar, y los archivos se protegen con los permisos de la carpeta y con el cifrado del disco (por ejemplo, BitLocker).
 - **Retención:** guardamos los completos y los diferenciales durante los 39 días del torneo, para poder volver a cualquier día. Los logs se guardan mientras sirvan a algún completo que conservemos.
 - **Copy only:** sirve para exportar una copia (por ejemplo, para la plataforma BI) sin alterar la secuencia de respaldos.
-- **Programación:** con tareas de SQL Server Agent. Los horarios de los días de partido se calculan a partir del fixture.
+- **Programación:** en Standard y Enterprise, con tareas de SQL Server Agent. **Express no incluye el Agente**, que es la edición que instala la entrega 4: ahí cada backup lo dispara una tarea del Programador de tareas de Windows que ejecuta `sqlcmd` con un script de backup, con una cuenta que tenga permiso de `BACKUP` sobre la base. Esa programación todavía no la probamos. Los horarios de los días de partido se calculan a partir del fixture: con el Agente, como trabajos distintos para los días de partido y para el resto; en Express, el script de la tarea consulta `Torneo.vw_Fixture` y sale sin hacer nada si en ese momento no toca backup (cada 5 minutos dentro de la ventana de partido, cada 15 el resto de los días).
 
 ```sql
--- Standard / Enterprise. En Express, los mismos comandos sin COMPRESSION ni ENCRYPTION.
+-- Express (servidor de desarrollo): sin COMPRESSION ni ENCRYPTION, que esta edición no soporta (error 1844).
 -- Completo (diario), diferencial (cada 6 h) y log (cada 5 o 15 min)
+BACKUP DATABASE MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_FULL.bak' WITH CHECKSUM;
+BACKUP DATABASE MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_DIF.bak' WITH DIFFERENTIAL, CHECKSUM;
+BACKUP LOG MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_LOG.trn' WITH CHECKSUM;
+```
+
+```bat
+:: Express: tarea del Programador de tareas de Windows que corre el backup del log cada 5 minutos
+schtasks /Create /TN "Backup_Log_MundialFutbol" /SC MINUTE /MO 5 /TR "sqlcmd -S .\SQLEXPRESS -E -b -i F:\Backup\Backup_Log.sql"
+```
+
+```sql
+-- Standard / Enterprise: los mismos comandos con compresión y cifrado.
 BACKUP DATABASE MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_FULL.bak'
     WITH COMPRESSION, CHECKSUM, ENCRYPTION (ALGORITHM = AES_256, SERVER CERTIFICATE = CertBackupMundial);
 BACKUP DATABASE MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_DIF.bak'
     WITH DIFFERENTIAL, COMPRESSION, CHECKSUM, ENCRYPTION (ALGORITHM = AES_256, SERVER CERTIFICATE = CertBackupMundial);
 BACKUP LOG MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_LOG.trn'
     WITH COMPRESSION, CHECKSUM, ENCRYPTION (ALGORITHM = AES_256, SERVER CERTIFICATE = CertBackupMundial);
+```
 
--- Verificación
+```sql
+-- Verificación (todas las ediciones)
 RESTORE VERIFYONLY FROM DISK = N'F:\Backup\MundialFutbol_FULL.bak' WITH CHECKSUM;
 DBCC CHECKDB (N'MundialFutbol') WITH NO_INFOMSGS;
 ```
