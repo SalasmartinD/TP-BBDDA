@@ -13,9 +13,28 @@ Este documento detalla la instalación, conexión y configuración paso a paso d
 2. **Archivo ejecutable de Metabase:**
    - Descargar el archivo `metabase.jar` (versión Open Source gratuita) desde [metabase.com/start/oss/jar](https://www.metabase.com/start/oss/jar).
    - Guardarlo en una carpeta local fuera del control de Git (ej: `C:\Metabase\metabase.jar` o en la carpeta `bi/local/`).
-3. **Base de Datos y Seguridad:**
+3. **Base de Datos y Configuración de SQL Server (Crítico en SQL Express):**
    - Base de datos `MundialFutbol` con datos cargados y el script `32b_Vistas_BI.sql` ejecutado.
-   - Login `login_bi` creado con los permisos de `rol_BI` (ejecutar `bi/local/crear_logins.sql.example` localmente si se usa SQL Auth, o usuario de Windows con permisos de `rol_BI`).
+   - **Habilitar protocolo TCP/IP:** en SQL Server Express el protocolo de red TCP viene deshabilitado por defecto. Es obligatorio activarlo para que Metabase (JDBC) pueda conectarse:
+     1. Abrir **SQL Server Configuration Manager** (`SQLServerManager16.msc`).
+     2. Desplegar *SQL Server Network Configuration* ➔ *Protocols for SQLEXPRESS*.
+     3. Hacer doble clic en **TCP/IP** ➔ cambiar **Enabled** a `Yes`.
+     4. En la pestaña **IP Addresses**, ir hasta la sección **IPAll**: dejar *TCP Dynamic Ports* en blanco y fijar **TCP Port** en `1433`.
+     5. En *SQL Server Services*, reiniciar el servicio **SQL Server (SQLEXPRESS)**.
+   - **Habilitar Autenticación Mixta:**
+     1. En SSMS, clic derecho en la instancia ➔ *Properties* ➔ *Security*.
+     2. Seleccionar *SQL Server and Windows Authentication mode*.
+     3. Reiniciar el servicio de SQL Server.
+   - **Crear el Login `login_bi` y asignarlo a `rol_BI`:**
+     - Ejecutar en SSMS el script de creación local (basado en `bi/local/crear_logins.sql.example`):
+       ```sql
+       USE master;
+       CREATE LOGIN login_bi WITH PASSWORD = N'<PASSWORD>', CHECK_POLICY = OFF;
+       GO
+       USE MundialFutbol;
+       EXEC Sistema.CrearUsuarioConLogin @login = N'login_bi', @usuario = N'usr_bi_net', @rol = N'rol_BI';
+       GO
+       ```
 
 ---
 
