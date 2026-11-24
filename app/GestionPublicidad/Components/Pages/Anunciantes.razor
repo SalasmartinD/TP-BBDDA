@@ -103,11 +103,11 @@
                             <th scope="col" class="text-end pe-4">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var a in AnunciantesFiltrados)
+<tbody>
+                        @foreach (var (a, index) in AnunciantesFiltrados.Select((item, idx) => (item, idx + 1)))
                         {
                             <tr>
-                                <td class="text-muted small">@a.Id</td>
+                                <td class="text-muted small">@index</td>
                                 <td class="fw-semibold">@a.Nombre</td>
                                 <td>@(string.IsNullOrWhiteSpace(a.Rubro) ? "-" : a.Rubro)</td>
                                 <td>
@@ -341,12 +341,14 @@
         }
         catch (Exception ex)
         {
-            erroresGenerales = new List<string> { "Error al cargar catálogos: " + ex.Message };
+            Console.Error.WriteLine($"[Error Catálogos] {ex}");
+            erroresGenerales = new List<string> { "No se pudieron cargar los catálogos de países y monedas." };
         }
     }
 
     private async Task CargarDatosAsync()
     {
+        erroresGenerales.Clear();
         cargando = true;
         try
         {
@@ -354,11 +356,12 @@
         }
         catch (Microsoft.Data.SqlClient.SqlException ex)
         {
-            erroresGenerales.AddRange(PublicidadDataService.ParseSqlExceptions(ex));
+            erroresGenerales = PublicidadDataService.ParseSqlExceptions(ex);
         }
         catch (Exception ex)
         {
-            erroresGenerales.Add("Error al cargar anunciantes: " + ex.Message);
+            Console.Error.WriteLine($"[Error Anunciantes] {ex}");
+            erroresGenerales = new List<string> { "No se pudo obtener el listado de anunciantes." };
         }
         finally
         {
@@ -376,7 +379,7 @@
         esAlta = true;
         formActual = new AnuncianteForm
         {
-            IdPais = paises.FirstOrDefault()?.Id ?? 0,
+            IdPais = 0,
             MonedaFacturacion = "USD"
         };
         erroresForm.Clear();
@@ -436,7 +439,8 @@
         }
         catch (Exception ex)
         {
-            erroresForm.Add("Error inesperado: " + ex.Message);
+            Console.Error.WriteLine($"[Error Guardado] {ex}");
+            erroresForm.Add("Ocurrió un error inesperado al guardar el anunciante.");
         }
         finally
         {
@@ -478,7 +482,8 @@
         }
         catch (Exception ex)
         {
-            erroresBaja.Add("Error inesperado: " + ex.Message);
+            Console.Error.WriteLine($"[Error Baja] {ex}");
+            erroresBaja.Add("Ocurrió un error inesperado al dar de baja el anunciante.");
         }
         finally
         {

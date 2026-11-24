@@ -6,22 +6,27 @@ namespace GestionPublicidad.Data;
 
 public class PublicidadDataService
 {
-    private readonly string _connectionString;
+    private readonly string _connectionStringApp;
+    private readonly string _connectionStringImportacion;
 
     public PublicidadDataService(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("MundialFutbol")
+        _connectionStringApp = configuration.GetConnectionString("MundialFutbol")
             ?? throw new InvalidOperationException("No se encontró la cadena de conexión 'MundialFutbol'.");
+
+        _connectionStringImportacion = configuration.GetConnectionString("MundialFutbolImportacion")
+            ?? throw new InvalidOperationException("No se encontró la cadena de conexión 'MundialFutbolImportacion'.");
     }
 
-    private SqlConnection CreateConnection() => new SqlConnection(_connectionString);
+    private SqlConnection CreateAppConnection() => new SqlConnection(_connectionStringApp);
+    private SqlConnection CreateImportacionConnection() => new SqlConnection(_connectionStringImportacion);
 
     #region Lecturas de Catálogos y Listados (Vistas)
 
     public async Task<List<AnuncianteItem>> ObtenerAnunciantesAsync()
     {
         var lista = new List<AnuncianteItem>();
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand(@"
@@ -53,7 +58,7 @@ public class PublicidadDataService
     public async Task<List<PaisItem>> ObtenerPaisesAsync()
     {
         var lista = new List<PaisItem>();
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand(@"
@@ -78,7 +83,7 @@ public class PublicidadDataService
     public async Task<List<MonedaItem>> ObtenerMonedasAsync()
     {
         var lista = new List<MonedaItem>();
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand(@"
@@ -103,7 +108,7 @@ public class PublicidadDataService
 
     public async Task CrearAnuncianteAsync(AnuncianteForm form)
     {
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand("Publicidad.Anunciante_Alta", conn)
@@ -127,7 +132,7 @@ public class PublicidadDataService
 
     public async Task ModificarAnuncianteAsync(AnuncianteForm form)
     {
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand("Publicidad.Anunciante_Modificacion", conn)
@@ -152,7 +157,7 @@ public class PublicidadDataService
 
     public async Task EliminarAnuncianteAsync(int id)
     {
-        using var conn = CreateConnection();
+        using var conn = CreateAppConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand("Publicidad.Anunciante_Baja", conn)
@@ -167,11 +172,11 @@ public class PublicidadDataService
 
     #endregion
 
-    #region Extra: Importación XML y Reporte XML
+    #region Extra: Importación XML y Reporte XML (Conexión acotada login_import)
 
     public async Task<ResumenImportacion> ImportarArbitrosXmlAsync(string xmlContenido, string nombreArchivo)
     {
-        using var conn = CreateConnection();
+        using var conn = CreateImportacionConnection();
         await conn.OpenAsync();
 
         string origenUnico = $"{nombreArchivo}_{DateTime.Now:yyyyMMddHHmmss}";
@@ -208,7 +213,7 @@ public class PublicidadDataService
     public async Task<List<ErrorImportacionItem>> ObtenerErroresImportacionAsync(string origen)
     {
         var lista = new List<ErrorImportacionItem>();
-        using var conn = CreateConnection();
+        using var conn = CreateImportacionConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand(@"
@@ -237,7 +242,7 @@ public class PublicidadDataService
 
     public async Task<string> DescargarXmlPlantillasAsync()
     {
-        using var conn = CreateConnection();
+        using var conn = CreateImportacionConnection();
         await conn.OpenAsync();
 
         using var cmd = new SqlCommand("Equipos.Reporte_SeleccionesPlantillas", conn)
@@ -270,13 +275,12 @@ public class PublicidadDataService
                 else
                     lineas.Add(trim);
             }
-        }
-        else
-        {
-            lineas.Add("Ocurrió un error en la base de datos: " + ex.Message);
+            return lineas.Count > 0 ? lineas : new List<string> { "Error de validación en los datos ingresados." };
         }
 
-        return lineas.Count > 0 ? lineas : new List<string> { ex.Message };
+        // Registrar detalle técnico en servidor y devolver mensaje genérico sin exponer estructura de la BD
+        Console.Error.WriteLine($"[SQL Error {ex.Number}] {ex.Message}");
+        return new List<string> { "Ocurrió un error técnico al comunicarse con la base de datos. Verifique la conexión y los permisos configurados." };
     }
 
     #endregion
