@@ -14,7 +14,6 @@ Este documento detalla la instalación, conexión y configuración paso a paso d
    - Descargar el archivo `metabase.jar` (versión Open Source gratuita) desde [metabase.com/start/oss/jar](https://www.metabase.com/start/oss/jar).
    - Guardarlo en una carpeta local fuera del control de Git (ej: `C:\Metabase\metabase.jar` o en la carpeta `bi/local/`).
 3. **Base de Datos y Configuración de SQL Server (Crítico en SQL Express):**
-3. **Base de Datos y Configuración de SQL Server (Crítico en SQL Express):**
    - Base de datos `MundialFutbol` con datos cargados y el script `32b_Vistas_BI.sql` ejecutado.
    - **Habilitar protocolo TCP/IP:** en SQL Server Express el protocolo de red TCP viene deshabilitado por defecto. Es obligatorio activarlo para que Metabase (JDBC) pueda conectarse:
      1. Abrir **SQL Server Configuration Manager** (`SQLServerManager16.msc`).
