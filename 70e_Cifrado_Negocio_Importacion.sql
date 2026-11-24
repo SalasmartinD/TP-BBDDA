@@ -17,6 +17,8 @@
                - Arbitraje.Importar_ArbitrosXMLDatos (script 41): el árbitro
                  existente ya no se busca por nombre y apellido en la tabla sino
                  con Arbitraje.Arbitro_Buscar (70c), que compara por huella.
+                 Las filas rechazadas se guardan en Sistema.ErrorImportacion (tabla
+                 sin cifrar) sin el nombre, el apellido ni el género del nodo XML.
                Se redefinen con CREATE OR ALTER: los scripts 21 y 41 no se modifican.
 ================================================================================
 */
@@ -328,11 +330,18 @@ BEGIN
         iso3         = LTRIM(RTRIM(nodo.value('(/Arbitro/Pais/@codigoISO3)[1]',          'nvarchar(20)'))),
         categoria    = LTRIM(RTRIM(nodo.value('(/Arbitro/Categoria)[1]',                 'nvarchar(100)'))),
         genero       = LTRIM(RTRIM(nodo.value('(/Arbitro/Genero)[1]',                    'nvarchar(100)'))),
-        fechaTexto   = LTRIM(RTRIM(nodo.value('(/Arbitro/FechaInternacional)[1]',        'nvarchar(50)'))),
-        datoOriginal = CAST(nodo AS nvarchar(max));
+        fechaTexto   = LTRIM(RTRIM(nodo.value('(/Arbitro/FechaInternacional)[1]',        'nvarchar(50)')));
+
+    -- datoOriginal se guarda en Sistema.ErrorImportacion, que no está cifrada: se le
+    -- quitan el nombre, el apellido y el género (los datos que cifra el 70b). Queda el
+    -- resto del nodo (país, categoría, fecha, idiomas) para diagnosticar el rechazo.
+    -- Los valores ya se leyeron arriba; los idiomas se leen del nodo más abajo y no se tocan.
+    UPDATE #FilaImp
+    SET nodo.modify('delete (/Arbitro/Nombre, /Arbitro/Apellido, /Arbitro/Genero)');
 
     UPDATE #FilaImp
-    SET fecha = TRY_CONVERT(date, fechaTexto, 23);
+    SET datoOriginal = CAST(nodo AS nvarchar(max)),
+        fecha        = TRY_CONVERT(date, fechaTexto, 23);
 
     -- País: por ISO3; si el ISO3 viene vacío, por nombre. No se crean países.
     UPDATE f

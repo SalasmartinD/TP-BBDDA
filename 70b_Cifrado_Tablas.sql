@@ -34,6 +34,8 @@
  5. Elimina las columnas en claro y los CHECK de altura y peso, que ya no se
     pueden aplicar sobre un valor cifrado. Esas validaciones ya están en los SP de
     alta y modificación (10b), así que no se pierde ninguna.
+ 6. Quita el nombre, el apellido y el género de las filas de árbitros que ya estén en
+    Sistema.ErrorImportacion (datoOriginal los guardaba en claro).
 
  Después de este script las columnas en claro ya no existen: se leen con las
  vistas Equipos.vw_Jugador, Equipos.vw_Staff y Arbitraje.vw_Arbitro (70d) y se
@@ -178,6 +180,33 @@ BEGIN CATCH
     EXEC Seguridad.CerrarClave @abrio = @abrio;
     THROW;
 END CATCH;
+GO
+
+/* =============================================================================
+   2.4 Datos personales que quedaron en Sistema.ErrorImportacion
+   Las filas de árbitros rechazadas por la importación guardan el nodo XML original
+   en datoOriginal, con el nombre, el apellido y el género en claro. Se los quita de
+   las filas ya cargadas; desde el 70e el importador ya no los guarda. El resto del
+   nodo (país, categoría, fecha, idiomas) queda para poder diagnosticar el error.
+   Se puede repetir: borrar un nodo que ya no está no cambia nada.
+   ============================================================================= */
+
+DECLARE @filasError TABLE (id int NOT NULL PRIMARY KEY, nodo xml NULL);
+
+INSERT INTO @filasError (id, nodo)
+SELECT id, TRY_CAST(datoOriginal AS xml)
+FROM Sistema.ErrorImportacion
+WHERE tablaDestino = 'Arbitraje.Arbitro' AND datoOriginal IS NOT NULL;
+
+UPDATE @filasError
+SET nodo.modify('delete (/Arbitro/Nombre, /Arbitro/Apellido, /Arbitro/Genero)')
+WHERE nodo IS NOT NULL;
+
+UPDATE e
+SET datoOriginal = CASE WHEN f.nodo IS NULL OR f.nodo.exist('/Arbitro') = 0 THEN NULL   -- no es un nodo Arbitro (texto suelto o XML inválido): no se puede limpiar, se descarta
+                        ELSE CAST(f.nodo AS nvarchar(max)) END
+FROM Sistema.ErrorImportacion AS e
+JOIN @filasError AS f ON f.id = e.id;
 GO
 
 /* =============================================================================
