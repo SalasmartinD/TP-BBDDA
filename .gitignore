@@ -1,1 +1,17 @@
 .vs/
+
+# Credenciales y scripts locales
+*.local.sql
+*.local.json
+appsettings.Development.json
+
+# Compilacion .NET / Blazor
+bin/
+obj/
+app/**/bin/
+app/**/obj/
+
+# Metabase local
+metabase.db.mv.db
+metabase.db.trace.db
+plugins/
