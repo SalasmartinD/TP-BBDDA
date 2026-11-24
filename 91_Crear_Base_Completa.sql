@@ -61,6 +61,7 @@
 :r $(RUTA)\30a_Fixture.sql
 :r $(RUTA)\31_Fn_Eventos_Arbitraje.sql
 :r $(RUTA)\32_SimulPrimeTime.sql
+:r $(RUTA)\32b_Vistas_BI.sql
 
 -- 40 a 43: SP de importación
 :r $(RUTA)\40a_Importar_FixtureCSV.sql
@@ -96,7 +97,8 @@
 
 -- 71: roles, permisos y usuarios de prueba (va último: da permisos sobre objetos
 --     que el 70 redefine)
-:r $(RUTA)\71_Roles_Seguridad.sql
+:r $(RUTA)\71a_Roles_Seguridad.sql
+:r $(RUTA)\71b_Roles_BI_App.sql
 
 PRINT N'Creación de la base de datos MundialFutbol finalizada.';
 GO
