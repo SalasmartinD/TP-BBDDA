@@ -49,7 +49,15 @@
     <File Path="61_Reportes_Arbitraje_Eventos.sql" />
     <File Path="62_Reportes_Publicidad.sql" />
   </Folder>
-  <Folder Name="/7x. Seguridad/" />
+  <Folder Name="/7x. Seguridad/">
+    <File Path="70a_Cifrado_Claves.sql" />
+    <File Path="70b_Cifrado_Tablas.sql" />
+    <File Path="70c_Cifrado_SP_ABM.sql" />
+    <File Path="70d_Cifrado_Vistas.sql" />
+    <File Path="70e_Cifrado_Negocio_Importacion.sql" />
+    <File Path="70f_Cifrado_Reportes.sql" />
+    <File Path="71_Roles_Seguridad.sql" />
+  </Folder>
   <Folder Name="/8x. Testing/">
     <File Path="80a_Test_ABM_Torneo.sql" />
     <File Path="80b_Test_ABM_Equipos.sql" />
@@ -60,6 +68,7 @@
     <File Path="80g_Test_Importar_FixtureCSV.sql" />
     <File Path="80h_Test_Importar_APIs.sql" />
     <File Path="80i_Test_Reportes_Torneo.sql" />
+    <File Path="80j_Test_Cifrado.sql" />
     <File Path="81a_Test_ABM_Arbitraje.sql" />
     <File Path="81b_Test_ABM_EventosPartido.sql" />
     <File Path="81c_Test_ABM_CuerpoTecnicoPartido.sql" />
@@ -71,5 +80,14 @@
     <File Path="82b_Test_Negocio_Publicidad.sql" />
     <File Path="82c_Test_SimulPrimeTime.sql" />
     <File Path="82d_Test_Reportes_Publicidad.sql" />
+    <File Path="82e_Test_Rol_Administrador.sql" />
+    <File Path="82f_Test_Rol_CargadorResultados.sql" />
+    <File Path="82g_Test_Rol_GestorPublicidad.sql" />
+    <File Path="82h_Test_Rol_Consulta.sql" />
+  </Folder>
+  <Folder Name="/9x. Utilidades/">
+    <File Path="90_Borrar_Base_de_Datos.sql" />
+    <File Path="91_Crear_Base_Completa.sql" />
+    <File Path="92_Ejecutar_Reportes.sql" />
   </Folder>
 </Solution>
