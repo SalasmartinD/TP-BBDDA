@@ -208,7 +208,7 @@ BEGIN
 
     /* -------------------------------------------------------------------------
        6. Separación de funciones: impedir que rol_Administrador ejecute los
-          SP de seguridad de este script (mismo patrón que 71_Roles_Seguridad.sql)
+          SP de seguridad de este script (mismo patrón que 71a_Roles_Seguridad.sql)
     ------------------------------------------------------------------------- */
     DENY EXECUTE ON Sistema.CrearRolBI                TO rol_Administrador;
     DENY EXECUTE ON Sistema.OtorgarPermisosRolBI_App  TO rol_Administrador;
