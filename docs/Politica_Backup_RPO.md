@@ -4,7 +4,7 @@ Universidad Nacional de La Matanza · 3641 – Bases de Datos Aplicada · Comisi
 Integrantes: Pereira, Marcos Nahuel · Salas, Martín Daniel · Zito Padró, Ezequiel Nehuén
 Entrega 8 (Seguridad y respaldo) · Fecha: 19/11/2026
 
-Base protegida: `MundialFutbol` (SQL Server 2022). Cada valor de esta política tiene su fundamento en la sección 5.
+Base protegida: `MundialFutbol` (SQL Server 2022; el servidor de desarrollo es edición Express). Cada valor de esta política tiene su fundamento en la sección 5.
 
 ---
 
@@ -21,7 +21,7 @@ El RPO es cuántos datos estamos dispuestos a perder: si respaldamos cada 5 minu
 
 ## 2. Modelo de recuperación
 
-La base hoy está en `SIMPLE` (lo verificamos en `sys.databases`) y nunca tuvo un backup (lo verificamos en `msdb`). En `SIMPLE` no se puede respaldar el log, así que el RPO nunca bajaría del tiempo que pasa entre dos backups completos. **La pasamos a `FULL`** y tomamos enseguida un backup completo, porque sin un completo de entrada no se puede tomar ningún otro tipo de backup.
+La base hoy está en `SIMPLE` (lo verificamos en `sys.databases`) y no tiene ningún backup registrado en `msdb` (también lo verificamos). En `SIMPLE` no se puede respaldar el log, así que el RPO nunca bajaría del tiempo que pasa entre dos backups completos. **La pasamos a `FULL`** y tomamos enseguida un backup completo, porque sin un completo de entrada no se puede tomar ningún otro tipo de backup.
 
 ```sql
 ALTER DATABASE MundialFutbol SET RECOVERY FULL;
@@ -38,12 +38,14 @@ ALTER DATABASE MundialFutbol SET RECOVERY FULL;
 | Prueba de restauración en otra base | 1 por semana | 1 por semana |
 
 - **Copias:** estrategia 3-2-1: tres copias, en al menos dos medios distintos, y una de ellas en la nube.
-- **Compresión y cifrado:** los backups van comprimidos y cifrados. Tienen datos personales de jugadores, staff y árbitros, que son justamente los que la entrega 8 pide cifrar. El certificado se guarda aparte y en otro lugar: sin él no se puede restaurar, así que hay que cuidarlo como a la base misma.
+- **Compresión y cifrado:** en las ediciones Standard y Enterprise los backups van comprimidos y cifrados. Tienen datos personales de jugadores, staff y árbitros, que son justamente los que la entrega 8 pide cifrar. El certificado se guarda aparte y en otro lugar: sin él no se puede restaurar, así que hay que cuidarlo como a la base misma.
+- **Limitación de Express:** nuestro servidor de desarrollo es Express y ahí ninguna de las dos opciones está disponible. Lo probamos: `BACKUP ... WITH COMPRESSION` y `WITH ENCRYPTION` fallan con el error 1844 ("not supported on Express Edition"). En Express los backups van sin comprimir ni cifrar, y los archivos se protegen con los permisos de la carpeta y con el cifrado del disco (por ejemplo, BitLocker).
 - **Retención:** guardamos los completos y los diferenciales durante los 39 días del torneo, para poder volver a cualquier día. Los logs se guardan mientras sirvan a algún completo que conservemos.
 - **Copy only:** sirve para exportar una copia (por ejemplo, para la plataforma BI) sin alterar la secuencia de respaldos.
 - **Programación:** con tareas de SQL Server Agent. Los horarios de los días de partido se calculan a partir del fixture.
 
 ```sql
+-- Standard / Enterprise. En Express, los mismos comandos sin COMPRESSION ni ENCRYPTION.
 -- Completo (diario), diferencial (cada 6 h) y log (cada 5 o 15 min)
 BACKUP DATABASE MundialFutbol TO DISK = N'F:\Backup\MundialFutbol_FULL.bak'
     WITH COMPRESSION, CHECKSUM, ENCRYPTION (ALGORITHM = AES_256, SERVER CERTIFICATE = CertBackupMundial);
@@ -73,7 +75,7 @@ Antes de restaurar, `RESTORE HEADERONLY` permite ver qué contiene un archivo de
 
 ## 5. Fundamento de cada valor
 
-Las cifras salen del fixture (`datasets/fifa-world-cup-2026-UTC.csv`, fechas en UTC) y de la base de desarrollo con los 31 partidos cargados. Los eventos por partido vienen de datos de carga de prueba, no de partidos reales.
+Las cifras salen del fixture (`datasets/fifa-world-cup-2026-UTC.csv`, fechas en UTC), de la base de desarrollo con los 31 partidos cargados y de una prueba de restauración que hicimos el 20/11/2026 en bases temporales (sección RTO). Los eventos por partido vienen de datos de carga de prueba, no de partidos reales.
 
 ### Cuándo se escribe
 
@@ -100,13 +102,25 @@ Las cifras salen del fixture (`datasets/fifa-world-cup-2026-UTC.csv`, fechas en 
 
 ### Completo diario
 
-- La base ocupa **6,55 MB** de datos. Un completo por día es insignificante y evita que la restauración dependa de un archivo de hace varios días.
-- Como cota superior, si todo se multiplicara para llegar a los 104 partidos (104 / 31 = 3,4 veces), un completo pesaría unos 22 MB y **39 completos, unos 860 MB sin comprimir**. Por eso no hay motivo para recortar la retención: guardamos todo el torneo.
+- La base ocupa **6,55 MB** de datos y un backup completo pesa **10,6 MB** (1.362 páginas, medido, sin comprimir). Un completo por día es insignificante y evita que la restauración dependa de un archivo de hace varios días.
+- Como cota superior, si todo se multiplicara para llegar a los 104 partidos (104 / 31 = 3,4 veces), un completo pesaría unos 36 MB y **39 completos, unos 1,4 GB sin comprimir**. Es poco para cualquier disco, así que no hay motivo para recortar la retención: guardamos todo el torneo.
 
 ### RTO de 30 minutos
 
-- Es un **objetivo que todavía no medimos**: la prueba de restauración semanal sirve para confirmarlo o corregirlo, y el resultado lo anotamos en este documento.
-- Fundamento: restaurar los datos lleva poco porque la base es chica (6,55 MB y un máximo de 72 logs). La mayor parte del RTO es operativa: detectar el problema, traer los archivos de la copia que corresponda, restaurar, correr `DBCC CHECKDB` y reabrir.
+- **Medición (20/11/2026).** Hicimos una copia de `MundialFutbol` y la restauramos en bases temporales con otro nombre (`WITH MOVE`), sin tocar la base real. En la misma base temporal pasamos a `FULL` y tomamos un completo, un diferencial y 72 logs con cambios de por medio, que es el peor caso de un día de partido (sección "Diferencial cada 6 horas"), y los restauramos en cadena:
+
+  | Paso | Tiempo |
+  |---|---|
+  | Backup completo (10,6 MB) | 0,10 s |
+  | `RESTORE VERIFYONLY` | 0,04 s |
+  | Restaurar solo el completo | 1,5 s |
+  | `DBCC CHECKDB` de la base restaurada | 1,1 s |
+  | Restaurar la cadena: completo + diferencial + 72 logs | 6,6 s |
+  | `DBCC CHECKDB` de la base restaurada por cadena | 0,2 s |
+
+  La base restaurada por cadena quedó con las mismas 4.100 filas de prueba que la original, y `DBCC CHECKDB` no informó errores. Tomar los 72 logs llevó 3,7 s en total.
+- **Conclusión:** la parte técnica de la restauración, en el peor caso, tarda unos **7 segundos**. Los 30 minutos del RTO son entonces casi todos operativos: detectar el problema, decidir, traer los archivos de la copia que corresponda (la de la nube tarda más que el disco local), restaurar, verificar y reabrir. Mantenemos los 30 minutos como objetivo, con ese margen.
+- **Alcance de la medición:** se hizo en la computadora de desarrollo, con los archivos en el disco local y la base chica de hoy. No incluye bajar el backup desde la nube ni una base con los 104 partidos, así que la prueba semanal tiene que volver a medirlo.
 - Con 0,11 eventos por minuto, 30 minutos de parada dejan unos 3 eventos por partido para cargar después desde el informe del partido, y es menos de un tercio de lo que dura un partido.
 
 ### Verificación y pruebas
@@ -116,4 +130,5 @@ Las cifras salen del fixture (`datasets/fifa-world-cup-2026-UTC.csv`, fechas en 
 ## 6. Qué no cubre
 
 - **Alta disponibilidad.** Esta política protege los datos, pero si hay una caída hay que restaurar a mano, y ese tiempo es el RTO. Un servidor secundario con *log shipping* serviría como recuperación ante desastres (no hace failover automático) y queda como mejora opcional.
-- **Cifrado de las columnas.** Se trata en el script `70`. Esta política solo cifra los archivos de backup.
+- **Cifrado de las columnas.** Se trata en el script `70`. Esta política solo cifra los archivos de backup, y los dos cifrados no se reemplazan entre sí.
+- **Restaurar los datos cifrados en otro servidor.** Los nombres, apellidos y demás datos personales se descifran con la clave maestra de la base y el certificado `CertDatosPersonales`. El certificado viaja dentro del backup, pero la clave maestra queda protegida por la Service Master Key del servidor que creó la base: en otro servidor la base se restaura, pero esos datos no se pueden leer. Para poder hacerlo hay que tener, guardados aparte de los backups de la base, la contraseña de la clave maestra y los archivos que genera `70a` (`BACKUP MASTER KEY` y `BACKUP CERTIFICATE`), que solo se crean si se cargan `@claveDMK` y `@rutaBackupClaves` antes de crear la base. Si la base se creó con la contraseña aleatoria de un solo uso, hay que respaldar la clave maestra mientras el servidor original siga disponible. Todavía no probamos esta restauración en otro servidor: queda dentro de la prueba semanal.
