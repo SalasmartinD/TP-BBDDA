@@ -61,8 +61,8 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM T
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Eventos';
 DELETE FROM Torneo.Fase WHERE idFase = 998;
-DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante');
-DELETE FROM Equipos.Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante'));
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y'));
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('EVL', 'EVV', 'EVX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('L1', 'V1', 'X1');
 GO
@@ -88,15 +88,17 @@ DECLARE @idSelX int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVX
 
 -- Jugadores (A, B, C locales; X, Y visitantes) y staff (local, visitante que no figura en
 -- ningún cuerpo técnico, y de la selección ajena)
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Lionel', N'Jugador Local A', 'Delantero');
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Rodrigo', N'Jugador Local B', 'Mediocampista');
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Emiliano', N'Jugador Local C', 'Arquero');
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Kylian', N'Jugador Visitante X', 'Delantero');
-INSERT INTO Equipos.Jugador (nombre, apellido, posicion) VALUES (N'Antoine', N'Jugador Visitante Y', 'Delantero');
+EXEC Equipos.Jugador_Alta @nombre = N'Lionel', @apellido = N'Jugador Local A', @posicion = 'Delantero';
+EXEC Equipos.Jugador_Alta @nombre = N'Rodrigo', @apellido = N'Jugador Local B', @posicion = 'Mediocampista';
+EXEC Equipos.Jugador_Alta @nombre = N'Emiliano', @apellido = N'Jugador Local C', @posicion = 'Arquero';
+EXEC Equipos.Jugador_Alta @nombre = N'Kylian', @apellido = N'Jugador Visitante X', @posicion = 'Delantero';
+EXEC Equipos.Jugador_Alta @nombre = N'Antoine', @apellido = N'Jugador Visitante Y', @posicion = 'Delantero';
 
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelL, N'Lionel', N'Staff Test Local', 'Director Principal');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelV, N'Didier', N'Staff Test Visitante', 'Ayudante');
-INSERT INTO Equipos.Staff (idSeleccion, nombre, apellido, rol) VALUES (@idSelX, N'Ajeno', N'Staff Test Ajeno', 'Ayudante');
+OPEN SYMMETRIC KEY ClaveDatosPersonales DECRYPTION BY CERTIFICATE CertDatosPersonales;
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelL, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Lionel'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Staff Test Local'), 'Director Principal');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelV, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Didier'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Staff Test Visitante'), 'Ayudante');
+INSERT INTO Equipos.Staff (idSeleccion, nombreCif, apellidoCif, rol) VALUES (@idSelX, EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Ajeno'), EncryptByKey(Key_GUID(N'ClaveDatosPersonales'), N'Staff Test Ajeno'), 'Ayudante');
+CLOSE SYMMETRIC KEY ClaveDatosPersonales;
 
 -- Fase y sede
 INSERT INTO Torneo.Fase (idFase, nombre, esEliminatoria, orden) VALUES (998, 'Fase Test Eventos', 0, 98);
@@ -133,10 +135,10 @@ VALUES (99804, @idSede, @idSelL, @idSelV, 998, '2026-06-21 18:00:00', 'Suspendid
 DECLARE @idPartFin   int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99802);
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
 DECLARE @idPartSusp  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99804);
-DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
-DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
-DECLARE @idJC int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local C');
-DECLARE @idJX int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante X');
+DECLARE @idJA int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJB int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local B');
+DECLARE @idJC int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local C');
+DECLARE @idJX int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante X');
 
 -- Formaciones cargadas con INSERT directo: FormacionPartido_Alta rechaza altas en
 -- partidos finalizados o en juego, pero en la realidad la formación se carga
@@ -157,7 +159,7 @@ INSERT INTO Eventos.Gol (idPartido, idJugador, idAsistidor, minuto, minutoAdicio
 -- figura en el partido en juego 99803 (las tarjetas de staff exigen figurar) y en el
 -- programado 99801 (así la prueba 3.15 falla por la regla de estado y no por otra).
 -- El staff visitante NO figura en ningún partido (pruebas 3.21 y 3.22).
-DECLARE @idStaffLoc int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
+DECLARE @idStaffLoc int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Staff Test Local');
 INSERT INTO Eventos.CuerpoTecnicoPartido (idPartido, idStaff)
 SELECT idPartido, @idStaffLoc FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99803);
 
@@ -177,9 +179,9 @@ DECLARE @idPartFin   int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartid
 DECLARE @idPartSusp  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99804);
 DECLARE @idSelL int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVL');
 DECLARE @idSelX int = (SELECT id FROM Equipos.Seleccion WHERE abreviacion = 'EVX');
-DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
-DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
-DECLARE @idJC int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local C');
+DECLARE @idJA int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJB int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local B');
+DECLARE @idJC int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local C');
 DECLARE @idFormFin  int = (SELECT id FROM Eventos.FormacionPartido WHERE idPartido = @idPartFin AND idJugador = @idJB);
 DECLARE @idFormSusp int = (SELECT id FROM Eventos.FormacionPartido WHERE idPartido = @idPartSusp AND idJugador = @idJA);
 DECLARE @idFormacion int;
@@ -442,10 +444,10 @@ PRINT '-------------------------------------------------------------------------
 
 DECLARE @idPartProg  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99801);
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
-DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
-DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
-DECLARE @idJX int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante X');
-DECLARE @idJY int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante Y');
+DECLARE @idJA int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJB int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local B');
+DECLARE @idJX int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante X');
+DECLARE @idJY int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante Y');
 DECLARE @idGol int, @idGolPenal int, @idGol120 int, @idGolAdic int;
 
 -- PRUEBA 2.1: Alta exitosa de un gol de jugada con asistencia
@@ -733,11 +735,11 @@ PRINT '-------------------------------------------------------------------------
 
 DECLARE @idPartProg  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99801);
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
-DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
-DECLARE @idJY int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante Y');
-DECLARE @idStaffL int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
-DECLARE @idStaffX int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Ajeno');
-DECLARE @idStaffV int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Visitante');
+DECLARE @idJA int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJY int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante Y');
+DECLARE @idStaffL int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Staff Test Local');
+DECLARE @idStaffX int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Staff Test Ajeno');
+DECLARE @idStaffV int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Staff Test Visitante');
 DECLARE @idTarjeta int, @idTarjetaRoja int, @idTarjetaSusp int, @idSuspTarj int;
 
 -- PRUEBA 3.1: Alta exitosa de una amarilla a un jugador
@@ -1085,10 +1087,10 @@ PRINT '-------------------------------------------------------------------------
 
 DECLARE @idPartProg  int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99801);
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
-DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
-DECLARE @idJC int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local C');
-DECLARE @idJX int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante X');
-DECLARE @idJY int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Visitante Y');
+DECLARE @idJB int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local B');
+DECLARE @idJC int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local C');
+DECLARE @idJX int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante X');
+DECLARE @idJY int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Visitante Y');
 DECLARE @idSust int;
 
 -- PRUEBA 4.1: Alta exitosa de una sustitución táctica (entra C, sale B)
@@ -1326,9 +1328,9 @@ PRINT '-------------------------------------------------------------------------
 
 DECLARE @idPartFin int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99802);
 DECLARE @idPartJuego int = (SELECT idPartido FROM Torneo.Partido WHERE nroPartidoOficial = 99803);
-DECLARE @idJA int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local A');
-DECLARE @idJB int = (SELECT id FROM Equipos.Jugador WHERE apellido = N'Jugador Local B');
-DECLARE @idStaffL int = (SELECT id FROM Equipos.Staff WHERE apellido = N'Staff Test Local');
+DECLARE @idJA int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local A');
+DECLARE @idJB int = (SELECT id FROM Equipos.vw_Jugador WHERE apellido = N'Jugador Local B');
+DECLARE @idStaffL int = (SELECT id FROM Equipos.vw_Staff WHERE apellido = N'Staff Test Local');
 DECLARE @idSusp int, @idSuspT int, @idTarjA int, @idTarjB int;
 
 -- PRUEBA 5.1: Alta exitosa de una suspensión de 2 partidos a un jugador
@@ -1604,8 +1606,8 @@ DELETE FROM Eventos.FormacionPartido WHERE idPartido IN (SELECT idPartido FROM T
 DELETE FROM Torneo.Partido WHERE nroPartidoOficial IN (99801, 99802, 99803, 99804);
 DELETE FROM Torneo.Sede WHERE nombreEstadio = 'Estadio Test Eventos';
 DELETE FROM Torneo.Fase WHERE idFase = 998;
-DELETE FROM Equipos.Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante');
-DELETE FROM Equipos.Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y');
+DELETE FROM Equipos.Staff WHERE id IN (SELECT id FROM Equipos.vw_Staff WHERE apellido IN (N'Staff Test Local', N'Staff Test Ajeno', N'Staff Test Visitante'));
+DELETE FROM Equipos.Jugador WHERE id IN (SELECT id FROM Equipos.vw_Jugador WHERE apellido IN (N'Jugador Local A', N'Jugador Local B', N'Jugador Local C', N'Jugador Visitante X', N'Jugador Visitante Y'));
 DELETE FROM Equipos.Seleccion WHERE abreviacion IN ('EVL', 'EVV', 'EVX');
 DELETE FROM Torneo.Pais WHERE codigoISO2 IN ('L1', 'V1', 'X1');
 
