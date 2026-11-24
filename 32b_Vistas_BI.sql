@@ -13,7 +13,10 @@
                   - Publicidad.vw_BI_Exhibiciones:
                     Detalle granular de cada exhibición publicitaria por partido,
                     sede, fase, anunciante, país, campaña, criterio, estado e
-                    ingresos generados en USD (responde KPIs K1 a K5).
+                    ingresos en USD discriminados por estado de la exhibición:
+                    facturado (Exhibida) y proyectado (Confirmada). Las
+                    exhibiciones en estado Propuesta no computan como ingreso
+                    (responde KPIs K1 a K5).
                   - Torneo.vw_BI_Sedes:
                     Catálogo enriquecido de sedes con geolocalización (latitud,
                     longitud), capacidad, huso horario y cantidad de partidos
@@ -59,6 +62,13 @@ GO
    Vista: Publicidad.vw_BI_Exhibiciones
    Detalle de exhibiciones publicitarias por partido y ubicación, vinculando
    sede, fase, anunciante, campaña y montos en USD. Fuente para KPIs K1 a K5.
+
+   Definición de ingreso (consistente con el reporte E7):
+     - montoFacturadoUSD  : monto de exhibiciones en estado 'Exhibida'.
+     - montoProyectadoUSD : monto de exhibiciones en estado 'Confirmada'.
+     - Estado 'Propuesta' : no cuenta como ingreso (ni facturado ni proyectado).
+   montoUSD se conserva como monto bruto de la exhibición, cualquiera sea su
+   estado; estadoExhibicion queda disponible para filtrar en Metabase.
 ----------------------------------------------------------------------------- */
 CREATE OR ALTER VIEW Publicidad.vw_BI_Exhibiciones
 AS
@@ -100,7 +110,11 @@ SELECT
         ELSE N'No asignado'
     END                                                 AS criterioDescripcion,
     ep.estado                                           AS estadoExhibicion,
-    ep.montoUSD                                         AS montoUSD
+    ep.montoUSD                                         AS montoUSD,
+    CASE WHEN ep.estado = N'Exhibida'
+         THEN ep.montoUSD ELSE 0 END                    AS montoFacturadoUSD,
+    CASE WHEN ep.estado = N'Confirmada'
+         THEN ep.montoUSD ELSE 0 END                    AS montoProyectadoUSD
 FROM Publicidad.ExhibicionPublicitaria ep
 INNER JOIN Torneo.Partido                p      ON p.idPartido = ep.idPartido
 INNER JOIN Torneo.Fase                   f      ON f.idFase = p.fase
@@ -155,6 +169,8 @@ GO
    Vista: Eventos.vw_BI_GolesPorSeleccion
    Totales de goles por selección y fase (excluyendo definiciones por penales),
    preservando el plan de cifrado y privacidad de BI (sin nombres de jugadores).
+   golesEnContraAFavor: goles en contra del rival que se acreditan a la selección
+   (ya incluidos en totalGoles). Mismo nombre que Eventos.Reporte_Goleadores.
 ----------------------------------------------------------------------------- */
 CREATE OR ALTER VIEW Eventos.vw_BI_GolesPorSeleccion
 AS
@@ -185,7 +201,7 @@ SELECT
     gb.idFase,
     gb.fase,
     COUNT(gb.idGol)                                     AS totalGoles,
-    SUM(gb.esEnContra)                                  AS golesEnContraRecibidos
+    SUM(gb.esEnContra)                                  AS golesEnContraAFavor
 FROM GolesBase gb
 INNER JOIN Equipos.Seleccion sel ON sel.id = gb.idSeleccionAcreditada
 INNER JOIN Torneo.Pais pa        ON pa.id = sel.idPais
