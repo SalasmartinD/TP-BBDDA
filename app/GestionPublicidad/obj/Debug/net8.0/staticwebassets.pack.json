@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\GestionPublicidad.bundle.scp.css",
+      "PackagePath": "staticwebassets\\GestionPublicidad.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.GestionPublicidad.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.GestionPublicidad.props",
+      "PackagePath": "build\\GestionPublicidad.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.GestionPublicidad.props",
+      "PackagePath": "buildMultiTargeting\\GestionPublicidad.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.GestionPublicidad.props",
+      "PackagePath": "buildTransitive\\GestionPublicidad.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

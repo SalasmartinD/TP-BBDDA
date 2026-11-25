@@ -86,7 +86,7 @@
     <File Path="82f_Test_Rol_CargadorResultados.sql" />
     <File Path="82g_Test_Rol_GestorPublicidad.sql" />
     <File Path="82h_Test_Rol_Consulta.sql" />
-    <File Path="82i_Test_Rol_BI.sql"/>
+    <File Path="82i_Test_Rol_BI.sql" />
   </Folder>
   <Folder Name="/9x. Utilidades/">
     <File Path="90_Borrar_Base_de_Datos.sql" />

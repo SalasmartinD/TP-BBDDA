@@ -1,0 +1,77 @@
+{
+  "Version": 1,
+  "Hash": "UJAVojeT4Rhz1fASpzGcopACE5ER6uCUvkf7aFcluME=",
+  "Source": "GestionPublicidad",
+  "BasePath": "_content/GestionPublicidad",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "GestionPublicidad\\wwwroot",
+      "Source": "GestionPublicidad",
+      "ContentRoot": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\wwwroot\\",
+      "BasePath": "_content/GestionPublicidad",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\bundle\\GestionPublicidad.styles.css",
+      "SourceId": "GestionPublicidad",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
+      "BasePath": "_content/GestionPublicidad",
+      "RelativePath": "GestionPublicidad.styles.css",
+      "AssetKind": "All",
+      "AssetMode": "CurrentProject",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "ScopedCss",
+      "AssetTraitValue": "ApplicationBundle",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\bundle\\GestionPublicidad.styles.css"
+    },
+    {
+      "Identity": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\GestionPublicidad.bundle.scp.css",
+      "SourceId": "GestionPublicidad",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
+      "BasePath": "_content/GestionPublicidad",
+      "RelativePath": "GestionPublicidad.bundle.scp.css",
+      "AssetKind": "All",
+      "AssetMode": "Reference",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "ScopedCss",
+      "AssetTraitValue": "ProjectBundle",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\GestionPublicidad.bundle.scp.css"
+    },
+    {
+      "Identity": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\wwwroot\\app.css",
+      "SourceId": "GestionPublicidad",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ryzen\\Desktop\\TPBBDDA\\TP-BBDDA\\app\\GestionPublicidad\\wwwroot\\",
+      "BasePath": "_content/GestionPublicidad",
+      "RelativePath": "app.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\app.css"
+    }
+  ]
+}
